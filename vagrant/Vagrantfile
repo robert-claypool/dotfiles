@@ -17,7 +17,11 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   # Boxes are broken down into two parts: username/boxname
-  config.vm.box = "ubuntu/xenial64"
+
+  # Note that contrib-jessie64 includes VirtualBox Additions, thus the
+  # host need not have rsync.
+  # https://github.com/mitchellh/vagrant/issues/6631#issuecomment-215381203
+  config.vm.box = "debian/contrib-jessie64"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
