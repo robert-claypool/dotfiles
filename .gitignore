@@ -1,7 +1,11 @@
-# vim files
+# Vim files
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]
 *.un~
 Session.vim
 .netrwhist
 *~
+
+# Vagrant files
+vagrant/*.log
+vagrant/.vagrant/
