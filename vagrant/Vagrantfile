@@ -72,13 +72,45 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
+  config.vm.provision "provision-as-root", type: "shell", inline: <<-SHELL
     apt-get update
     apt-get --assume-yes install git
-    # We need build-essential and libssl-dev to install nvm.
+    git --version
+    apt-get --assume-yes install tmux
+    if [ ! -d "/opt/vim" ]; then
+      # Install Vim from source to get version 8
+      apt-get --assume-yes install ncurses-dev
+      cd /opt
+      git clone https://github.com/vim/vim.git
+      cd vim
+      ./configure
+      make
+      make install
+      vim --version
+    else
+      echo "Vim is already installed."
+    fi
+    # We will need build-essential, libssl-dev, and curl to install NVM.
     # https://github.com/creationix/nvm
     apt-get --assume-yes install build-essential
     apt-get --assume-yes install libssl-dev
+    apt-get --assume-yes install curl
+    echo "Root provisioning complete."
+  SHELL
+  # Install NVM and Node as the vagrant user (not root).
+  # http://stackoverflow.com/questions/38555554/why-is-nvm-command-installed-as-root-and-also-not-found-during-vagrant-bootstrap
+  config.vm.provision "provision-as-vagrant", privileged: false, type: "shell", inline: <<-SHELL
+    if command -v nvm >/dev/null 2>&1; then
+      echo "NVM is already installed."
+    else
+      # This script clones the nvm repository to ~/.nvm and adds the source
+      # line to our user profile (~/.bash_profile, ~/.zshrc, ~/.profile, or ~/.bashrc).
+      curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash
+      source ~/.nvm/nvm.sh
+      nvm --version
+      # Install the latest Node LTS.
+      nvm install --lts
+    fi
     echo "Vagrant provisioning complete."
   SHELL
 end
