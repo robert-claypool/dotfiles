@@ -26,3 +26,6 @@ else
     echo "Warning: Cannot find Python. Unable to run 'util/terminalcolors.py'."
     exit 0
 fi
+
+echo "-----"
+echo "Open README.md and edit .bashrc as described."
