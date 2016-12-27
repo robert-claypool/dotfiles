@@ -1,7 +1,7 @@
 ## dotfiles
 My dotfiles, except [.vim](https://github.com/robert-claypool/.vim).
 
-1. Run `bootstrap.sh`.
+1. `cd` into this directory, then run `./bootstrap.sh`
 2. Configure Bash
 3. ?
 4. PROFIT

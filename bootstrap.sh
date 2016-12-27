@@ -9,7 +9,22 @@ ln -sf $PWD/.gitignore $HOME/.gitignore
 echo "Done."
 
 if command -v git >/dev/null 2>&1; then
+    if [ ! -f $HOME/.gitconfig ]; then
+        echo "Git configuration not found. Creating one..."
+    fi
+    # This will create ~/.gitconfig if it does not already exist.
+    read -p "Set your Git name to 'Robert Claypool'? [y,n] " doit
+    case $doit in
+        y|Y) git config --global user.name 'Robert Claypool' ;;
+	*) ;;
+    esac
+    read -p "Set your Git email to 'robert.g.claypool+git@gmail.com'? [y,n] " doit
+    case $doit in
+        y|Y) git config --global user.email 'robert.g.claypool+git@gmail.com' ;;
+	*) ;;
+    esac
     git config --global core.excludesfile ~/.gitignore
+    echo "Run 'git config --global -e' to review/edit the configuration."
 else
     echo "Error: Cannot find Git. '.gitconfig' was not updated."
     exit 1
@@ -21,7 +36,6 @@ if command -v python >/dev/null 2>&1; then
     echo "adding 'export TERM=\"xterm-256color\"' to the end of '.bashrc'"
     echo "and open a new shell. (This works in Debian, I don't know about"
     echo "other distros.)"
-    exit 0
 else
     echo "Warning: Cannot find Python. Unable to run 'util/terminalcolors.py'."
     exit 0
