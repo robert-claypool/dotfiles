@@ -6,6 +6,7 @@ ln -sf $PWD/system/.alias $HOME/.alias
 ln -sf $PWD/.psqlrc $HOME/.psqlrc
 ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
+ln -sf $PWD/.Xresources $HOME/.Xresources
 echo "Done."
 
 if command -v git >/dev/null 2>&1; then
