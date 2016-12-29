@@ -1,5 +1,7 @@
-! Increase the font size for HiDPI screens.
-xterm*font: 12x24
+! Switch to TrueType and increase the font size for HiDPI screens.
+xterm*renderFont: true
+xterm*faceName: VeraMono
+xterm*faceSize: 14
 ! Use 256 colors for xterm and tmux.
 xterm*termName: xterm-256color
 ! Theme from
