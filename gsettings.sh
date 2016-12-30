@@ -1,4 +1,6 @@
-# disable all power buttons because they a terribly placed on some keyboards
+#!/usr/bin/env bash
+
+# disable all power buttons because they are terribly placed on some keyboards
 # accidental power changes are not fun
 
 # disable the hibernate button
@@ -13,3 +15,5 @@ gsettings set org.gnome.settings-daemon.plugins.power button-sleep "nothing"
 # disable the suspend button
 # default value is "suspend"
 gsettings set org.gnome.settings-daemon.plugins.power button-suspend "nothing"
+
+echo "Done"

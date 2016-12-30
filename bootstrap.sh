@@ -17,12 +17,12 @@ if command -v git >/dev/null 2>&1; then
     read -p "Set your Git name to 'Robert Claypool'? [y,n] " doit
     case $doit in
         y|Y) git config --global user.name 'Robert Claypool' ;;
-	*) ;;
+          *) ;;
     esac
     read -p "Set your Git email to 'robert.g.claypool+git@gmail.com'? [y,n] " doit
     case $doit in
         y|Y) git config --global user.email 'robert.g.claypool+git@gmail.com' ;;
-	*) ;;
+          *) ;;
     esac
     git config --global core.excludesfile ~/.gitignore
     echo "Run 'git config --global -e' to review/edit the configuration."

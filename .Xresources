@@ -25,7 +25,7 @@ xterm*termName: xterm-256color
 *color14:     rgb:50/fc/f8
 *color15:     rgb:f8/fc/f8
 ! Adjust the line spacing.
-xterm*scaleHeight: 1.2
+xterm*scaleHeight: 1.05
 ! Use Shift+PageUp and Shift+PageDown to scroll history.
 ! By default, only 1024 lines are saved.
 xterm*saveLines: 4096
