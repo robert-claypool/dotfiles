@@ -1,8 +1,9 @@
 ! Switch to TrueType and increase the font size for HiDPI screens.
 xterm*renderFont: true
-xterm*faceName: VeraMono
-xterm*faceSize: 16
-! Use 256 colors for xterm and tmux.
+xterm*faceName: Liberation Mono for Powerline
+xterm*faceSize: 14
+! Use 256 colors for xterm
+! This sets $TERM but termite will change $TERM to xterm-termite
 xterm*termName: xterm-256color
 ! Theme from
 ! https://web.archive.org/web/20090130061234/http://phraktured.net/terminal-colors/
@@ -28,4 +29,4 @@ xterm*termName: xterm-256color
 xterm*scaleHeight: 1.05
 ! Use Shift+PageUp and Shift+PageDown to scroll history.
 ! By default, only 1024 lines are saved.
-xterm*saveLines: 4096
+xterm*saveLines: 10000

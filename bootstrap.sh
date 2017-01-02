@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 echo "Setting symbolic links to various configs..."
 ln -sf $PWD/system/.env $HOME/.env
 ln -sf $PWD/system/.bash_aliases $HOME/.bash_aliases
@@ -7,6 +8,12 @@ ln -sf $PWD/.psqlrc $HOME/.psqlrc
 ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
 ln -sf $PWD/.Xresources $HOME/.Xresources
+
+mkdir -p $HOME/.config/i3
+ln -sf $PWD/.config/i3/config $HOME/.config/i3/config
+mkdir -p $HOME/.config/termite
+ln -sf $PWD/.config/termite/config $HOME/.config/termite/config
+
 echo "Done."
 
 if command -v git >/dev/null 2>&1; then
