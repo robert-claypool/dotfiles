@@ -31,6 +31,9 @@ font pango:Liberation Mono for Powerline 16
 # modifier + left click and resize with modifier + right click.
 floating_modifier $mod
 
+# Prevent tiny windows
+floating_minimum_size 400 x 200
+
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
 
