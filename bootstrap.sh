@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 echo "Setting symbolic links to various configs..."
-ln -sf $PWD/system/.env $HOME/.env
-ln -sf $PWD/system/.bash_aliases $HOME/.bash_aliases
-ln -sf $PWD/system/.pam_environment $HOME/.pam_environment
+ln -sf $PWD/.env $HOME/.env
+ln -sf $PWD/.bash_aliases $HOME/.bash_aliases
+ln -sf $PWD/.pam_environment $HOME/.pam_environment
 ln -sf $PWD/.psqlrc $HOME/.psqlrc
 ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
