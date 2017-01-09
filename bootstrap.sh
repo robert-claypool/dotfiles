@@ -5,6 +5,7 @@ ln -sf $PWD/.env $HOME/.env
 ln -sf $PWD/.bash_aliases $HOME/.bash_aliases
 ln -sf $PWD/.pam_environment $HOME/.pam_environment
 ln -sf $PWD/.psqlrc $HOME/.psqlrc
+ln -sf $PWD/.inputrc $HOME/.inputrc
 ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
 ln -sf $PWD/.Xresources $HOME/.Xresources

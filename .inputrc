@@ -1,0 +1,6 @@
+# Bind F12 to copy the contents of CLIPBOARD to PRIMARY.
+# I need this when working across machines/VMs/containers that each
+# have their own system CLIPBOARD, but do share PRIMARY.
+# http://superuser.com/a/751429/13481
+# http://stackoverflow.com/a/4201274/23566
+"\e[24~":"\C-k \C-u xclip -o -selection clipboard | xclip -i"
