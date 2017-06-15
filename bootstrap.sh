@@ -33,6 +33,7 @@ if command -v git >/dev/null 2>&1; then
           *) ;;
     esac
     git config --global core.excludesfile ~/.gitignore
+    git config --global merge.tool vimdiff
     echo "Run 'git config --global -e' to review/edit the configuration."
 else
     echo "Error: Cannot find Git. '.gitconfig' was not updated."
