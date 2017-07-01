@@ -4,3 +4,16 @@
 # http://superuser.com/a/751429/13481
 # http://stackoverflow.com/a/4201274/23566
 "\e[24~":"\C-k \C-u xclip -o -selection clipboard | xclip -i"
+
+# Enable incremental history search with up/down arrows (also Readline goodness)
+# See http://codeinthehole.com/writing/the-most-important-command-line-tip-incremental-history-searching-with-inputrc/
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+"\e[C": forward-char
+
+# Perform file completion in a case insensitive fashion
+set completion-ignore-case on
+# Treat hyphens and underscores as equivalent
+set completion-map-case on
+# Display matches for ambiguous patterns at first tab press
+set show-all-if-ambiguous on

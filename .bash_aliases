@@ -1,6 +1,12 @@
+alias ..='cd ..'
 alias ls='ls --color=auto'
+
 alias v="vim"
 alias sound="pavucontrol"
+alias wifi="sudo wifi-menu -o"
+
+# Create missing directories
+alias mkdir='mkdir -pv'
 
 # xclip -selection c will send data to the clipboard that works
 # with ^C, ^V in most applications, http://stackoverflow.com/a/4208191
