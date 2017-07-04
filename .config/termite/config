@@ -12,7 +12,7 @@ allow_bold              = false
 dynamic_title           = true
 urgent_on_bell          = true
 clickable_url           = true
-font                    = Liberation Mono for Powerline 18
+font                    = Liberation Mono for Powerline 20
 scrollback_lines        = 10000
 search_wrap             = true
 
