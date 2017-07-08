@@ -1,7 +1,14 @@
 alias ..='cd ..'
+alias cdh="cd ~/"
+alias cdd="cd ~/downloads"
+alias cdg="cd ~/git"
+
 alias ls='ls --color=auto'
 
-alias v="vim"
+# Shadow Vim with Neovim.
+# Use \vim to bypass the alias.
+alias vim="nvim"
+
 alias sound="pavucontrol"
 alias wifi="sudo wifi-menu -o"
 
