@@ -86,6 +86,9 @@ bindsym $mod+v split v
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
 
+# screenshots
+bindsym --release $mod+z exec scrot --select ~/screenshots/%Y%m%d-%T.png
+
 # tip: use `xmodmap -pke` to view your key mappings...
 # * 121 = XF86AudioMute
 # * 122 = XF86AudioLowerVolume
