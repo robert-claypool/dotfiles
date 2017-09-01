@@ -7,10 +7,6 @@ alias ls='ls --color=auto'
 
 alias grep='grep --color=auto'
 
-# Shadow Vim with Neovim.
-# Use \vim to bypass the alias.
-alias vim="nvim"
-
 alias sound="pavucontrol"
 alias wifi="sudo wifi-menu -o"
 

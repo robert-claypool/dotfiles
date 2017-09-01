@@ -1,0 +1,21 @@
+# This is for Bash settings you want to share across machines.
+# Let bootstrap.sh symlink this file, then source it from your local ~/.bash_profile
+# [[ -f ~/.bashrc_shared ]] && . ~/.bashrc_shared
+
+if [ -f /usr/bin/nvim ]; then
+    # Shadow Vim with Neovim.
+    # Use \vim to bypass the alias.
+    alias vim="nvim"
+    export EDITOR=nvim
+fi
+
+if [ -f /usr/bin/vimpager ]; then
+    export PAGER=/usr/bin/vimpager
+    export VIMPAGER=/usr/bin/vimpager
+    alias less=$VIMPAGER
+
+    if [ -f /usr/bin/nvim ]; then
+        export VIMPAGER_VIM=/usr/bin/nvim
+    fi
+fi
+
