@@ -6,15 +6,19 @@ My dotfiles, except [.vim](https://github.com/robert-claypool/.vim).
 3. ?
 4. PROFIT
 
-## Optional Bash Configs
+# ZSH configuration
+[Install ZSH](https://github.com/robbyrussell/oh-my-zsh/wiki/Installing-ZSH)
+and [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh#basic-installation),
+then the following plugins and themes:
 
-```bash
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+### Spaceship
+https://github.com/denysdovhan/spaceship-zsh-theme
 
-export NVM_DIR="/home/robert/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+### autojump
+https://github.com/wting/autojump
 
-# Add the PATH where pip installs the AWS EB CLI
-# http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html
-export PATH="$PATH:~/.local/bin"
-```
+### zsh-syntax-highlighting
+https://github.com/zsh-users/zsh-syntax-highlighting
+
+### zsh-autosuggestions
+https://github.com/zsh-users/zsh-autosuggestions
