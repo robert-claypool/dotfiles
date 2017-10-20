@@ -365,7 +365,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git autojump last-working-dir npm)
+plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -405,3 +405,10 @@ fi
 if [ -f "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
     source "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
+
+# Bind UP and DOWN arrow keys for zsh-history-substring-search.
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+# Also bind j/k keys for use in vi NORMAL mode.
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
