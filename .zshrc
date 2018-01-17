@@ -412,3 +412,5 @@ bindkey '^[[B' history-substring-search-down
 # Also bind j/k keys for use in vi NORMAL mode.
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
