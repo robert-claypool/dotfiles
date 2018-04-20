@@ -1,6 +1,6 @@
 -- http://www.postgresql.org/docs/9.3/static/app-psql.html#APP-PSQL-PROMPTING
 -- http://stackoverflow.com/questions/19139330/colors-in-the-psql-prompt
-\set PROMPT1 '%001%[%033[1;33;40m%]%002%n@%/%R%001%[%033[0m%]%002%# '
+\set PROMPT1 '(%n@%M:%>) %`date +%H:%M:%S` [%/] \n%x%# '
 -- PROMPT2 is printed when the prompt expects more input
 \set PROMPT2 '[more] %R > '
 
