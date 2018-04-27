@@ -1,7 +1,7 @@
 alias ..='cd ..'
 alias cdh="cd ~/"
 alias cdd="cd ~/downloads"
-alias cdg="cd ~/data/git2"
+alias cdg="cd ~/git"
 
 alias ls='ls --color=auto'
 
