@@ -423,3 +423,6 @@ fpath=($fpath "/home/rc/.zfunctions")
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 prompt spaceship
+
+# https://github.com/robbyrussell/oh-my-zsh/issues/1432
+unalias gm
