@@ -3,7 +3,7 @@ alias cdh="cd ~/"
 alias cdd="cd ~/downloads"
 alias cdg="cd ~/data/git2"
 
-alias ls='ls --color=auto'
+alias ls='ls -G'
 
 alias grep='grep --color=auto'
 
