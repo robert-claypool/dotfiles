@@ -17,6 +17,9 @@ if [ -f /usr/bin/nvim ]; then
     export EDITOR=nvim
 fi
 
+# Setup Flutter
+export PATH="$PATH:"~/flutter/bin
+
 # Setup Node Version Manager
 if [ -d "$HOME/.nvm" ]; then
     export NVM_DIR="$HOME/.nvm"
