@@ -23,8 +23,16 @@ if [ -d "$HOME/.nvm" ]; then
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 fi
 
+export BROWSER=/usr/bin/chromium
+
 # Add the path to AWS EB CLI
 [ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
+
+# Use the file type backend for aws-vault because this is compatible
+# with Linux (needed for Geodesic sessions).
+# https://github.com/99designs/aws-vault
+# https://docs.cloudposse.com/tools/aws-vault/
+export AWS_VAULT_BACKEND="file"
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -426,3 +434,4 @@ prompt spaceship
 
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
+
