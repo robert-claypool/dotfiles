@@ -21,6 +21,7 @@ fi
 
 # https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
 export DOTNET_ROOT=/opt/dotnet
+export PATH=~/.dotnet/tools:$PATH
 
 # https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Bash_alternative
 setleds -D +num
