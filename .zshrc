@@ -25,6 +25,9 @@ fi
 
 export BROWSER=/usr/bin/chromium
 
+# https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
+export DOTNET_ROOT=/opt/dotnet
+
 # Add the path to AWS EB CLI
 [ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
 
