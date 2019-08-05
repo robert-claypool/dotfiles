@@ -18,11 +18,34 @@ if [ -f /usr/bin/nvim ]; then
     export NVIM_TUI_ENABLE_TRUE_COLOR=1
 fi
 
+if [ -f /usr/bin/vimpager ]; then
+    export PAGER=/usr/bin/vimpager
+    export VIMPAGER=/usr/bin/vimpager
+    alias less=$VIMPAGER
+
+    if [ -f /usr/bin/nvim ]; then
+        export VIMPAGER_VIM=/usr/bin/nvim
+    fi
+fi
+
+# https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
+export DOTNET_ROOT=/opt/dotnet
+export PATH=~/.dotnet/tools:$PATH
+
+# Use the file type backend for aws-vault because this is compatible
+# with Linux (needed for Geodesic sessions).
+# https://github.com/99designs/aws-vault
+# https://docs.cloudposse.com/tools/aws-vault/
+export AWS_VAULT_BACKEND="file"
+
+# Add the path to AWS EB CLI
+[ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
+
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
 #   export EDITOR='vim'
 # else
-#   export EDITOR='mvim'
+#   export EDITOR='nvim'
 # fi
 
 # Setup Node Version Manager
@@ -32,10 +55,6 @@ if [ -d "$HOME/.nvm" ]; then
 fi
 
 export BROWSER=/usr/bin/chromium
-
-# https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
-export DOTNET_ROOT=/opt/dotnet
-export PATH=~/.dotnet/tools:$PATH
 
 # Setting rg as the default source for fzf
 export FZF_DEFAULT_COMMAND='rg --files'
@@ -103,15 +122,6 @@ fgr() {
      vim $file +$line
   fi
 }
-
-# Add the path to AWS EB CLI
-[ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
-
-# Use the file type backend for aws-vault because this is compatible
-# with Linux (needed for Geodesic sessions).
-# https://github.com/99designs/aws-vault
-# https://docs.cloudposse.com/tools/aws-vault/
-export AWS_VAULT_BACKEND="file"
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
