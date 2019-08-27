@@ -19,7 +19,6 @@ if [ -f /usr/bin/nvim ]; then
 fi
 
 if [ -f /usr/bin/vimpager ]; then
-    export PAGER=/usr/bin/vimpager
     export VIMPAGER=/usr/bin/vimpager
     alias less=$VIMPAGER
 
@@ -27,6 +26,9 @@ if [ -f /usr/bin/vimpager ]; then
         export VIMPAGER_VIM=/usr/bin/nvim
     fi
 fi
+
+# Quick kill for Node.js because webpack dev server keeps hogging memory.
+alias killnode="pkill --signal SIGKILL node"
 
 # https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
 export DOTNET_ROOT=/opt/dotnet
