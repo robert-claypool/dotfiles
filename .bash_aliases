@@ -3,6 +3,8 @@ alias cdh="cd ~/"
 alias cdd="cd ~/downloads"
 alias cdg="cd ~/git"
 
+alias ls='ls -G'
+
 alias ls='ls --color=auto --group-directories-first'
 alias rm='rm -Iv'
 alias grep='grep --color=auto'

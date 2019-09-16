@@ -33,14 +33,14 @@ if command -v git >/dev/null 2>&1; then
     if [ ! -f $HOME/.gitconfig ]; then
         echo "Git configuration not found. Creating one..."
         # This will create ~/.gitconfig if it does not already exist.
-        read -p "Set your Git name to 'Robert Claypool'? [y,n] " doit
+        read -p "Set your Git name to 'Robert Claypool'? [y,N] " doit
         case $doit in
             y|Y) git config --global user.name 'Robert Claypool' ;;
               *) ;;
         esac
-        read -p "Set your Git email to 'robert.g.claypool+git@gmail.com'? [y,n] " doit
+        read -p "Set your Git email to 'robert.g.claypool@gmail.com'? [y,N] " doit
         case $doit in
-            y|Y) git config --global user.email 'robert.g.claypool+git@gmail.com' ;;
+            y|Y) git config --global user.email 'robert.g.claypool@gmail.com' ;;
               *) ;;
         esac
         git config --global core.excludesfile ~/.gitignore

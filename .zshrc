@@ -50,6 +50,9 @@ export AWS_VAULT_BACKEND="file"
 #   export EDITOR='nvim'
 # fi
 
+# Setup Flutter
+# export PATH="$PATH:"~/flutter/bin
+
 # Setup Node Version Manager
 if [ -d "$HOME/.nvm" ]; then
     export NVM_DIR="$HOME/.nvm"
@@ -388,7 +391,7 @@ SPACESHIP_KUBECONTEXT_SYMBOL="☸️ "
 SPACESHIP_KUBECONTEXT_COLOR="cyan"
 
 # BATTERY
-SPACESHIP_BATTERY_SHOW='always'
+SPACESHIP_BATTERY_SHOW="always"
 SPACESHIP_BATTERY_PREFIX=""
 SPACESHIP_BATTERY_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
 SPACESHIP_BATTERY_SYMBOL_CHARGING="⇡"
@@ -466,9 +469,10 @@ fi
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# or on OSX, installed via Homebrew.
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search)
+plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search colored-man-pages web-search)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -518,4 +522,3 @@ prompt spaceship
 
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
-
