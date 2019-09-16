@@ -1,9 +1,12 @@
 alias ..='cd ..'
 alias cdh="cd ~/"
+alias cdd="cd ~/downloads"
 alias cdg="cd ~/git"
 
 alias ls='ls -G'
 
+alias ls='ls --color=auto --group-directories-first'
+alias rm='rm -Iv'
 alias grep='grep --color=auto'
 
 alias sound="pavucontrol"
@@ -28,3 +31,5 @@ alias b70="xbacklight -set 70"
 alias b80="xbacklight -set 80"
 alias b90="xbacklight -set 90"
 alias b100="xbacklight -set 100"
+
+alias google-chrome="google-chrome-stable"

@@ -7,6 +7,7 @@ ln -sf $PWD/.bashrc_shared $HOME/.bashrc_shared
 ln -sf $PWD/.pam_environment $HOME/.pam_environment
 ln -sf $PWD/.zshrc $HOME/.zshrc
 ln -sf $PWD/.psqlrc $HOME/.psqlrc
+ln -sf $PWD/.sqliterc $HOME/.sqliterc
 ln -sf $PWD/.inputrc $HOME/.inputrc
 ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
@@ -14,11 +15,15 @@ ln -sf $PWD/.Xresources $HOME/.Xresources
 
 mkdir -p $HOME/.config
 if [ ! -f $HOME/.config/i3/config ]; then
-    # Link our entire i3 config directory.
+    # Link our i3 config directory.
     ln -s $PWD/.config/i3 $HOME/.config/i3
 fi
+if [ ! -f $HOME/.config/i3status/config ]; then
+    # Link our i3status config directory.
+    ln -s $PWD/.config/i3status $HOME/.config/i3status
+fi
 if [ ! -f $HOME/.config/termite/config ]; then
-    # Link our entire termite config directory.
+    # Link our termite config directory.
     ln -s $PWD/.config/termite $HOME/.config/termite
 fi
 

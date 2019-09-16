@@ -15,10 +15,43 @@ if [ -f /usr/bin/nvim ]; then
     # Use \vim to bypass the alias.
     alias vim="nvim"
     export EDITOR=nvim
+    export NVIM_TUI_ENABLE_TRUE_COLOR=1
 fi
 
+if [ -f /usr/bin/vimpager ]; then
+    export VIMPAGER=/usr/bin/vimpager
+    alias less=$VIMPAGER
+
+    if [ -f /usr/bin/nvim ]; then
+        export VIMPAGER_VIM=/usr/bin/nvim
+    fi
+fi
+
+# Quick kill for Node.js because webpack dev server keeps hogging memory.
+alias killnode="pkill --signal SIGKILL node"
+
+# https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
+export DOTNET_ROOT=/opt/dotnet
+export PATH=~/.dotnet/tools:$PATH
+
+# Use the file type backend for aws-vault because this is compatible
+# with Linux (needed for Geodesic sessions).
+# https://github.com/99designs/aws-vault
+# https://docs.cloudposse.com/tools/aws-vault/
+export AWS_VAULT_BACKEND="file"
+
+# Add the path to AWS EB CLI
+[ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='nvim'
+# fi
+
 # Setup Flutter
-export PATH="$PATH:"~/flutter/bin
+# export PATH="$PATH:"~/flutter/bin
 
 # Setup Node Version Manager
 if [ -d "$HOME/.nvm" ]; then
@@ -26,8 +59,74 @@ if [ -d "$HOME/.nvm" ]; then
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 fi
 
-# Add the path to AWS EB CLI
-[ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
+export BROWSER=/usr/bin/chromium
+
+# Setting rg as the default source for fzf
+export FZF_DEFAULT_COMMAND='rg --files'
+
+# Apply the command to CTRL-T as well
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+## FZF FUNCTIONS ##
+# https://github.com/ctaylo21/jarvis/blob/master/zsh/zshrc.symlink
+
+# fo [FUZZY PATTERN] - Open the selected file with the default editor
+#   - Bypass fuzzy finder if there's only one match (--select-1)
+#   - Exit if there's no match (--exit-0)
+fo() {
+  local files
+  IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
+  [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
+}
+
+# fh [FUZZY PATTERN] - Search in command history
+fh() {
+  print -z $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
+}
+
+# fbr [FUZZY PATTERN] - Checkout specified branch
+# Include remote branches, sorted by most recent commit and limited to 30
+fgb() {
+  local branches branch
+  branches=$(git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format="%(refname:short)") &&
+  branch=$(echo "$branches" |
+           fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
+  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+}
+
+# tm [SESSION_NAME | FUZZY PATTERN] - create new tmux session, or switch to existing one.
+# Running `tm` will let you fuzzy-find a session mame
+# Passing an argument to `ftm` will switch to that session if it exists or create it otherwise
+ftm() {
+  [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
+  if [ $1 ]; then
+    tmux $change -t "$1" 2>/dev/null || (tmux new-session -d -s $1 && tmux $change -t "$1"); return
+  fi
+  session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
+}
+
+# tm [SESSION_NAME | FUZZY PATTERN] - delete tmux session
+# Running `tm` will let you fuzzy-find a session name to delete
+# Passing an argument to `ftm` will delete that session if it exists
+ftmk() {
+  if [ $1 ]; then
+    tmux kill-session -t "$1"; return
+  fi
+  session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux kill-session -t "$session" || echo "No session found to delete."
+}
+
+# fuzzy grep via rg and open in vim with line number
+fgr() {
+  local file
+  local line
+
+  read -r file line <<<"$(rg --no-heading --line-number $@ | fzf -0 -1 | awk -F: '{print $1, $2}')"
+
+  if [[ -n $file ]]
+  then
+     vim $file +$line
+  fi
+}
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -72,7 +171,7 @@ SPACESHIP_PROMPT_ORDER=(
 )
 
 # PROMPT
-SPACESHIP_CHAR_SYMBOL="➜"
+SPACESHIP_CHAR_SYMBOL="➜ "
 SPACESHIP_PROMPT_ADD_NEWLINE=true
 SPACESHIP_PROMPT_SEPARATE_LINE=true
 SPACESHIP_PROMPT_PREFIXES_SHOW=true
@@ -292,10 +391,10 @@ SPACESHIP_KUBECONTEXT_SYMBOL="☸️ "
 SPACESHIP_KUBECONTEXT_COLOR="cyan"
 
 # BATTERY
-SPACESHIP_BATTERY_SHOW=always
+SPACESHIP_BATTERY_SHOW="always"
 SPACESHIP_BATTERY_PREFIX=""
 SPACESHIP_BATTERY_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_BATTERY_SYMBOL_CHANGING="⇡"
+SPACESHIP_BATTERY_SYMBOL_CHARGING="⇡"
 SPACESHIP_BATTERY_SYMBOL_DISCHARGING="⇣"
 SPACESHIP_BATTERY_SYMBOL_FULL="•"
 SPACESHIP_BATTERY_THRESHOLD=10
@@ -347,7 +446,7 @@ HYPHEN_INSENSITIVE="true"
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
 
-# Uncomment the following line to display red dots whilst waiting for completion.
+# Display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -384,13 +483,6 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
@@ -406,7 +498,6 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-source "$HOME/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
 if [ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
@@ -423,7 +514,11 @@ bindkey -M vicmd 'j' history-substring-search-down
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+fpath=($fpath "/home/rc/.zfunctions")
+
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 prompt spaceship
 
+# https://github.com/robbyrussell/oh-my-zsh/issues/1432
+unalias gm

@@ -19,3 +19,17 @@ if [ -f /usr/bin/vimpager ]; then
     fi
 fi
 
+# https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
+export DOTNET_ROOT=/opt/dotnet
+export PATH=~/.dotnet/tools:$PATH
+
+# https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Bash_alternative
+setleds -D +num
+
+# Use the file type backend for aws-vault because this is compatible
+# with Linux (needed for Geodesic sessions).
+# https://github.com/99designs/aws-vault
+# https://docs.cloudposse.com/tools/aws-vault/
+export AWS_VAULT_BACKEND="file"
+
+export PATH=~/.local/bin:$PATH
