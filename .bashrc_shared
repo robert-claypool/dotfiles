@@ -2,7 +2,7 @@
 # Let bootstrap.sh symlink this file, then source it from your local ~/.bash_profile
 # [[ -f ~/.bashrc_shared ]] && . ~/.bashrc_shared
 
-if [ -f /usr/bin/nvim ]; then
+if [ -f /usr/bin/nvim ] || [ -f /usr/local/bin/nvim ]; then
     # Shadow Vim with Neovim.
     # Use \vim to bypass the alias.
     alias vim="nvim"
@@ -16,6 +16,16 @@ if [ -f /usr/bin/vimpager ]; then
 
     if [ -f /usr/bin/nvim ]; then
         export VIMPAGER_VIM=/usr/bin/nvim
+    fi
+fi
+
+if [ -f /usr/local/bin/vimpager ]; then
+    export PAGER=/usr/local/bin/vimpager
+    export VIMPAGER=/usr/local/bin/vimpager
+    alias less=$VIMPAGER
+
+    if [ -f /usr/local/bin/nvim ]; then
+        export VIMPAGER_VIM=/usr/local/bin/nvim
     fi
 fi
 

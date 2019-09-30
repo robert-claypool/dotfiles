@@ -504,6 +504,9 @@ fi
 if [ -f "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
     source "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
+if [ -f "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]; then
+    source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+fi
 
 # Bind UP and DOWN arrow keys for zsh-history-substring-search.
 bindkey '^[[A' history-substring-search-up
@@ -520,7 +523,9 @@ fpath=($fpath "/home/rc/.zfunctions")
 autoload -U promptinit; promptinit
 prompt spaceship
 
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
