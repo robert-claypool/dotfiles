@@ -26,6 +26,11 @@ if [ ! -f $HOME/.config/termite/config ]; then
     # Link our termite config directory.
     ln -s $PWD/.config/termite $HOME/.config/termite
 fi
+if [ ! -f $HOME/.config/conky ]; then
+    # Link our conky config
+    # https://wiki.archlinux.org/index.php/Conky#Configuration
+    ln -s $PWD/.config/conky $HOME/.config/conky
+fi
 
 echo "Done."
 
