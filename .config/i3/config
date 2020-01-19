@@ -40,7 +40,7 @@ bindsym $mod+d exec --no-startup-id dmenu_recency
 bindsym $mod+z exec --no-startup-id morc_menu
 
 # Keyboard repeat rate and delay
-exec --no-startup-id xset r rate 300 35
+exec --no-startup-id xset r rate 300 25
 
 ################################################################################################
 ## sound-section - DO NOT EDIT if you wish to automatically upgrade Alsa -> Pulseaudio later! ##
