@@ -191,7 +191,7 @@ bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
 # assign [class="Skype"] $ws5
 
 floating_minimum_size 320 x 180
-floating_maximum_size 3200 x 1400
+floating_maximum_size 3200 x 1340
 
 # Open specific applications in floating mode
 for_window [window_role="pop-up"] floating enable
