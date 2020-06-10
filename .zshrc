@@ -522,3 +522,5 @@ prompt spaceship
 
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
