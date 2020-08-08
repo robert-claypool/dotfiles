@@ -32,3 +32,13 @@ xset r rate 200 35
 export AWS_VAULT_BACKEND="file"
 
 export PATH=~/.local/bin:$PATH
+
+# Start the default OpenSSH agent automatically and make
+# sure only one ssh-agent process runs at a time.
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 8h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+    echo "Running ssh-agent, the default OpenSSH agent, for all terminals."
+fi
+if [[ ! "$SSH_AUTH_SOCK" ]]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
