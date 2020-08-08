@@ -23,8 +23,7 @@ fi
 export DOTNET_ROOT=/opt/dotnet
 export PATH=~/.dotnet/tools:$PATH
 
-# https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Bash_alternative
-setleds -D +num
+xset r rate 200 35
 
 # Use the file type backend for aws-vault because this is compatible
 # with Linux (needed for Geodesic sessions).
