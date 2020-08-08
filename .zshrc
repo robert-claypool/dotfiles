@@ -4,7 +4,8 @@
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
-# Reuse our custom Bash aliases.
+# Reuse our custom Bash settings.
+[ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 # Local aliases are private or ephemeral. They don't go into source control.
 [ -f ~/.local_aliases ] && source ~/.local_aliases
