@@ -25,3 +25,6 @@ https://github.com/zsh-users/zsh-autosuggestions
 
 ### zsh-history-substring-search
 https://github.com/zsh-users/zsh-history-substring-search
+
+### h
+https://github.com/paoloantinori/hhighlighter
