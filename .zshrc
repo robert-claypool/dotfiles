@@ -473,7 +473,7 @@ fi
 # or on OSX, installed via Homebrew.
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search colored-man-pages web-search)
+plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search colored-man-pages web-search h)
 
 source $ZSH/oh-my-zsh.sh
 
