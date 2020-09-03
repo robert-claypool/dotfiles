@@ -8,7 +8,7 @@ set $mod Mod4
 # workspace_layout tabbed <stacking|tabbed>
 
 # Configure border style <normal|1pixel|pixel xx|none|pixel>
-new_window pixel 1
+new_window pixel 5
 new_float normal
 
 # Hide borders
@@ -16,7 +16,7 @@ hide_edge_borders none
 
 # change borders
 bindsym $mod+u border none
-bindsym $mod+y border pixel 1
+bindsym $mod+y border pixel 5
 bindsym $mod+n border normal
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -197,11 +197,11 @@ floating_maximum_size 3200 x 1340
 # Open specific applications in floating mode
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
-for_window [title="alsamixer"] floating enable border pixel 1
+for_window [title="alsamixer"] floating enable border pixel 5
 for_window [class="Calamares"] floating enable border normal
 for_window [class="Clipgrab"] floating enable
 for_window [title="File Transfer*"] floating enable
-for_window [class="Galculator"] floating enable border pixel 1
+for_window [class="Galculator"] floating enable border pixel 5
 for_window [class="GParted"] floating enable border normal
 for_window [title="i3_help"] floating enable sticky enable border normal
 for_window [class="Lightdm-gtk-greeter-settings"] floating enable
@@ -361,11 +361,11 @@ bindsym $mod+m bar mode toggle
 
 # Theme colors
 # class                   border  backgr. text    indic.   child_border
-  client.focused          #424242 #424242 #FC3F42 #FDF6E3
-  client.focused_inactive #222222 #333333 #00C2D3 #424242
-  client.unfocused        #222222 #333333 #00C2D3 #424242
-  client.urgent           #FC3F42 #FDF6E3 #00C2D3 #268BD2
-  client.placeholder      #000000 #0c0c0c #ffffff #000000
+  client.focused          #424242 #001529 #FC3F42 #FDF6E3
+  client.focused_inactive #222222 #001529 #00C2D3 #424242
+  client.unfocused        #222222 #001529 #00C2D3 #424242
+  client.urgent           #FC3F42 #001529 #00C2D3 #268BD2
+  client.placeholder      #000000 #001529 #ffffff #000000
 
   client.background       #222222
 
@@ -375,7 +375,7 @@ bindsym $mod+m bar mode toggle
 
 # Set inner/outer gaps
 gaps inner 5
-gaps outer -5
+gaps outer 0
 
 # Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
 # gaps inner|outer current|all set|plus|minus <px>
@@ -383,11 +383,11 @@ gaps outer -5
 # gaps outer all plus 5
 
 # Smart gaps (gaps used if only more than one container on the workspace)
-smart_gaps on
+# smart_gaps on
 
 # Smart borders (draw borders around container only if it is not the only container on this workspace)
 # on|no_gaps (on=always activate and no_gaps=only activate if the gap size to the edge of the screen is 0)
-smart_borders on
+# smart_borders on
 
 # Press $mod+Shift+g to enter the gap mode. Choose o or i for modifying outer/inner gaps. Press one of + / - (in-/decrement for current workspace) or 0 (remove gaps for current workspace). If you also press Shift with these keys, the change will be global for all workspaces.
 set $mode_gaps Gaps: (o) outer, (i) inner
