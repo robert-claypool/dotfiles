@@ -23,7 +23,7 @@ fi
 export DOTNET_ROOT=/opt/dotnet
 export PATH=~/.dotnet/tools:$PATH
 
-xset r rate 200 35
+xset r rate 190 40
 
 # Use the file type backend for aws-vault because this is compatible
 # with Linux (needed for Geodesic sessions).
