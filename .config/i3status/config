@@ -19,6 +19,7 @@ order += "wireless _first_"
 # order += "ethernet _first_"
 order += "battery all"
 order += "volume master"
+order += "tztime utc"
 order += "tztime india"
 order += "tztime local"
 
@@ -61,6 +62,12 @@ volume master {
   format = "♪ %volume"
   format_muted = "♪ muted (%volume)"
   device = "pulse:0"
+  separator_block_width = 40
+}
+
+tztime utc {
+  format = "%Y-%m-%d %H:%M %Z"
+  timezone = "UTC"
   separator_block_width = 40
 }
 
