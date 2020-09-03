@@ -31,6 +31,10 @@ if [ ! -f $HOME/.config/conky/conky.conf ]; then
     # https://wiki.archlinux.org/index.php/Conky#Configuration
     ln -s $PWD/.config/conky $HOME/.config/conky
 fi
+if [ ! -f $HOME/.config/alacritty/alacritty.yml ]; then
+    # Link our alacritty config directory.
+    ln -s $PWD/.config/alacritty $HOME/.config/alacritty
+fi
 
 echo "Done."
 
