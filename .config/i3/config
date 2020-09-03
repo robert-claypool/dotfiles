@@ -344,15 +344,15 @@ bar {
 	strip_workspace_numbers yes
 
     colors {
-        background #283339
-        statusline #F9FAF9
-        separator  #454947
+        background #00274C
+        statusline #EBEBEB
+        separator  #424242
 
-        focused_workspace  #F9FAF9 #16a085 #292F34
-        active_workspace   #595B5B #353836 #FDF6E3
-        inactive_workspace #595B5B #283339 #EEE8D5
-        binding_mode       #16a085 #2C2C2C #F9FAF9
-        urgent_workspace   #16a085 #FDF6E3 #E5201D
+        focused_workspace  #EBEBEB #00C2D3 #222222
+        active_workspace   #424242 #333333 #EBEBEB
+        inactive_workspace #424242 #222222 #EBEBEB
+        binding_mode       #00C2D3 #222222 #F9FAF9
+        urgent_workspace   #00C2D3 #EBEBEB #FC3F42
     }
 }
 
@@ -361,13 +361,13 @@ bindsym $mod+m bar mode toggle
 
 # Theme colors
 # class                   border  backgr. text    indic.   child_border
-  client.focused          #556064 #556064 #80FFF9 #FDF6E3
-  client.focused_inactive #2F3D44 #2F3D44 #1ABC9C #454948
-  client.unfocused        #2F3D44 #2F3D44 #1ABC9C #454948
-  client.urgent           #CB4B16 #FDF6E3 #1ABC9C #268BD2
+  client.focused          #424242 #424242 #FC3F42 #FDF6E3
+  client.focused_inactive #222222 #333333 #00C2D3 #424242
+  client.unfocused        #222222 #333333 #00C2D3 #424242
+  client.urgent           #FC3F42 #FDF6E3 #00C2D3 #268BD2
   client.placeholder      #000000 #0c0c0c #ffffff #000000
 
-  client.background       #2B2C2B
+  client.background       #222222
 
 #############################
 ### settings for i3-gaps: ###
