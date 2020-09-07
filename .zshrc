@@ -4,6 +4,13 @@
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
+# More history
+export HISTFILE="$HOME/.zsh_history"
+export HISTSIZE=1000000
+export SAVEHIST=1000000
+setopt extended_history
+setopt inc_append_history
+
 # Reuse our custom Bash settings.
 [ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
