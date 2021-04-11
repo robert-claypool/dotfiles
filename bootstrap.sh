@@ -72,4 +72,4 @@ else
 fi
 
 echo "-----"
-echo "Open README.md and edit .bashrc as described."
+echo "Open README.md and install ZSH plugins as described."
