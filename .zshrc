@@ -477,7 +477,7 @@ fi
 # or on OSX, installed via Homebrew.
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search colored-man-pages web-search h)
+plugins=(vi-mode git dotenv history autojump last-working-dir npm zsh-completions colored-man-pages web-search zsh-history-substring-search h)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -503,11 +503,14 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-if [ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+    # echo "Loading zsh-syntax-highlighting.zsh"
+    source "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
-if [ -f "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
-    source "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    # echo "Loading zsh-autosuggestions.zsh"
+    source "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
 
 # Bind UP and DOWN arrow keys for zsh-history-substring-search.
@@ -528,5 +531,7 @@ prompt spaceship
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
 
+# Reload completions
 autoload -U +X bashcompinit && bashcompinit
+
 complete -o nospace -C /usr/bin/terraform terraform
