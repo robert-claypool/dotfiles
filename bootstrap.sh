@@ -13,24 +13,37 @@ ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
 ln -sf $PWD/.Xresources $HOME/.Xresources
 
-mkdir -p $HOME/.config
-if [ ! -f $HOME/.config/i3/config ]; then
+MY_CONFIGS=""
+if [ -f /etc/regolith/i3/config ]; then
+    # Save override configs where Regolith needs them to be.
+    # https://regolith-linux.org/docs/interface/system/
+    MY_CONFIGS=$HOME/.config/regolith
+else
+    # Use paths that work on Manjaro and (probably) other distros.
+    MY_CONFIGS=$HOME/.config
+
+    # We don't use these overrides on Regolith because it already has good defaults.
+    if [ ! -f $MY_CONFIGS/i3status/config ]; then
+        # Link our i3status config directory.
+        ln -s $PWD/.config/i3status $MY_CONFIGS/i3status
+    fi
+    if [ ! -f $MY_CONFIGS/conky/conky.conf ]; then
+        # Link our conky config
+        # https://wiki.archlinux.org/index.php/Conky#Configuration
+        ln -s $PWD/.config/conky $MY_CONFIGS/conky
+    fi
+    if [ ! -f $MY_CONFIGS/termite/config ]; then
+        # Link our termite config directory.
+        ln -s $PWD/.config/termite $MY_CONFIGS/termite
+    fi
+fi
+
+if [ ! -f $MY_CONFIGS/i3/config ]; then
     # Link our i3 config directory.
-    ln -s $PWD/.config/i3 $HOME/.config/i3
+    ln -s $PWD/.config/i3 $MY_CONFIGS/i3
 fi
-if [ ! -f $HOME/.config/i3status/config ]; then
-    # Link our i3status config directory.
-    ln -s $PWD/.config/i3status $HOME/.config/i3status
-fi
-if [ ! -f $HOME/.config/termite/config ]; then
-    # Link our termite config directory.
-    ln -s $PWD/.config/termite $HOME/.config/termite
-fi
-if [ ! -f $HOME/.config/conky/conky.conf ]; then
-    # Link our conky config
-    # https://wiki.archlinux.org/index.php/Conky#Configuration
-    ln -s $PWD/.config/conky $HOME/.config/conky
-fi
+
+# Alacritty belongs in ~./config no matter the distro.
 if [ ! -f $HOME/.config/alacritty/alacritty.yml ]; then
     # Link our alacritty config directory.
     ln -s $PWD/.config/alacritty $HOME/.config/alacritty
