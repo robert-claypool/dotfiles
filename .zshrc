@@ -467,6 +467,11 @@ if [ $commands[kubectl] ]; then
   source <(kubectl completion zsh)
 fi
 
+# All Debian-derived distros require manual activation for policy reasons.
+if [ -f /usr/share/autojump/autojump.sh ]; then
+  . /usr/share/autojump/autojump.sh
+fi
+
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # or on OSX, installed via Homebrew.
@@ -522,3 +527,6 @@ prompt spaceship
 
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/bin/terraform terraform
