@@ -493,6 +493,7 @@ plugins=(
   colored-man-pages
   web-search
   zsh-history-substring-search
+  zsh-aws-vault
   h
   command-not-found
   common-aliases
