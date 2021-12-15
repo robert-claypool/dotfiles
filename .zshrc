@@ -72,6 +72,9 @@ export BROWSER=/usr/bin/chromium
 # Setting rg as the default source for fzf
 export FZF_DEFAULT_COMMAND='rg --files'
 
+# Better visual separation for fzf results
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+
 # Apply the command to CTRL-T as well
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
@@ -477,7 +480,7 @@ fi
 # or on OSX, installed via Homebrew.
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git dotenv history autojump last-working-dir npm zsh-completions colored-man-pages web-search zsh-history-substring-search h)
+plugins=(vi-mode git dotenv history autojump last-working-dir npm zsh-completions colored-man-pages web-search zsh-history-substring-search h fzf)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -514,11 +517,11 @@ if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-auto
 fi
 
 # Bind UP and DOWN arrow keys for zsh-history-substring-search.
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+bindkey "^[[A" history-substring-search-up
+bindkey "^[[B" history-substring-search-down
 # Also bind j/k keys for use in vi NORMAL mode.
-bindkey -M vicmd 'k' history-substring-search-up
-bindkey -M vicmd 'j' history-substring-search-down
+bindkey -M vicmd "k" history-substring-search-up
+bindkey -M vicmd "j" history-substring-search-down
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
