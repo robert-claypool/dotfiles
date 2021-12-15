@@ -482,6 +482,7 @@ fi
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   vi-mode
+  you-should-use
   git
   dotenv
   history
@@ -494,6 +495,7 @@ plugins=(
   zsh-history-substring-search
   h
   command-not-found
+  common-aliases
   fzf
 )
 
