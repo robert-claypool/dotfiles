@@ -480,7 +480,22 @@ fi
 # or on OSX, installed via Homebrew.
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git dotenv history autojump last-working-dir npm zsh-completions colored-man-pages web-search zsh-history-substring-search h fzf)
+plugins=(
+  vi-mode
+  git
+  dotenv
+  history
+  autojump
+  last-working-dir
+  npm
+  zsh-completions
+  colored-man-pages
+  web-search
+  zsh-history-substring-search
+  h
+  command-not-found
+  fzf
+)
 
 source $ZSH/oh-my-zsh.sh
 
