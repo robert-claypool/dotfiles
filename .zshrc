@@ -484,7 +484,6 @@ plugins=(
   vi-mode
   you-should-use
   git
-  dotenv
   history
   autojump
   last-working-dir

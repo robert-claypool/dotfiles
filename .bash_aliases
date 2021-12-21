@@ -3,6 +3,8 @@ alias cdh="cd ~/"
 alias cdd="cd ~/downloads"
 alias cdg="cd ~/git"
 
+# alias python="python3"
+
 alias ls='ls -G'
 
 alias ls='ls --color=auto --group-directories-first'
