@@ -482,7 +482,6 @@ fi
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   vi-mode
-  you-should-use
   git
   history
   autojump
