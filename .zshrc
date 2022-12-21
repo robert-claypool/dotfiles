@@ -555,3 +555,8 @@ unalias gm
 autoload -U +X bashcompinit && bashcompinit
 
 complete -o nospace -C /usr/bin/terraform terraform
+
+# Load Angular CLI autocompletion.
+if [ $commands[ng] ]; then
+  source <(ng completion script)
+fi
