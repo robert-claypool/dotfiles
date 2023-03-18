@@ -5,7 +5,7 @@ alias cdg="cd ~/git"
 
 # alias python="python3"
 
-alias cat="batcat"
+alias cat="bat"
 
 alias ls='ls -G'
 
