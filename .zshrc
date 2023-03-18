@@ -17,6 +17,11 @@ setopt inc_append_history
 # Local aliases are private or ephemeral. They don't go into source control.
 [ -f ~/.local_aliases ] && source ~/.local_aliases
 
+# Add Docker to the PATH on macOS if it exists
+if [ -f /Applications/Docker.app/Contents/Resources/bin/docker ]; then
+    export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
+fi
+
 # Setup Neovim
 if [ -f /usr/bin/nvim ]; then
     # Shadow Vim with Neovim.
@@ -62,9 +67,24 @@ export AWS_VAULT_BACKEND="file"
 # export PATH="$PATH:"~/flutter/bin
 
 # Setup Node Version Manager
-if [ -d "$HOME/.nvm" ]; then
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+if [ -d "$HOMEBREW_PREFIX/opt/nvm" ]; then
+  # Create the nvm working directory if it doesn't exist
+  # since brew doesn't automate this step.
+  if [ ! -d "$HOME/.nvm" ]; then
+    mkdir "$HOME/.nvm"
+  fi
+  export NVM_DIR="$HOME/.nvm"
+  # Load nvm
+  [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] \
+    && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+  # Load nvm bash_completion
+  [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] \
+    && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+else
+  if [ -d "$HOME/.nvm" ]; then
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+  fi
 fi
 
 export BROWSER=/usr/bin/chromium
@@ -491,8 +511,7 @@ plugins=(
   colored-man-pages
   web-search
   zsh-history-substring-search
-  zsh-aws-vault
-  h
+  # h
   command-not-found
   common-aliases
   fzf
@@ -539,6 +558,7 @@ bindkey "^[[B" history-substring-search-down
 bindkey -M vicmd "k" history-substring-search-up
 bindkey -M vicmd "j" history-substring-search-down
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 fpath=($fpath "/home/rc/.zfunctions")
@@ -559,3 +579,7 @@ complete -o nospace -C /usr/bin/terraform terraform
 if [ $commands[ng] ]; then
   source <(ng completion script)
 fi
+
+# See https://github.com/zsh-users/zsh-history-substring-search#install
+[ -f /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh ] &&\
+  source /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh
