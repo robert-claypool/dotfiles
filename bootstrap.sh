@@ -13,6 +13,15 @@ ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
 ln -sf $PWD/.Xresources $HOME/.Xresources
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Mac OSX
+    if [ ! -f $HOME/.ssh/config ]; then
+        # Link our conky config
+        # https://wiki.archlinux.org/index.php/Conky#Configuration
+        ln -s $PWD/macOS/.ssh/config $HOME/.ssh/config
+    fi
+fi
+
 MY_CONFIGS=""
 if [ -f /etc/regolith/i3/config ]; then
     # Save override configs where Regolith needs them to be.
