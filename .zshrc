@@ -22,6 +22,11 @@ if [ -f /Applications/Docker.app/Contents/Resources/bin/docker ]; then
     export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
 fi
 
+# Add Rancher to the PATH on macOS if it exists
+if [ -f /Applications/Rancher\ Desktop.app/Contents/Info.plist ]; then
+    export PATH="$PATH:$HOME/.rd/bin"
+fi
+
 # Setup Neovim
 if [ -f /usr/bin/nvim ]; then
     # Shadow Vim with Neovim.
