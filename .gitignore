@@ -10,5 +10,8 @@ Session.vim
 vagrant/*.log
 vagrant/.vagrant/
 
+# Don't check in passwords
+.secrets
+
 # macOS
 .DS_Store
