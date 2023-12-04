@@ -9,3 +9,6 @@ Session.vim
 # Vagrant files
 vagrant/*.log
 vagrant/.vagrant/
+
+# macOS
+.DS_Store
