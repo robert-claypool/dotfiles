@@ -69,9 +69,9 @@ if command -v git >/dev/null 2>&1; then
             y|Y) git config --global user.name 'Robert Claypool' ;;
               *) ;;
         esac
-        read -p "Set your Git email to 'robert.g.claypool@gmail.com'? [y,N] " doit
+        read -p "Set your Git email to 'robert-claypool@outlook.com'? [y,N] " doit
         case $doit in
-            y|Y) git config --global user.email 'robert.g.claypool@gmail.com' ;;
+            y|Y) git config --global user.email 'robert-claypool@outlook.com' ;;
               *) ;;
         esac
         git config --global core.excludesfile ~/.gitignore
