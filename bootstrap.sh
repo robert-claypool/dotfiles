@@ -12,6 +12,7 @@ ln -sf $PWD/.inputrc $HOME/.inputrc
 ln -sf $PWD/.tmux.conf $HOME/.tmux.conf
 ln -sf $PWD/.gitignore $HOME/.gitignore
 ln -sf $PWD/.Xresources $HOME/.Xresources
+ln -sf $PWD/.secrets $HOME/.secrets
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Mac OSX
@@ -30,6 +31,11 @@ if [ -f /etc/regolith/i3/config ]; then
 else
     # Use paths that work on Manjaro and (probably) other distros.
     MY_CONFIGS=$HOME/.config
+
+    # Setup for https://github.com/madox2/vim-ai
+    if [ ! -f $MY_CONFIGS/openai.token ]; then
+        ln -s $PWD/.config/openai.token $MY_CONFIGS/openai.token
+    fi
 
     # We don't use these overrides on Regolith because it already has good defaults.
     if [ ! -f $MY_CONFIGS/i3status/config ]; then

@@ -10,6 +10,7 @@ export HISTSIZE=1000000
 export SAVEHIST=1000000
 setopt extended_history
 setopt inc_append_history
+setopt hist_ignore_space # prefix command with a space to forget it
 
 # Reuse our custom Bash settings.
 [ -f ~/.bashrc_shared ] && source ~/.bashrc_shared

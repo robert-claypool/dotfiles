@@ -2,9 +2,9 @@
 # Let bootstrap.sh symlink this file, then source it from your local ~/.bash_profile
 # [[ -f ~/.bashrc_shared ]] && . ~/.bashrc_shared
 
-if [ -f .secrets ]; then
+if [ -f ~/.secrets ]; then
     echo "Applying secrets to your environment"
-    source .secrets
+    source ~/.secrets
 fi
 
 if [ -f /usr/bin/nvim ]; then
