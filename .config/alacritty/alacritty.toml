@@ -46,9 +46,3 @@ style = "Regular"
 
 [mouse]
 hide_when_typing = true
-
-[mouse.double_click]
-threshold = 300
-
-[mouse.triple_click]
-threshold = 300
