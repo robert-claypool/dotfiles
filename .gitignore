@@ -12,6 +12,7 @@ vagrant/.vagrant/
 
 # Don't check in passwords
 .secrets
+openai.token
 
 # macOS
 .DS_Store
