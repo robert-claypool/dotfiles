@@ -26,7 +26,10 @@ fi
 
 # https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
 export DOTNET_ROOT=/opt/dotnet
-export PATH=~/.dotnet/tools:$PATH
+export PATH="~/.dotnet/tools:$PATH"
+
+# Rancher Desktop
+export PATH="~/.rd/bin:$PATH"
 
 # xset r rate 190 40
 
