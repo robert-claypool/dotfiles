@@ -1,3 +1,5 @@
+\set QUIET 1
+
 -- http://www.postgresql.org/docs/9.3/static/app-psql.html#APP-PSQL-PROMPTING
 -- http://stackoverflow.com/questions/19139330/colors-in-the-psql-prompt
 \set PROMPT1 '(%n@%M:%>) %`date +%H:%M:%S` [%/] \n%x%# '
@@ -12,6 +14,10 @@
 \pset border 2
 \pset linestyle unicode
 
+-- Output layout
+\pset pager on
+\setenv PAGER 'pspg -bX --vertical-cursor'
+
 -- By default, NULL displays as an empty space. Is it actually an empty
 -- string, or is it null? This makes that distinction visible.
 \pset null '[NULL]'
@@ -19,17 +25,23 @@
 -- Use table format (with headers across the top) by default, but switch to
 -- expanded table format when there's a lot of data, which makes it much
 -- easier to read.
-\x auto
+-- \x auto
+-- Because of fancy pager pspg, never use \x
+\x off
 
--- Alays autocomplete keywords (like SELECT) in uppercase.
+-- Wrap all commands issued interactively in SAVEPOINTs so we can try again
+-- without having to restart the transaction
+\set ON_ERROR_ROLLBACK interactive
+
+-- Autocomplete keywords (like SELECT) in uppercase.
 \set COMP_KEYWORD_CASE upper
 
 -- Verbose error reports.
 \set VERBOSITY verbose
 
+\set HISTSIZE 100000
 -- Use a separate history file per-database.
 \set HISTFILE ~/.psql_history- :DBNAME
-
 -- If a command is run more than once in a row, only store it once in the
 -- history.
 \set HISTCONTROL ignoredups
@@ -42,3 +54,7 @@
 \set dbsize 'SELECT datname, pg_size_pretty(pg_database_size(datname)) db_size FROM pg_database ORDER BY db_size;'
 \set tablesize 'SELECT nspname || \'.\' || relname AS \"relation\", pg_size_pretty(pg_relation_size(C.oid)) AS "size" FROM pg_class C LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace) WHERE nspname NOT IN (\'pg_catalog\', \'information_schema\') ORDER BY pg_relation_size(C.oid) DESC LIMIT 40;'
 \set clear '\\! clear;'
+
+set search_path to public, app_public, app_hidden, app_private;
+
+\unset QUIET

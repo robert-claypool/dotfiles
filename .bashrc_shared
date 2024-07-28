@@ -2,6 +2,11 @@
 # Let bootstrap.sh symlink this file, then source it from your local ~/.bash_profile
 # [[ -f ~/.bashrc_shared ]] && . ~/.bashrc_shared
 
+if [ -f ~/.secrets ]; then
+    echo "Applying secrets to your environment"
+    source ~/.secrets
+fi
+
 if [ -f /usr/bin/nvim ] || [ -f /usr/local/bin/nvim ]; then
     # Shadow Vim with Neovim.
     # Use \vim to bypass the alias.
@@ -31,10 +36,12 @@ fi
 
 # https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
 export DOTNET_ROOT=/opt/dotnet
-export PATH=~/.dotnet/tools:$PATH
+export PATH="~/.dotnet/tools:$PATH"
 
-# https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Bash_alternative
-setleds -D +num
+# Rancher Desktop
+export PATH="~/.rd/bin:$PATH"
+
+# xset r rate 190 40
 
 # Use the file type backend for aws-vault because this is compatible
 # with Linux (needed for Geodesic sessions).
@@ -43,3 +50,13 @@ setleds -D +num
 export AWS_VAULT_BACKEND="file"
 
 export PATH=~/.local/bin:$PATH
+
+# Start the default OpenSSH agent automatically and make
+# sure only one ssh-agent process runs at a time.
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 8h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+    echo "Running ssh-agent, the default OpenSSH agent, for all terminals."
+fi
+if [[ ! "$SSH_AUTH_SOCK" ]]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi

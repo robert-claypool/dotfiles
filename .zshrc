@@ -4,10 +4,29 @@
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
-# Reuse our custom Bash aliases.
+# More history
+export HISTFILE="$HOME/.zsh_history"
+export HISTSIZE=1000000
+export SAVEHIST=1000000
+setopt extended_history
+setopt inc_append_history
+setopt hist_ignore_space # prefix command with a space to forget it
+
+# Reuse our custom Bash settings.
+[ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 # Local aliases are private or ephemeral. They don't go into source control.
 [ -f ~/.local_aliases ] && source ~/.local_aliases
+
+# Add Docker to the PATH on macOS if it exists
+if [ -f /Applications/Docker.app/Contents/Resources/bin/docker ]; then
+    export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
+fi
+
+# Add Rancher to the PATH on macOS if it exists
+if [ -f /Applications/Rancher\ Desktop.app/Contents/Info.plist ]; then
+    export PATH="$PATH:$HOME/.rd/bin"
+fi
 
 # Setup Neovim
 if [ -f /usr/bin/nvim ]; then
@@ -54,15 +73,33 @@ export AWS_VAULT_BACKEND="file"
 # export PATH="$PATH:"~/flutter/bin
 
 # Setup Node Version Manager
-if [ -d "$HOME/.nvm" ]; then
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+if [ -d "$HOMEBREW_PREFIX/opt/nvm" ]; then
+  # Create the nvm working directory if it doesn't exist
+  # since brew doesn't automate this step.
+  if [ ! -d "$HOME/.nvm" ]; then
+    mkdir "$HOME/.nvm"
+  fi
+  export NVM_DIR="$HOME/.nvm"
+  # Load nvm
+  [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] \
+    && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+  # Load nvm bash_completion
+  [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] \
+    && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+else
+  if [ -d "$HOME/.nvm" ]; then
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+  fi
 fi
 
 export BROWSER=/usr/bin/chromium
 
 # Setting rg as the default source for fzf
 export FZF_DEFAULT_COMMAND='rg --files'
+
+# Better visual separation for fzf results
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
 # Apply the command to CTRL-T as well
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -159,7 +196,6 @@ SPACESHIP_PROMPT_ORDER=(
   pyenv
   dotnet
   ember
-  kubecontext
   package
   battery
   exec_time
@@ -383,13 +419,6 @@ SPACESHIP_EMBER_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
 SPACESHIP_EMBER_SYMBOL="EMBER "
 SPACESHIP_EMBER_COLOR="210"
 
-# KUBECONTEXT
-SPACESHIP_KUBECONTEXT_SHOW=false
-SPACESHIP_KUBECONTEXT_PREFIX="at "
-SPACESHIP_KUBECONTEXT_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_KUBECONTEXT_SYMBOL="☸️ "
-SPACESHIP_KUBECONTEXT_COLOR="cyan"
-
 # BATTERY
 SPACESHIP_BATTERY_SHOW="always"
 SPACESHIP_BATTERY_PREFIX=""
@@ -467,12 +496,32 @@ if [ $commands[kubectl] ]; then
   source <(kubectl completion zsh)
 fi
 
+# All Debian-derived distros require manual activation for policy reasons.
+if [ -f /usr/share/autojump/autojump.sh ]; then
+  . /usr/share/autojump/autojump.sh
+fi
+
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # or on OSX, installed via Homebrew.
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(vi-mode git autojump last-working-dir npm zsh-history-substring-search colored-man-pages web-search)
+plugins=(
+  vi-mode
+  git
+  history
+  autojump
+  last-working-dir
+  npm
+  zsh-completions
+  colored-man-pages
+  web-search
+  zsh-history-substring-search
+  # h
+  command-not-found
+  common-aliases
+  fzf
+)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -498,23 +547,27 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-if [ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+    # echo "Loading zsh-syntax-highlighting.zsh"
+    source "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
-if [ -f "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
-    source "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    # echo "Loading zsh-autosuggestions.zsh"
+    source "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
 if [ -f "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]; then
     source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
 fi
 
 # Bind UP and DOWN arrow keys for zsh-history-substring-search.
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
+bindkey "^[[A" history-substring-search-up
+bindkey "^[[B" history-substring-search-down
 # Also bind j/k keys for use in vi NORMAL mode.
-bindkey -M vicmd 'k' history-substring-search-up
-bindkey -M vicmd 'j' history-substring-search-down
+bindkey -M vicmd "k" history-substring-search-up
+bindkey -M vicmd "j" history-substring-search-down
 
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 fpath=($fpath "/home/rc/.zfunctions")
@@ -529,3 +582,17 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 # https://github.com/robbyrussell/oh-my-zsh/issues/1432
 unalias gm
+
+# Reload completions
+autoload -U +X bashcompinit && bashcompinit
+
+complete -o nospace -C /usr/bin/terraform terraform
+
+# Load Angular CLI autocompletion.
+if [ $commands[ng] ]; then
+  source <(ng completion script)
+fi
+
+# See https://github.com/zsh-users/zsh-history-substring-search#install
+[ -f /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh ] &&\
+  source /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh

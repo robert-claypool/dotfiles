@@ -1,9 +1,12 @@
 ! Switch to TrueType and increase the font size for HiDPI screens.
 xterm*renderFont: true
 xterm*faceName: Liberation Mono for Powerline
-xterm*faceSize: 14
+xterm*faceSize: 12
 
-Xft.dpi: 196
+! DPI is set for Dell Precision 7520:
+! Screen: 345mm x 194mm
+! 15.6" UltraSharp UHD IGZO(3840 x2160)
+Xft.dpi: 282
 Xft.autohint: 0
 Xft.lcdfilter:  lcddefault
 Xft.hintstyle:  hintfull
