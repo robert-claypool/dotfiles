@@ -513,7 +513,6 @@ plugins=(
   vi-mode
   git
   history
-  autojump
   last-working-dir
   npm
   zsh-completions
@@ -524,6 +523,7 @@ plugins=(
   command-not-found
   common-aliases
   fzf
+  z
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -599,3 +599,21 @@ fi
 # See https://github.com/zsh-users/zsh-history-substring-search#install
 [ -f /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh ] &&\
   source /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+
+# Syntax highlighting
+# source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Command auto-suggestions
+# source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Initialize the advanced completion system in zsh
+autoload -U compinit && compinit
+# Enable interactive selection of completions
+zstyle ':completion:*' menu select
+
+# Useful aliases
+alias ll='ls -lahF'
+alias la='ls -A'
+alias l='ls -CF'
+alias ..='cd ..'
+alias ...='cd ../..'
