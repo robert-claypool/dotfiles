@@ -2,65 +2,71 @@
 
 My dotfiles, except for [my.nvim](https://github.com/robert-claypool/my.nvim).
 
-1. `cd` into this directory, then run `./bootstrap.sh`
-2. Configure Zsh
-3. Set up Yabai and skhd (for macOS only)
+## Setup
+
+1. Clone this repository:
+   ```
+   git clone https://github.com/your-username/dotfiles.git
+   cd dotfiles
+   ```
+
+2. Run the bootstrap script:
+   ```
+   ./bootstrap.sh
+   ```
+
+   This script will:
+   - Set up symbolic links for various config files
+   - Configure macOS-specific settings (if on macOS)
+   - Set up Linux-specific configurations (if on Linux)
+   - Configure Alacritty
+   - Set up Git configuration
+
+3. Install and configure Zsh (if not already installed)
+
+4. Install additional tools and plugins
 
 ## Zsh configuration
 
-[Install Zsh](https://github.com/robbyrussell/oh-my-zsh/wiki/Installing-ZSH)
-and [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh#basic-installation),
-then the following plugins and themes:
+The .zshrc file is already set up with various plugins and configurations. After running the bootstrap script, you'll need to install Oh My Zsh and the required plugins:
 
-### spaceship
+1. Install [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh#basic-installation)
 
-https://github.com/denysdovhan/spaceship-zsh-theme
+2. Install the following plugins:
+   - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+   - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+   - [zsh-history-substring-search](https://github.com/zsh-users/zsh-history-substring-search)
+   - [zsh-completions](https://github.com/zsh-users/zsh-completions)
 
-### autojump
+3. Install [Spaceship prompt](https://github.com/spaceship-prompt/spaceship-prompt)
 
-https://github.com/wting/autojump
+4. Install additional tools:
+   - [fzf](https://github.com/junegunn/fzf)
+   - [autojump](https://github.com/wting/autojump)
 
-### zsh-syntax-highlighting
+## macOS-specific setup (Yabai and skhd)
 
-https://github.com/zsh-users/zsh-syntax-highlighting
+If you're on macOS, the bootstrap script will set up Yabai and skhd. After running the script:
 
-### zsh-autosuggestions
+1. Restart your computer to ensure all changes take effect.
 
-https://github.com/zsh-users/zsh-autosuggestions
-
-### zsh-history-substring-search
-
-https://github.com/zsh-users/zsh-history-substring-search
-
-### zsh-completions
-
-https://github.com/zsh-users/zsh-completions
-
-### h
-
-https://github.com/paoloantinori/hhighlighter
-
-## Yabai and skhd setup (macOS only)
-
-The `bootstrap.sh` script will automatically set up Yabai and skhd if you're on
-macOS. This includes:
-
-1. Installing Yabai and skhd via Homebrew
-2. Creating symlinks for Yabai and skhd configs
-3. Setting up launch agents for Yabai and skhd
-4. Creating a sudoers file for Yabai's scripting addition
-
-After running `bootstrap.sh`, you may need to:
-
-1. Restart your computer to ensure all changes take effect
-2. Enable the Yabai scripting addition by running:
+2. Enable the Yabai scripting addition:
    ```
    sudo yabai --install-sa
    ```
-3. If you encounter any issues with Yabai, check the system logs or
-   run `yabai --verbose --debug-output` for more information
 
-Note: Yabai requires System Integrity Protection (SIP) to be partially disabled
-for full functionality. Please refer to the [Yabai
-documentation](https://github.com/koekeishiya/yabai/wiki/Disabling-System-Integrity-Protection)
-for more information on this process.
+3. If you encounter issues, check the system logs or run:
+   ```
+   yabai --verbose --debug-output
+   ```
+
+Note: Yabai requires System Integrity Protection (SIP) to be partially disabled for full functionality. Refer to the [Yabai documentation](https://github.com/koekeishiya/yabai/wiki/Disabling-System-Integrity-Protection) for more information.
+
+## Additional notes
+
+- The .zshrc file includes configurations for various tools and languages. Make sure to install the relevant tools as needed (e.g., Node.js, Python, Ruby, Go, etc.).
+- Custom aliases and functions are defined in the .zshrc file. Review them to familiarize yourself with available shortcuts.
+- The bootstrap script sets up Alacritty configuration. Make sure Alacritty is installed on your system.
+- Git configuration is set up by the bootstrap script. Review and adjust the settings as needed.
+
+For any issues or questions, please open an issue in this repository.

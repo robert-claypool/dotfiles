@@ -1,516 +1,14 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
-# More history
-export HISTFILE="$HOME/.zsh_history"
-export HISTSIZE=1000000
-export SAVEHIST=1000000
-setopt extended_history
-setopt inc_append_history
-setopt hist_ignore_space # prefix command with a space to forget it
-
-# Reuse our custom Bash settings.
-[ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
-# Local aliases are private or ephemeral. They don't go into source control.
-[ -f ~/.local_aliases ] && source ~/.local_aliases
-
-# Add Docker to the PATH on macOS if it exists
-if [ -f /Applications/Docker.app/Contents/Resources/bin/docker ]; then
-    export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
-fi
-
-# Add Rancher to the PATH on macOS if it exists
-if [ -f /Applications/Rancher\ Desktop.app/Contents/Info.plist ]; then
-    export PATH="$PATH:$HOME/.rd/bin"
-fi
-
-# Setup Neovim
-if [ -f /usr/bin/nvim ]; then
-    # Shadow Vim with Neovim.
-    # Use \vim to bypass the alias.
-    alias vim="nvim"
-    export EDITOR=nvim
-    export NVIM_TUI_ENABLE_TRUE_COLOR=1
-fi
-
-if [ -f /usr/bin/vimpager ]; then
-    export VIMPAGER=/usr/bin/vimpager
-    alias less=$VIMPAGER
-
-    if [ -f /usr/bin/nvim ]; then
-        export VIMPAGER_VIM=/usr/bin/nvim
-    fi
-fi
-
-# Quick kill for Node.js because webpack dev server keeps hogging memory.
-alias killnode="pkill --signal SIGKILL node"
-
-# https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
-export DOTNET_ROOT=/opt/dotnet
-export PATH=~/.dotnet/tools:$PATH
-
-# Use the file type backend for aws-vault because this is compatible
-# with Linux (needed for Geodesic sessions).
-# https://github.com/99designs/aws-vault
-# https://docs.cloudposse.com/tools/aws-vault/
-export AWS_VAULT_BACKEND="file"
-
-# Add the path to AWS EB CLI
-[ -d ~/.local/bin ] && export PATH=~/.local/bin:$PATH
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Setup Flutter
-# export PATH="$PATH:"~/flutter/bin
-
-# Setup Node Version Manager
-if [ -d "$HOMEBREW_PREFIX/opt/nvm" ]; then
-  # Create the nvm working directory if it doesn't exist
-  # since brew doesn't automate this step.
-  if [ ! -d "$HOME/.nvm" ]; then
-    mkdir "$HOME/.nvm"
-  fi
-  export NVM_DIR="$HOME/.nvm"
-  # Load nvm
-  [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] \
-    && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
-  # Load nvm bash_completion
-  [ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] \
-    && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
-else
-  if [ -d "$HOME/.nvm" ]; then
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-  fi
-fi
-
-export BROWSER=/usr/bin/chromium
-
-# Setting rg as the default source for fzf
-export FZF_DEFAULT_COMMAND='rg --files'
-
-# Better visual separation for fzf results
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-
-# Apply the command to CTRL-T as well
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-
-## FZF FUNCTIONS ##
-# https://github.com/ctaylo21/jarvis/blob/master/zsh/zshrc.symlink
-
-# fo [FUZZY PATTERN] - Open the selected file with the default editor
-#   - Bypass fuzzy finder if there's only one match (--select-1)
-#   - Exit if there's no match (--exit-0)
-fo() {
-  local files
-  IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
-  [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
-}
-
-# fh [FUZZY PATTERN] - Search in command history
-fh() {
-  print -z $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
-}
-
-# fbr [FUZZY PATTERN] - Checkout specified branch
-# Include remote branches, sorted by most recent commit and limited to 30
-fgb() {
-  local branches branch
-  branches=$(git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format="%(refname:short)") &&
-  branch=$(echo "$branches" |
-           fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
-}
-
-# tm [SESSION_NAME | FUZZY PATTERN] - create new tmux session, or switch to existing one.
-# Running `tm` will let you fuzzy-find a session mame
-# Passing an argument to `ftm` will switch to that session if it exists or create it otherwise
-ftm() {
-  [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
-  if [ $1 ]; then
-    tmux $change -t "$1" 2>/dev/null || (tmux new-session -d -s $1 && tmux $change -t "$1"); return
-  fi
-  session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
-}
-
-# tm [SESSION_NAME | FUZZY PATTERN] - delete tmux session
-# Running `tm` will let you fuzzy-find a session name to delete
-# Passing an argument to `ftm` will delete that session if it exists
-ftmk() {
-  if [ $1 ]; then
-    tmux kill-session -t "$1"; return
-  fi
-  session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf --exit-0) &&  tmux kill-session -t "$session" || echo "No session found to delete."
-}
-
-# fuzzy grep via rg and open in vim with line number
-fgr() {
-  local file
-  local line
-
-  read -r file line <<<"$(rg --no-heading --line-number $@ | fzf -0 -1 | awk -F: '{print $1, $2}')"
-
-  if [[ -n $file ]]
-  then
-     vim $file +$line
-  fi
-}
-
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+# Set name of the theme to load
 ZSH_THEME="spaceship"
 
-# ==============================
-# BEGIN Spaceship Configurations
-# ==============================
-SPACESHIP_PROMPT_ORDER=(
-  time          # Time stamps section
-  user          # Username section
-  dir           # Current directory section
-  host          # Hostname section
-  git           # Git section (git_branch + git_status)
-  package       # Package version
-  node          # Node.js section
-  xcode         # Xcode section
-  swift         # Swift section
-  golang        # Go section
-  php           # PHP section
-  rust          # Rust section
-  docker        # Docker section
-  aws           # Amazon Web Services section
-  venv          # virtualenv section
-  conda         # conda virtualenv section
-  python        # Python section
-  dotnet        # .NET section
-  line_sep      # Line break
-  battery       # Battery level and status
-  jobs          # Background jobs indicator
-  exit_code     # Exit code section
-  char          # Prompt character
-)
+# Disable compfix to avoid the mv error
+ZSH_DISABLE_COMPFIX=true
 
-# Update deprecated Spaceship settings
-SPACESHIP_PYTHON_SHOW="${SPACESHIP_PYENV_SHOW}"
-SPACESHIP_PYTHON_PREFIX="${SPACESHIP_PYENV_PREFIX}"
-SPACESHIP_PYTHON_SUFFIX="${SPACESHIP_PYENV_SUFFIX}"
-SPACESHIP_PYTHON_SYMBOL="${SPACESHIP_PYENV_SYMBOL}"
-SPACESHIP_PYTHON_COLOR="${SPACESHIP_PYENV_COLOR}"
-
-# Remove deprecated settings
-unset SPACESHIP_PYENV_SHOW SPACESHIP_PYENV_PREFIX SPACESHIP_PYENV_SUFFIX SPACESHIP_PYENV_SYMBOL SPACESHIP_PYENV_COLOR
-
-# PROMPT
-SPACESHIP_CHAR_SYMBOL="➜ "
-SPACESHIP_PROMPT_ADD_NEWLINE=true
-SPACESHIP_PROMPT_SEPARATE_LINE=true
-SPACESHIP_PROMPT_PREFIXES_SHOW=true
-SPACESHIP_PROMPT_SUFFIXES_SHOW=true
-SPACESHIP_PROMPT_DEFAULT_PREFIX="via "
-SPACESHIP_PROMPT_DEFAULT_SUFFIX=" "
-
-# TIME
-SPACESHIP_TIME_SHOW=false
-SPACESHIP_TIME_PREFIX="at "
-SPACESHIP_TIME_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_TIME_FORMAT=false
-SPACESHIP_TIME_12HR=false
-SPACESHIP_TIME_COLOR="yellow"
-
-# EXECUTION TIME
-SPACESHIP_EXEC_TIME_SHOW=true
-SPACESHIP_EXEC_TIME_PREFIX="took "
-SPACESHIP_EXEC_TIME_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_EXEC_TIME_COLOR="yellow"
-SPACESHIP_EXEC_TIME_THRESHOLD=5000
-SPACESHIP_EXEC_TIME_MS=false
-
-# USER
-SPACESHIP_USER_SHOW=true
-SPACESHIP_USER_PREFIX="with "
-SPACESHIP_USER_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_USER_COLOR="yellow"
-SPACESHIP_USER_COLOR_ROOT="red"
-
-# HOST
-SPACESHIP_HOST_SHOW=true
-SPACESHIP_HOST_PREFIX="at "
-SPACESHIP_HOST_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_HOST_COLOR="green"
-
-# DIR
-SPACESHIP_DIR_SHOW=true
-SPACESHIP_DIR_PREFIX="in "
-SPACESHIP_DIR_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_DIR_TRUNC=3
-SPACESHIP_DIR_COLOR="cyan"
-
-# GIT
-SPACESHIP_GIT_SHOW=true
-SPACESHIP_GIT_PREFIX="on "
-SPACESHIP_GIT_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_GIT_SYMBOL=" "
-# GIT BRANCH
-SPACESHIP_GIT_BRANCH_SHOW=true
-SPACESHIP_GIT_BRANCH_PREFIX="$SPACESHIP_GIT_SYMBOL"
-SPACESHIP_GIT_BRANCH_SUFFIX=""
-SPACESHIP_GIT_BRANCH_COLOR="magenta"
-# GIT STATUS
-SPACESHIP_GIT_STATUS_SHOW=true
-SPACESHIP_GIT_STATUS_PREFIX=" ["
-SPACESHIP_GIT_STATUS_SUFFIX="]"
-SPACESHIP_GIT_STATUS_COLOR="red"
-SPACESHIP_GIT_STATUS_UNTRACKED="?"
-SPACESHIP_GIT_STATUS_ADDED="+"
-SPACESHIP_GIT_STATUS_MODIFIED="!"
-SPACESHIP_GIT_STATUS_RENAMED="»"
-SPACESHIP_GIT_STATUS_DELETED="✘"
-SPACESHIP_GIT_STATUS_STASHED="$"
-SPACESHIP_GIT_STATUS_UNMERGED="="
-SPACESHIP_GIT_STATUS_AHEAD="⇡"
-SPACESHIP_GIT_STATUS_BEHIND="⇣"
-SPACESHIP_GIT_STATUS_DIVERGED="⇕"
-
-# HG
-SPACESHIP_HG_SHOW=true
-SPACESHIP_HG_PREFIX="on "
-SPACESHIP_HG_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_HG_SYMBOL="☿ "
-# HG BRANCH
-SPACESHIP_HG_BRANCH_SHOW=true
-SPACESHIP_HG_BRANCH_PREFIX="$SPACESHIP_HG_SYMBOL"
-SPACESHIP_HG_BRANCH_SUFFIX=""
-SPACESHIP_HG_BRANCH_COLOR="magenta"
-# HG STATUS
-SPACESHIP_HG_STATUS_SHOW=true
-SPACESHIP_HG_STATUS_PREFIX="["
-SPACESHIP_HG_STATUS_SUFFIX="]"
-SPACESHIP_HG_STATUS_COLOR="red"
-SPACESHIP_HG_STATUS_UNTRACKED="?"
-SPACESHIP_HG_STATUS_ADDED="+"
-SPACESHIP_HG_STATUS_MODIFIED="!"
-SPACESHIP_HG_STATUS_DELETED="✘"
-
-# PACKAGE
-SPACESHIP_PACKAGE_SHOW=false
-SPACESHIP_PACKAGE_PREFIX="is "
-SPACESHIP_PACKAGE_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_PACKAGE_SYMBOL="📦 "
-SPACESHIP_PACKAGE_COLOR="red"
-
-# NODE
-SPACESHIP_NODE_SHOW=true
-SPACESHIP_NODE_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_NODE_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_NODE_SYMBOL="⬢ "
-SPACESHIP_NODE_DEFAULT_VERSION=""
-SPACESHIP_NODE_COLOR="green"
-
-# RUBY
-SPACESHIP_RUBY_SHOW=true
-SPACESHIP_RUBY_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_RUBY_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_RUBY_SYMBOL="ℝ "
-SPACESHIP_RUBY_COLOR="red"
-
-# ELIXIR
-SPACESHIP_ELIXIR_SHOW=true
-SPACESHIP_ELIXIR_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_ELIXIR_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_ELIXIR_SYMBOL="ELIXIR "
-SPACESHIP_ELIXIR_DEFAULT_VERSION=""
-SPACESHIP_ELIXIR_COLOR="magenta"
-
-# XCODE
-SPACESHIP_XCODE_SHOW_LOCAL=true
-SPACESHIP_XCODE_SHOW_GLOBAL=false
-SPACESHIP_XCODE_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_XCODE_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_XCODE_SYMBOL="XCODE "
-SPACESHIP_XCODE_COLOR="blue"
-
-# SWIFT
-SPACESHIP_SWIFT_SHOW_LOCAL=true
-SPACESHIP_SWIFT_SHOW_GLOBAL=false
-SPACESHIP_SWIFT_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_SWIFT_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_SWIFT_SYMBOL="⌲ "
-SPACESHIP_SWIFT_COLOR="yellow"
-
-# GOLANG
-SPACESHIP_GOLANG_SHOW=true
-SPACESHIP_GOLANG_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_GOLANG_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_GOLANG_SYMBOL="GO "
-SPACESHIP_GOLANG_COLOR="cyan"
-
-# PHP
-SPACESHIP_PHP_SHOW=true
-SPACESHIP_PHP_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_PHP_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_PHP_SYMBOL="PHP "
-SPACESHIP_PHP_COLOR="blue"
-
-# RUST
-SPACESHIP_RUST_SHOW=true
-SPACESHIP_RUST_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_RUST_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_RUST_SYMBOL="𝗥 "
-SPACESHIP_RUST_COLOR="red"
-
-# JULIA
-SPACESHIP_JULIA_SHOW=true
-SPACESHIP_JULIA_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_JULIA_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_JULIA_SYMBOL="ஃ "
-SPACESHIP_JULIA_COLOR="green"
-
-# DOCKER
-SPACESHIP_DOCKER_SHOW=true
-SPACESHIP_DOCKER_PREFIX="on "
-SPACESHIP_DOCKER_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_DOCKER_SYMBOL="◳ "
-SPACESHIP_DOCKER_COLOR="cyan"
-
-# Amazon Web Services (AWS)
-SPACESHIP_AWS_SHOW=true
-SPACESHIP_AWS_PREFIX="using "
-SPACESHIP_AWS_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_AWS_SYMBOL="☁️ "
-SPACESHIP_AWS_COLOR="208"
-
-# VENV
-SPACESHIP_VENV_SHOW=true
-SPACESHIP_VENV_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_VENV_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_VENV_COLOR="blue"
-
-# CONDA
-SPACESHIP_CONDA_SHOW=true
-SPACESHIP_CONDA_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_CONDA_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_CONDA_SYMBOL="🅒 "
-SPACESHIP_CONDA_COLOR="blue"
-
-# PYENV
-SPACESHIP_PYENV_SHOW=true
-SPACESHIP_PYENV_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_PYENV_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_PYENV_SYMBOL="PY "
-SPACESHIP_PYENV_COLOR="yellow"
-
-# DOTNET
-SPACESHIP_DOTNET_SHOW=true
-SPACESHIP_DOTNET_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_DOTNET_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_DOTNET_SYMBOL=".NET "
-SPACESHIP_DOTNET_COLOR="128"
-
-# EMBER
-SPACESHIP_EMBER_SHOW=true
-SPACESHIP_EMBER_PREFIX="$SPACESHIP_PROMPT_DEFAULT_PREFIX"
-SPACESHIP_EMBER_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_EMBER_SYMBOL="EMBER "
-SPACESHIP_EMBER_COLOR="210"
-
-# BATTERY
-SPACESHIP_BATTERY_SHOW="always"
-SPACESHIP_BATTERY_PREFIX=""
-SPACESHIP_BATTERY_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_BATTERY_SYMBOL_CHARGING="⇡"
-SPACESHIP_BATTERY_SYMBOL_DISCHARGING="⇣"
-SPACESHIP_BATTERY_SYMBOL_FULL="•"
-SPACESHIP_BATTERY_THRESHOLD=10
-
-# VI_MODE
-SPACESHIP_VI_MODE_SHOW=true
-SPACESHIP_VI_MODE_PREFIX=""
-SPACESHIP_VI_MODE_SUFFIX="$SPACESHIP_PROMPT_DEFAULT_SUFFIX"
-SPACESHIP_VI_MODE_INSERT="[I]"
-SPACESHIP_VI_MODE_NORMAL="[N]"
-SPACESHIP_VI_MODE_COLOR="white"
-
-# JOBS
-SPACESHIP_JOBS_SHOW="true"
-SPACESHIP_JOBS_PREFIX=""
-SPACESHIP_JOBS_SUFFIX=" "
-SPACESHIP_JOBS_SYMBOL="✦"
-SPACESHIP_JOBS_COLOR="blue"
-
-# EXIT CODE
-SPACESHIP_EXIT_CODE_SHOW=false
-SPACESHIP_EXIT_CODE_PREFIX="("
-SPACESHIP_EXIT_CODE_SUFFIX=") "
-SPACESHIP_EXIT_CODE_SYMBOl="✘ "
-SPACESHIP_EXIT_CODE_COLOR="red"
-# ==============================
-# END Spaceship Configurations
-# ==============================
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Display red dots whilst waiting for completion.
-COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# https://kubernetes.io/docs/tasks/tools/install-kubectl/#using-zsh
-if [ $commands[kubectl] ]; then
-  source <(kubectl completion zsh)
-fi
-
-# All Debian-derived distros require manual activation for policy reasons.
-if [ -f /usr/share/autojump/autojump.sh ]; then
-  . /usr/share/autojump/autojump.sh
-fi
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# or on OSX, installed via Homebrew.
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
+# Which plugins would you like to load?
 plugins=(
-  vi-mode
   git
   history
   last-working-dir
@@ -519,101 +17,112 @@ plugins=(
   colored-man-pages
   web-search
   zsh-history-substring-search
-  # h
   command-not-found
   common-aliases
   fzf
   z
+  zsh-syntax-highlighting
+  zsh-autosuggestions
 )
 
+# Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
+# History configuration
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=1000000
+SAVEHIST=1000000
+setopt extended_history
+setopt inc_append_history
+setopt hist_ignore_space
 
-# export MANPATH="/usr/local/man:$MANPATH"
+# Source custom configurations
+[ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
+[ -f ~/.bash_aliases ] && source ~/.bash_aliases
+[ -f ~/.local_aliases ] && source ~/.local_aliases
 
-# You may need to manually set your language environment
-export LANG=en_US.UTF-8
+# PATH additions
+[ -f /Applications/Docker.app/Contents/Resources/bin/docker ] && export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
+[ -f /Applications/Rancher\ Desktop.app/Contents/Info.plist ] && export PATH="$PATH:$HOME/.rd/bin"
+[ -d ~/.local/bin ] && export PATH="$PATH:~/.local/bin"
+export PATH="$PATH:~/.dotnet/tools"
 
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-
-if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
-    # echo "Loading zsh-syntax-highlighting.zsh"
-    source "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-fi
-if [ -f "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
-    # echo "Loading zsh-autosuggestions.zsh"
-    source "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fi
-if [ -f "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh" ]; then
-    source "/usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+# Neovim setup
+if [ -f /usr/bin/nvim ]; then
+    alias vim="nvim"
+    export EDITOR=nvim
+    export NVIM_TUI_ENABLE_TRUE_COLOR=1
 fi
 
-# Bind UP and DOWN arrow keys for zsh-history-substring-search.
-bindkey "^[[A" history-substring-search-up
-bindkey "^[[B" history-substring-search-down
-# Also bind j/k keys for use in vi NORMAL mode.
-bindkey -M vicmd "k" history-substring-search-up
-bindkey -M vicmd "j" history-substring-search-down
+# Other environment variables
+export DOTNET_ROOT=/opt/dotnet
+export AWS_VAULT_BACKEND="file"
+export BROWSER=/usr/bin/chromium
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+# NVM setup
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# FZF configuration
+export FZF_DEFAULT_COMMAND='rg --files'
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# Source FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-fpath=($fpath "/home/rc/.zfunctions")
+# Kubectl completion
+(( $+commands[kubectl] )) && source <(kubectl completion zsh)
 
-# Set Spaceship ZSH as a prompt
-autoload -U promptinit; promptinit
-prompt spaceship
+# Angular CLI completion
+(( $+commands[ng] )) && source <(ng completion script)
 
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# https://github.com/robbyrussell/oh-my-zsh/issues/1432
-unalias gm
-
-# Reload completions
-autoload -U +X bashcompinit && bashcompinit
-
+# Terraform completion
 complete -o nospace -C /usr/bin/terraform terraform
 
-# Load Angular CLI autocompletion.
-if [ $commands[ng] ]; then
-  source <(ng completion script)
-fi
-
-# See https://github.com/zsh-users/zsh-history-substring-search#install
-[ -f /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh ] &&\
-  source /usr/local/share/zsh-history-substring-search/zsh-history-substring-search.zsh
-
-# Syntax highlighting
-# source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# Command auto-suggestions
-# source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# Initialize the advanced completion system in zsh
-autoload -U compinit && compinit
-# Enable interactive selection of completions
+# Initialize the completion system
+autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
 
-# Useful aliases
+# Aliases
 alias ll='ls -lahF'
 alias la='ls -A'
 alias l='ls -CF'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias killnode="pkill --signal SIGKILL node"
+
+# Spaceship prompt configurations
+SPACESHIP_PROMPT_ORDER=(
+  time
+  user
+  dir
+  host
+  git
+  node
+  ruby
+  python
+  golang
+  docker
+  aws
+  exec_time
+  line_sep
+  jobs
+  exit_code
+  char
+)
+SPACESHIP_PROMPT_ADD_NEWLINE=false
+SPACESHIP_TIME_SHOW=true
+SPACESHIP_TIME_FORMAT="%D{%I:%M:%S %p}"
+SPACESHIP_EXEC_TIME_SHOW=true
+SPACESHIP_EXEC_TIME_ELAPSED=0
+
+# Ensure Spaceship is loaded
+autoload -U promptinit; promptinit
+prompt spaceship
+
+# Override Spaceship char section
+SPACESHIP_CHAR_PREFIX=" "
+SPACESHIP_CHAR_SUFFIX=""
+SPACESHIP_CHAR_SYMBOL="❯"
