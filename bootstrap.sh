@@ -25,7 +25,8 @@ setup_macos() {
     echo "Setting up macOS-specific configurations..."
 
     if [[ ! -f $HOME/.ssh/config ]]; then
-        ln -s $PWD/macOS/.ssh/config $HOME/.ssh/config
+        mkdir -p "$HOME/.ssh"
+        ln -sf "$PWD/macOS/.ssh/config" "$HOME/.ssh/config"
     fi
 
     setup_yabai_skhd
@@ -114,35 +115,55 @@ setup_linux() {
     MY_CONFIGS="$HOME/.config"
     if [[ -f /etc/regolith/i3/config ]]; then
         MY_CONFIGS="$HOME/.config/regolith"
-    else
-        setup_linux_configs
     fi
 
-    if [[ ! -f $MY_CONFIGS/i3/config ]]; then
-        ln -s $PWD/.config/i3 $MY_CONFIGS/i3
-    fi
+    setup_linux_configs
+
+    mkdir -p "$MY_CONFIGS/i3"
+    ln -sf "$PWD/.config/i3/config" "$MY_CONFIGS/i3/config"
 }
 
 setup_linux_configs() {
+    mkdir -p "$MY_CONFIGS"
+
     if [[ ! -f $MY_CONFIGS/openai.token ]]; then
-        ln -s $PWD/.config/openai.token $MY_CONFIGS/openai.token
+        ln -sf "$PWD/.config/openai.token" "$MY_CONFIGS/openai.token"
     fi
 
-    if [[ ! -f $MY_CONFIGS/i3status/config ]]; then
-        ln -s $PWD/.config/i3status $MY_CONFIGS/i3status
-    fi
-    if [[ ! -f $MY_CONFIGS/conky/conky.conf ]]; then
-        ln -s $PWD/.config/conky $MY_CONFIGS/conky
-    fi
-    if [[ ! -f $MY_CONFIGS/termite/config ]]; then
-        ln -s $PWD/.config/termite $MY_CONFIGS/termite
-    fi
+    mkdir -p "$MY_CONFIGS/i3status"
+    ln -sf "$PWD/.config/i3status/config" "$MY_CONFIGS/i3status/config"
+
+    mkdir -p "$MY_CONFIGS/conky"
+    ln -sf "$PWD/.config/conky/conky.conf" "$MY_CONFIGS/conky/conky.conf"
+
+    mkdir -p "$MY_CONFIGS/termite"
+    ln -sf "$PWD/.config/termite/config" "$MY_CONFIGS/termite/config"
 }
 
 setup_alacritty() {
-    if [[ ! -f $HOME/.config/alacritty/alacritty.yml ]]; then
-        ln -s $PWD/.config/alacritty $HOME/.config/alacritty
+    echo "Setting up Alacritty configuration..."
+    local alacritty_config_dir="$HOME/.config/alacritty"
+    local alacritty_config_file="$alacritty_config_dir/alacritty.toml"
+    local source_config_file="$PWD/.config/alacritty/alacritty.toml"
+
+    # Remove existing symlink or directory
+    if [[ -L "$alacritty_config_dir" || -d "$alacritty_config_dir" ]]; then
+        rm -rf "$alacritty_config_dir"
     fi
+
+    # Create the directory
+    mkdir -p "$alacritty_config_dir"
+
+    # Check if we're in the dotfiles directory
+    if [[ "$PWD" == "$HOME/git/dotfiles" ]]; then
+        # We're in the dotfiles directory, so copy the file instead of symlinking
+        cp "$source_config_file" "$alacritty_config_file"
+    else
+        # Create symlink for the configuration file
+        ln -sf "$source_config_file" "$alacritty_config_file"
+    fi
+
+    echo "Alacritty configuration set up successfully."
 }
 
 setup_git() {
