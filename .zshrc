@@ -181,15 +181,11 @@ SPACESHIP_PROMPT_ORDER=(
   git           # Git section (git_branch + git_status)
   package       # Package version
   node          # Node.js section
-  ruby          # Ruby section
-  elixir        # Elixir section
   xcode         # Xcode section
   swift         # Swift section
   golang        # Go section
   php           # PHP section
   rust          # Rust section
-  haskell       # Haskell Stack section
-  julia         # Julia section
   docker        # Docker section
   aws           # Amazon Web Services section
   venv          # virtualenv section
