@@ -52,6 +52,3 @@ dynamic_title = true
 
 [selection]
 save_to_clipboard = true
-
-[keyboard]
-vi_mode_cursor = "Block"
