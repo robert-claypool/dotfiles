@@ -58,5 +58,9 @@ if ! pgrep -u "$USER" ssh-agent > /dev/null; then
     echo "Running ssh-agent, the default OpenSSH agent, for all terminals."
 fi
 if [[ ! "$SSH_AUTH_SOCK" ]]; then
-    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+    if [[ -f "$XDG_RUNTIME_DIR/ssh-agent.env" ]]; then
+        source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+    else
+        echo "Warning: ssh-agent environment file not found."
+    fi
 fi
