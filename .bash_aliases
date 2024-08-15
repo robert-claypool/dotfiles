@@ -7,9 +7,16 @@ alias cdg="cd ~/git"
 
 alias cat="bat"
 
-alias ls='ls -G'
+alias ls='ls -FG'
+alias ll='ls -lahGFT'
+alias la='ls -AGF'
+alias l='ls -CFG'
 
-alias ls='ls --color=auto --group-directories-first'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+alias killnode="pkill --signal SIGKILL node"
+
 alias rm='rm -Iv'
 alias grep='grep --color=auto'
 

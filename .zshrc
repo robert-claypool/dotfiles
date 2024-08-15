@@ -85,14 +85,6 @@ complete -o nospace -C /usr/bin/terraform terraform
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
 
-# Aliases
-alias ll='ls -lahF'
-alias la='ls -A'
-alias l='ls -CF'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias killnode="pkill --signal SIGKILL node"
-
 # Spaceship prompt configurations
 SPACESHIP_PROMPT_ORDER=(
   time
@@ -126,3 +118,7 @@ prompt spaceship
 SPACESHIP_CHAR_PREFIX=" "
 SPACESHIP_CHAR_SUFFIX=""
 SPACESHIP_CHAR_SYMBOL="❯"
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/rc/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
