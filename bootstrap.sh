@@ -15,6 +15,7 @@ setup_symlinks() {
         .gitignore
         .Xresources
         .secrets
+        .wezterm.lua
     )
     for config in "${configs[@]}"; do
         ln -sf "$PWD/$config" "$HOME/$config"
