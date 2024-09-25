@@ -42,7 +42,6 @@ config.scrollback_lines = 10000
 -- Window settings
 config.window_decorations = "RESIZE"
 config.window_close_confirmation = "NeverPrompt"
-config.dynamic_title = true
 config.window_padding = {
   left = 8,
   right = 8,
