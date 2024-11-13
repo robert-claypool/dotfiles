@@ -54,6 +54,12 @@ if [ -f /usr/bin/nvim ]; then
     export NVIM_TUI_ENABLE_TRUE_COLOR=1
 fi
 
+# Python version manager
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+
 # Other environment variables
 export DOTNET_ROOT=/opt/dotnet
 export AWS_VAULT_BACKEND="file"
