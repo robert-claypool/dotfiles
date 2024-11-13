@@ -20,10 +20,12 @@ plugins=(
   command-not-found
   common-aliases
   fzf
-  z
   zsh-syntax-highlighting
   zsh-autosuggestions
 )
+
+# Initialize zoxide (a better alternative to z)
+eval "$(zoxide init zsh)"
 
 # Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
@@ -72,7 +74,7 @@ export NVM_DIR="$HOME/.nvm"
 
 # FZF configuration
 export FZF_DEFAULT_COMMAND='rg --files'
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+export FZF_DEFAULT_OPTS='--height 60% --layout=reverse --border sharp'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 # Source FZF

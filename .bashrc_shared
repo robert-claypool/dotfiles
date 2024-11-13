@@ -39,14 +39,14 @@ if command -v git >/dev/null 2>&1 && command -v delta >/dev/null 2>&1; then
     # Core delta setup
     git config --global core.pager "delta"
     git config --global interactive.diffFilter "delta --color-only"
-    
+
     # Delta's own config
     git config --global delta.navigate true
     git config --global delta.light false
     git config --global delta.side-by-side true
     git config --global delta.line-numbers true
     git config --global delta.syntax-theme "Dracula"
-    
+
     # Custom colors for diff backgrounds
     git config --global delta.minus-style "syntax #450a15"
     git config --global delta.plus-style "syntax #0b4820"
@@ -84,3 +84,163 @@ if [[ ! "$SSH_AUTH_SOCK" ]]; then
         echo "Warning: ssh-agent environment file not found."
     fi
 fi
+
+# FZF configuration - check dependencies first
+if command -v fzf >/dev/null 2>&1; then
+    # Base FZF options - check if bat is available for preview
+    if command -v bat >/dev/null 2>&1; then
+        preview_cmd='bat --color=always --style=numbers --line-range=:500 {}'
+    else
+        preview_cmd='cat {}'
+    fi
+
+    export FZF_DEFAULT_OPTS="--height 60% --layout=reverse --border sharp"
+
+    # Add preview options if bat is available
+    if command -v bat >/dev/null 2>&1; then
+        export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --preview '$preview_cmd' --preview-window=right:60%:wrap"
+        export FZF_CTRL_T_OPTS="--preview '$preview_cmd' --preview-window=right:60%:wrap"
+    fi
+
+    # Basic CTRL-R options (doesn't require additional tools)
+    export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window=down:3:wrap"
+
+    # ALT-C preview with eza if available, fallback to tree, then ls
+    if command -v eza >/dev/null 2>&1; then
+        export FZF_ALT_C_OPTS="--preview 'eza --tree {} | head -200'"
+    elif command -v tree >/dev/null 2>&1; then
+        export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+    else
+        export FZF_ALT_C_OPTS="--preview 'ls -la {}'"
+    fi
+
+    # Use fd if available, otherwise fall back to find
+    if command -v fd >/dev/null 2>&1; then
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+        export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    else
+        export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*"'
+        export FZF_ALT_C_COMMAND='find . -type d -not -path "*/\.git/*"'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    fi
+fi
+
+# Checkout git branch (including remote branches) with fzf
+gitf() {
+  git checkout $(git branch --all | fzf | sed 's/remotes\/origin\///')
+}
+
+# Kill process
+killf() {
+  pid=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
+  if [ "x$pid" != "x" ]; then
+    kill -${1:-9} $pid
+  fi
+}
+
+# Fuzzy file open in Neovim
+vf() {
+    if ! command -v nvim >/dev/null 2>&1; then
+        echo "Error: Neovim (nvim) is not installed"
+        return 1
+    fi
+
+    local file
+    file="$(fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}')"
+    [ -n "$file" ] && nvim "$file"
+}
+
+# Fuzzy file open in VS Code
+vsf() {
+    if ! command -v code >/dev/null 2>&1; then
+        echo "Error: VS Code (code) is not installed"
+        return 1
+    fi
+
+    local file
+    file="$(fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}')"
+    [ -n "$file" ] && code "$file"
+}
+
+# Fuzzy history search and execute
+histf() {
+  local cmd
+  cmd=$(history | fzf --tac | sed 's/ *[0-9]* *//')
+  if [ -n "$cmd" ]; then
+    echo "Executing: $cmd"
+    eval $cmd
+  fi
+}
+
+# Fuzzy find and cd into directory
+cdf() {
+    local dir
+    dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m)
+    if [ -n "$dir" ]; then
+        cd "$dir"
+    fi
+}
+
+# Fuzzy find in directory contents (uses ripgrep)
+rgf() {
+    if ! command -v rg >/dev/null 2>&1; then
+        echo "Error: ripgrep (rg) is not installed"
+        return 1
+    fi
+    local file line
+    read -r file line <<<"$(rg --line-number . | fzf -d ':' --preview 'bat --color=always --highlight-line {2} {1}' | awk -F: '{print $1, $2}')"
+    if [ -n "$file" ]; then
+        ${EDITOR:-nvim} "$file" +"$line"
+    fi
+}
+
+# Fuzzy find and checkout git commit
+commitf() {
+    local commits commit
+    commits=$(git log --oneline --color=always | fzf --ansi --preview 'git show --color=always {1}' | awk '{print $1}')
+    if [ -n "$commits" ]; then
+        git checkout "$commits"
+    fi
+}
+
+# Fuzzy find git stash and apply
+stashf() {
+    local stash
+    stash=$(git stash list | fzf --preview 'git stash show --color=always {1}' | cut -d: -f1)
+    if [ -n "$stash" ]; then
+        git stash apply "$stash"
+    fi
+}
+
+# Fuzzy find environment variable
+envf() {
+    local var
+    var=$(printenv | fzf)
+    if [ -n "$var" ]; then
+        echo "$var" | tr -d '\n' | pbcopy  # Copies to clipboard
+        echo "Copied to clipboard: $var"
+    fi
+}
+
+# Extract any archive
+extract() {
+    if [ -f $1 ]; then
+        case $1 in
+            *.tar.bz2)   tar xjf $1     ;;
+            *.tar.gz)    tar xzf $1     ;;
+            *.bz2)       bunzip2 $1     ;;
+            *.rar)       unrar e $1     ;;
+            *.gz)        gunzip $1      ;;
+            *.tar)       tar xf $1      ;;
+            *.tbz2)      tar xjf $1     ;;
+            *.tgz)       tar xzf $1     ;;
+            *.zip)       unzip $1       ;;
+            *.Z)         uncompress $1  ;;
+            *.7z)        7z x $1        ;;
+            *)          echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}

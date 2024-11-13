@@ -7,15 +7,54 @@ alias cdg="cd ~/git"
 
 alias cat="bat"
 
-alias ls='ls -FG'
-alias ll='ls -lahGFT'
-alias la='ls -AGF'
-alias l='ls -CFG'
+# Use eza (modern ls) if available
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --group-directories-first --icons'
+    alias ll='eza -lahF --git --group-directories-first --icons'
+    alias lt='eza --tree --level=2 --icons'
+    alias lg='eza -lahF --git --git-ignore'
+else
+    # Fallback to traditional ls with colors
+    alias ls='ls -FG'
+    alias ll='ls -lahGFT'
+    alias la='ls -AGF'
+    alias l='ls -CFG'
+    echo "eza not found, falling back to traditional ls"
+fi
 
+# Quick directory navigation
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Better defaults
+alias df='df -h'
+alias du='du -h'
+alias free='free -m'
+
+# Find stuff fast
+alias ff='find . -type f -name'
+alias fd='find . -type d -name'
 
 alias killnode="pkill --signal SIGKILL node"
+
+# Ripgrep with smart defaults
+alias rg='rg --hidden --glob "!.git" --smart-case'
+
+# Show directory size
+alias dirsize='du -sh'
+
+# Copy with progress
+alias cpv='rsync -ah --info=progress2'
+
+# Quick cd to git root
+alias cdg='cd $(git rev-parse --show-toplevel)'
+
+# Show most used commands, with options for number of commands to show
+favorites() {
+    local num=${1:-10}  # Default to 10 if no argument provided
+    history | awk '{print $2}' | sort | uniq -c | sort -rn | head -n "$num"
+}
 
 alias rm='rm -Iv'
 alias grep='grep --color=auto'

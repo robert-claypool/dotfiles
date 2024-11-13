@@ -1,5 +1,54 @@
 #!/usr/bin/env bash
 
+setup_tools() {
+    echo "Setting up additional command line tools..."
+
+    local tools=(
+        # Better ls replacement
+        eza
+        # Better find replacement
+        fd
+        # Smarter cd with directory jumping (better than z)
+        zoxide
+        # Simplified man pages
+        tldr
+        # Better disk usage viewer
+        duf
+        # Directory size analyzer
+        dust
+        # Modern cut replacement
+        choose
+        # Modern system monitor
+        bottom
+        # Modern replacement for dig (and dog)
+        doggo
+        # JSON processor
+        jq
+        # Modern process viewer
+        procs
+        # Modern grep alternative with type support
+        ripgrep-all
+        # Directory tree generator
+        tre-command
+    )
+
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "Homebrew is not installed. Skipping tool installation."
+        return 1
+    fi
+
+    for tool in "${tools[@]}"; do
+        [[ -z "$tool" || "$tool" =~ ^[[:space:]]*# ]] && continue
+
+        if ! brew list "$tool" >/dev/null 2>&1; then
+            echo "Installing $tool..."
+            brew install "$tool"
+        else
+            echo "✓ $tool is already installed"
+        fi
+    done
+}
+
 setup_symlinks() {
     echo "Setting symbolic links to various configs..."
     local configs=(
@@ -195,16 +244,20 @@ setup_git() {
 
 main() {
     setup_symlinks
+    echo "-----"
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
         setup_macos
+        echo "-----"
+        setup_tools
     else
         setup_linux
     fi
 
+    echo "-----"
     setup_alacritty
+    echo "-----"
     setup_git
-
     echo "-----"
     echo "Open README.md and install ZSH plugins as described."
 }
