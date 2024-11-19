@@ -70,6 +70,7 @@ export PATH="~/.rd/bin:$PATH"
 export AWS_VAULT_BACKEND="file"
 
 export PATH=~/.local/bin:$PATH
+export PATH=~/bin:$PATH
 
 # Start the default OpenSSH agent automatically and make
 # sure only one ssh-agent process runs at a time.
