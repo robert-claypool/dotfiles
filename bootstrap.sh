@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+setup_aerospace() {
+    echo "Setting up AeroSpace configuration..."
+    local aerospace_config_dir="$HOME/.config/aerospace"
+    local aerospace_config_file="$aerospace_config_dir/aerospace.toml"
+    local source_config_file="$PWD/.config/aerospace/aerospace.toml"
+
+    # Ensure the target directory exists
+    mkdir -p "$aerospace_config_dir"
+
+    # Create symlink for the configuration file
+    ln -sf "$source_config_file" "$aerospace_config_file"
+
+    echo "AeroSpace configuration symlinked successfully."
+}
+
 setup_tools() {
     echo "Setting up additional command line tools..."
 
@@ -170,6 +185,8 @@ main() {
         setup_macos
         echo "-----"
         setup_tools
+        echo "-----"
+        setup_aerospace
     else
         setup_linux
     fi
