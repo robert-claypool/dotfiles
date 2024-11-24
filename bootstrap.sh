@@ -1,20 +1,5 @@
 #!/usr/bin/env bash
 
-setup_aerospace() {
-    echo "Setting up AeroSpace configuration..."
-    local aerospace_config_dir="$HOME/.config/aerospace"
-    local aerospace_config_file="$aerospace_config_dir/aerospace.toml"
-    local source_config_file="$PWD/.config/aerospace/aerospace.toml"
-
-    # Ensure the target directory exists
-    mkdir -p "$aerospace_config_dir"
-
-    # Create symlink for the configuration file
-    ln -sf "$source_config_file" "$aerospace_config_file"
-
-    echo "AeroSpace configuration symlinked successfully."
-}
-
 setup_tools() {
     echo "Setting up additional command line tools..."
 
@@ -42,21 +27,6 @@ setup_tools() {
         # Modern process viewer
         procs
         # Modern grep alternative with type support
-        ripgrep-all
-        # Directory tree generator
-        tre-command
-    )
-
-    if ! command -v brew >/dev/null 2>&1; then
-        echo "Homebrew is not installed. Skipping tool installation."
-        return 1
-    fi
-
-    for tool in "${tools[@]}"; do
-        [[ -z "$tool" || "$tool" =~ ^[[:space:]]*# ]] && continue
-
-        if ! brew list "$tool" >/dev/null 2>&1; then
-            echo "Installing $tool..."
             brew install "$tool"
         else
             echo "✓ $tool is already installed"
@@ -186,7 +156,7 @@ main() {
         echo "-----"
         setup_tools
         echo "-----"
-        setup_aerospace
+        # setup_aerospace
     else
         setup_linux
     fi
