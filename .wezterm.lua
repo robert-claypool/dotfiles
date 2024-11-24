@@ -49,6 +49,12 @@ config.window_padding = {
   bottom = 8,
 }
 
+-- Enable integrated title bar with window buttons
+config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
+
+-- Specify which buttons to display and their order
+config.integrated_title_buttons = { 'Hide', 'Maximize', 'Close' }
+
 -- Clipboard integration
 config.enable_wayland = false
 config.use_ime = true
