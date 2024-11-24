@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Define the dotfiles directory:
+# Ensures this script always references the correct path to our dotfiles repo,
+# regardless of where it's executed.
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 setup_tools() {
     echo "Setting up additional command line tools..."
 
@@ -27,6 +32,12 @@ setup_tools() {
         # Modern process viewer
         procs
         # Modern grep alternative with type support
+        rg
+    )
+
+    for tool in "${tools[@]}"; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            echo "Installing $tool..."
             brew install "$tool"
         else
             echo "✓ $tool is already installed"
@@ -52,16 +63,16 @@ setup_symlinks() {
         .wezterm.lua
     )
     for config in "${configs[@]}"; do
-        ln -sf "$PWD/$config" "$HOME/$config"
+        ln -sf "$DOTFILES_DIR/$config" "$HOME/$config"
     done
 }
 
 setup_macos() {
     echo "Setting up macOS-specific configurations..."
 
-    if [[ ! -f $HOME/.ssh/config ]]; then
+    if [[ ! -f "$HOME/.ssh/config" ]]; then
         mkdir -p "$HOME/.ssh"
-        ln -sf "$PWD/macOS/.ssh/config" "$HOME/.ssh/config"
+        ln -sf "$DOTFILES_DIR/macOS/.ssh/config" "$HOME/.ssh/config"
     fi
 }
 
@@ -75,55 +86,47 @@ setup_linux() {
     setup_linux_configs
 
     mkdir -p "$MY_CONFIGS/i3"
-    ln -sf "$PWD/.config/i3/config" "$MY_CONFIGS/i3/config"
+    ln -sf "$DOTFILES_DIR/.config/i3/config" "$MY_CONFIGS/i3/config"
 }
 
 setup_linux_configs() {
     mkdir -p "$MY_CONFIGS"
 
-    if [[ ! -f $MY_CONFIGS/openai.token ]]; then
-        ln -sf "$PWD/.config/openai.token" "$MY_CONFIGS/openai.token"
+    if [[ ! -f "$MY_CONFIGS/openai.token" ]]; then
+        ln -sf "$DOTFILES_DIR/.config/openai.token" "$MY_CONFIGS/openai.token"
     fi
 
     mkdir -p "$MY_CONFIGS/i3status"
-    ln -sf "$PWD/.config/i3status/config" "$MY_CONFIGS/i3status/config"
+    ln -sf "$DOTFILES_DIR/.config/i3status/config" "$MY_CONFIGS/i3status/config"
 
     mkdir -p "$MY_CONFIGS/conky"
-    ln -sf "$PWD/.config/conky/conky.conf" "$MY_CONFIGS/conky/conky.conf"
+    ln -sf "$DOTFILES_DIR/.config/conky/conky.conf" "$MY_CONFIGS/conky/conky.conf"
 
     mkdir -p "$MY_CONFIGS/termite"
-    ln -sf "$PWD/.config/termite/config" "$MY_CONFIGS/termite/config"
+    ln -sf "$DOTFILES_DIR/.config/termite/config" "$MY_CONFIGS/termite/config"
 }
 
 setup_alacritty() {
     echo "Setting up Alacritty configuration..."
     local alacritty_config_dir="$HOME/.config/alacritty"
     local alacritty_config_file="$alacritty_config_dir/alacritty.toml"
-    local source_config_file="$PWD/.config/alacritty/alacritty.toml"
+    local source_config_file="$DOTFILES_DIR/.config/alacritty/alacritty.toml"
 
     # Remove existing symlink or directory
-    if [[ -L "$alacritty_config_dir" || -d "$alacritty_config_dir" ]]; then
-        rm -rf "$alacritty_config_dir"
-    fi
+    rm -rf "$alacritty_config_dir"
 
     # Create the directory
     mkdir -p "$alacritty_config_dir"
 
-    # Check if we're in the dotfiles directory
-    if [[ "$PWD" == "$HOME/git/dotfiles" ]]; then
-        # We're in the dotfiles directory, so copy the file instead of symlinking
-        cp "$source_config_file" "$alacritty_config_file"
-    else
-        # Create symlink for the configuration file
-        ln -sf "$source_config_file" "$alacritty_config_file"
-    fi
+    # Create symlink for the configuration file
+    ln -sf "$source_config_file" "$alacritty_config_file"
 
     echo "Alacritty configuration set up successfully."
 }
 
 setup_git() {
     if command -v git >/dev/null 2>&1; then
-        if [[ ! -f $HOME/.gitconfig ]]; then
+        if [[ ! -f "$HOME/.gitconfig" ]]; then
             echo "Git configuration not found. Creating one..."
             read -p "Set your Git name to 'Robert Claypool'? [y,N] " doit
             case $doit in
@@ -156,6 +159,7 @@ main() {
         echo "-----"
         setup_tools
         echo "-----"
+        # Uncomment the following line if you have a setup_aerospace function
         # setup_aerospace
     else
         setup_linux
