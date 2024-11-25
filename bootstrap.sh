@@ -65,6 +65,19 @@ setup_symlinks() {
     for config in "${configs[@]}"; do
         ln -sf "$DOTFILES_DIR/$config" "$HOME/$config"
     done
+
+    # Add Hammerspoon configuration symlink
+    echo "Setting up Hammerspoon configuration..."
+    mkdir -p "$HOME/.hammerspoon"
+    ln -sf "$DOTFILES_DIR/hammerspoon/init.lua" "$HOME/.hammerspoon/init.lua"
+
+    # Reload Hammerspoon if running
+    if pgrep -x "Hammerspoon" >/dev/null 2>&1; then
+        osascript -e 'tell application "Hammerspoon" to reload'
+        echo "Hammerspoon configuration reloaded."
+    else
+        echo "Hammerspoon is not running. Configuration will take effect on next launch."
+    fi
 }
 
 setup_macos() {
@@ -159,8 +172,6 @@ main() {
         echo "-----"
         setup_tools
         echo "-----"
-        # Uncomment the following line if you have a setup_aerospace function
-        # setup_aerospace
     else
         setup_linux
     fi
@@ -173,6 +184,4 @@ main() {
     echo "Open README.md and install ZSH plugins as described."
 }
 
-# Wrapping in main() can prevent partial execution if the script is sourced
-# instead of executed.
 main
