@@ -12,9 +12,12 @@ local apps = {
     "Google Chrome"
 }
 
+-- The application to open last on Desktop 1 without fullscreen.
+local desktopApp = "System Settings"
+
 -- Launches an app and sets it to fullscreen.
 -- appName: Name of the app to launch.
--- index: The position of the app in the list (used for logging).
+-- index: Position of the app in the list (used for logging).
 -- callback: Function to call after processing the current app (used for sequential execution).
 local function launchAndFullscreenApp(appName, index, callback)
     hs.alert.show("Launching " .. appName)
@@ -36,7 +39,7 @@ local function launchAndFullscreenApp(appName, index, callback)
             hs.alert.show("App not found: " .. appName)
         end
 
-        -- Proceed to the next app after a short delay to ensure proper sequencing.
+        -- Proceed to the next app after a short delay.
         if callback then
             hs.timer.doAfter(2, callback)
         end
@@ -44,10 +47,13 @@ local function launchAndFullscreenApp(appName, index, callback)
 end
 
 -- Launches all apps sequentially.
--- index: The current position in the apps list.
+-- index: Current position in the apps list.
 local function launchAppsSequentially(index)
     if index > #apps then
-        hs.alert.show("All apps launched and set to fullscreen")
+        -- All fullscreen apps have been launched; now launch the desktop app.
+        hs.alert.show("Launching " .. desktopApp .. " on Desktop 1")
+        hs.application.launchOrFocus(desktopApp)
+        hs.alert.show("All apps launched")
         return
     end
 
