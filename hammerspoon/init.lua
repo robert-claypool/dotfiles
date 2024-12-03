@@ -1,62 +1,66 @@
+-- List of applications to launch and set to fullscreen.
+-- To have the apps appear in the desired left-to-right order in Mission Control,
+-- they must be listed in reverse order here since macOS inserts fullscreen
+-- Spaces adjacent to "Desktop 1".
 local apps = {
-    "Google Chrome",
-    "WezTerm",
-    "Windsurf",
-    "Microsoft Teams",
+    "Finder",
+    "Leapp",
     "1Password",
-    "Finder"
+    "Microsoft Teams",
+    "Windsurf",
+    "WezTerm",
+    "Google Chrome"
 }
 
-local function moveAppToSpace(appName, spaceIndex)
-    local app = hs.application.find(appName)
-    if not app then
-        hs.alert.show("App not found: " .. appName)
-        return
-    end
+-- Launches an app and sets it to fullscreen.
+-- appName: Name of the app to launch.
+-- index: The position of the app in the list (used for logging).
+-- callback: Function to call after processing the current app (used for sequential execution).
+local function launchAndFullscreenApp(appName, index, callback)
+    hs.alert.show("Launching " .. appName)
+    hs.application.launchOrFocus(appName)
 
-    -- Focus app and make it full screen
-    app:activate()
-    hs.timer.doAfter(1, function()
-        hs.eventtap.keyStroke({"cmd", "ctrl"}, "F") -- Toggle full screen
+    -- Wait for the app to launch and create its main window.
+    hs.timer.doAfter(3, function()
+        local app = hs.application.get(appName)
+        if app then
+            local win = app:mainWindow()
+            if win then
+                -- Set the window to fullscreen mode, creating a new Space.
+                win:setFullscreen(true)
+                hs.alert.show("Set " .. appName .. " to fullscreen in Space " .. index)
+            else
+                hs.alert.show("No main window found for " .. appName)
+            end
+        else
+            hs.alert.show("App not found: " .. appName)
+        end
 
-        hs.timer.doAfter(1, function()
-            -- Move to the desired Space
-            hs.spaces.moveWindowToSpace(app:mainWindow():id(), hs.spaces.allSpaces()[spaceIndex])
-        end)
+        -- Proceed to the next app after a short delay to ensure proper sequencing.
+        if callback then
+            hs.timer.doAfter(2, callback)
+        end
     end)
 end
 
-local function setupSpaces()
-    -- Ensure there are enough spaces
-    local allSpaces = hs.spaces.allSpaces()
-    if #allSpaces < #apps + 1 then
-        for i = 1, (#apps + 1) - #allSpaces do
-            hs.spaces.addSpaceToDisplay(hs.screen.primaryScreen())
-        end
+-- Launches all apps sequentially.
+-- index: The current position in the apps list.
+local function launchAppsSequentially(index)
+    if index > #apps then
+        hs.alert.show("All apps launched and set to fullscreen")
+        return
     end
 
-    -- Assign apps to spaces
-    for i, appName in ipairs(apps) do
-        hs.timer.doAfter(i * 2, function() -- Delay to ensure apps are ready
-            moveAppToSpace(appName, i + 1) -- Desktop 1 reserved for general use
-        end)
-    end
-
-    hs.alert.show("Spaces configured")
+    local appName = apps[index]
+    launchAndFullscreenApp(appName, index, function()
+        launchAppsSequentially(index + 1)
+    end)
 end
 
--- Launch all apps and then set up spaces
-local function launchAndConfigureApps()
-    for _, appName in ipairs(apps) do
-        hs.application.launchOrFocus(appName)
-    end
-
-    hs.timer.doAfter(5, setupSpaces) -- Delay to allow apps to launch
-end
-
--- Bind to a hotkey
+-- Binds the launching function to the hotkey Cmd + Alt + Ctrl + S.
 hs.hotkey.bind({"cmd", "alt", "ctrl"}, "S", function()
-    launchAndConfigureApps()
+    hs.alert.show("Starting app launch and fullscreen process")
+    launchAppsSequentially(1)
 end)
 
 hs.alert.show("Hammerspoon config loaded successfully!")
