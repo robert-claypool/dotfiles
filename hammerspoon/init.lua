@@ -6,10 +6,13 @@ local apps = {
     "Finder",
     "Leapp",
     "1Password",
+    "Microsoft Outlook",
     "Microsoft Teams",
     "Windsurf",
+    "Neovide",
     "WezTerm",
-    "Google Chrome"
+    "Google Chrome",
+    "Safari"
 }
 
 -- The application to open last on Desktop 1 without fullscreen.
