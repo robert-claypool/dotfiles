@@ -6,11 +6,12 @@ local apps = {
     "Finder",
     "Leapp",
     "1Password",
+    "Neovide",
     "Microsoft Outlook",
     "Microsoft Teams",
     "Windsurf",
-    "Neovide",
-    "WezTerm",
+    "Warp",
+    "ChatGPT",
     "Google Chrome",
     "Safari"
 }
