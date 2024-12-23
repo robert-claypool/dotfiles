@@ -7,10 +7,7 @@ if [ -f ~/.secrets ]; then
     source ~/.secrets
 fi
 
-if [ -f /usr/bin/nvim ] || [ -f /usr/local/bin/nvim ]; then
-    # Shadow Vim with Neovim.
-    # Use \vim to bypass the alias.
-    alias vim="nvim"
+if command -v nvim &>/dev/null; then
     export EDITOR=nvim
 fi
 
