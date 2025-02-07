@@ -5,7 +5,7 @@ alias cdg="cd ~/git"
 
 # alias python="python3"
 
-alias cat="bat"
+alias cat="bat --paging=never"
 
 # Use eza (modern ls) if available
 if command -v eza >/dev/null 2>&1; then
