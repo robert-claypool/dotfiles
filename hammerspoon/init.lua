@@ -10,7 +10,7 @@ local apps = {
     "Microsoft Teams",
     "Windsurf",
     "Warp",
-    "RepoPrompt",
+    "Repo Prompt",
     "ChatGPT",
     "Google Chrome",
     "Safari"
