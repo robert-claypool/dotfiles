@@ -24,6 +24,9 @@ plugins=(
   zsh-autosuggestions
 )
 
+# Hook Nix to ZSH
+eval "$(direnv hook zsh)"
+
 # Initialize zoxide (a better alternative to z)
 eval "$(zoxide init zsh)"
 
@@ -38,53 +41,16 @@ setopt extended_history
 setopt inc_append_history
 setopt hist_ignore_space
 
-# Source custom configurations
+# Source shared environment and aliases
 [ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 [ -f ~/.local_aliases ] && source ~/.local_aliases
 
-# PATH additions
-[ -f /Applications/Docker.app/Contents/Resources/bin/docker ] && export PATH="$PATH:/Applications/Docker.app/Contents/Resources/bin"
-[ -f /Applications/Rancher\ Desktop.app/Contents/Info.plist ] && export PATH="$PATH:$HOME/.rd/bin"
-[ -d ~/.local/bin ] && export PATH="$PATH:~/.local/bin"
-export PATH="$PATH:~/.dotnet/tools"
-
-# Neovim setup
-if [ -f /usr/bin/nvim ]; then
-    alias vim="nvim"
-    export EDITOR=nvim
-    export NVIM_TUI_ENABLE_TRUE_COLOR=1
-fi
-
-# Python version manager
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-
-# Other environment variables
-export DOTNET_ROOT=/opt/dotnet
-export AWS_VAULT_BACKEND="file"
-export BROWSER=/usr/bin/chromium
-
-# NVM setup
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-# FZF configuration
-export FZF_DEFAULT_COMMAND='rg --files'
-export FZF_DEFAULT_OPTS='--height 60% --layout=reverse --border sharp'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-
-# Source FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 # Kubectl completion
-(( $+commands[kubectl] )) && source <(kubectl completion zsh)
+# (( $+commands[kubectl] )) && source <(kubectl completion zsh)
 
 # Angular CLI completion
-(( $+commands[ng] )) && source <(ng completion script)
+# (( $+commands[ng] )) && source <(ng completion script)
 
 # Terraform completion
 complete -o nospace -C /usr/bin/terraform terraform
@@ -120,7 +86,6 @@ SPACESHIP_EXEC_TIME_ELAPSED=0
 
 # Ensure Spaceship is loaded
 autoload -U promptinit; promptinit
-prompt spaceship
 
 # Override Spaceship char section
 SPACESHIP_CHAR_PREFIX=" "

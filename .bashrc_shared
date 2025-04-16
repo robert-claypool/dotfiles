@@ -8,7 +8,6 @@
 export UID
 
 if [ -f ~/.secrets ]; then
-    echo "Applying secrets to your environment"
     source ~/.secrets
 fi
 
@@ -56,6 +55,11 @@ if command -v git >/dev/null 2>&1 && command -v delta >/dev/null 2>&1; then
     git config --global delta.plus-emph-style "syntax #0f5323"
 fi
 
+# Add Postgres.app CLI tools to PATH if installed (for pg_isready, psql, etc.)
+if [ -d "/Applications/Postgres.app/Contents/Versions/latest/bin" ]; then
+  export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+fi
+
 # https://wiki.archlinux.org/index.php/.NET_Core#Troubleshooting
 export DOTNET_ROOT=/opt/dotnet
 export PATH="~/.dotnet/tools:$PATH"
@@ -67,24 +71,57 @@ export PATH="~/.rd/bin:$PATH"
 
 # Use the file type backend for aws-vault because this is compatible
 # with Linux (needed for Geodesic sessions).
-# https://github.com/99designs/aws-vault
+# https://github.com/99designs/aws-vault/
 # https://docs.cloudposse.com/tools/aws-vault/
 export AWS_VAULT_BACKEND="file"
 
 export PATH=~/.local/bin:$PATH
 export PATH=~/bin:$PATH
 
+# Neovim setup
+if [ -f /usr/bin/nvim ]; then
+    alias vim="nvim"
+    export EDITOR=nvim
+    export NVIM_TUI_ENABLE_TRUE_COLOR=1
+fi
+
+# Python version manager (pyenv)
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+if command -v pyenv >/dev/null 2>&1; then
+    if [ -n "$ZSH_VERSION" ]; then
+        eval "$(pyenv init --path)"
+        eval "$(pyenv init -)"
+    else
+        eval "$(pyenv init -)"
+    fi
+fi
+
+# Other environment variables
+export BROWSER=/usr/bin/chromium
+
+# NVM setup
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# FZF configuration
+export FZF_DEFAULT_COMMAND='rg --files'
+export FZF_DEFAULT_OPTS='--height 60% --layout=reverse --border sharp'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+[ -n "$ZSH_VERSION" ] && [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -n "$BASH_VERSION" ] && [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 # Start the default OpenSSH agent automatically and make
 # sure only one ssh-agent process runs at a time.
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    ssh-agent -t 8h > "$XDG_RUNTIME_DIR/ssh-agent.env"
-    echo "Running ssh-agent, the default OpenSSH agent, for all terminals."
+    ssh-agent -t 8h > "$XDG_RUNTIME_DIR/ssh-agent.env" 2>/dev/null || ssh-agent -t 8h > "/tmp/ssh-agent.env"
 fi
 if [[ ! "$SSH_AUTH_SOCK" ]]; then
     if [[ -f "$XDG_RUNTIME_DIR/ssh-agent.env" ]]; then
         source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
-    else
-        echo "Warning: ssh-agent environment file not found."
+    elif [[ -f "/tmp/ssh-agent.env" ]]; then
+        source "/tmp/ssh-agent.env" >/dev/null
     fi
 fi
 
