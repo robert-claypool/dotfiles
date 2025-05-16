@@ -24,9 +24,6 @@ plugins=(
   zsh-autosuggestions
 )
 
-# Hook Nix to ZSH
-eval "$(direnv hook zsh)"
-
 # Initialize zoxide (a better alternative to z)
 eval "$(zoxide init zsh)"
 
