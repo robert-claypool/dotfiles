@@ -137,6 +137,24 @@ setup_alacritty() {
     echo "Alacritty configuration set up successfully."
 }
 
+setup_ghostty() {
+    echo "Setting up Ghostty configuration..."
+    local ghostty_config_dir="$HOME/.config/ghostty"
+    local ghostty_config_file="$ghostty_config_dir/config"
+    local source_config_file="$DOTFILES_DIR/.config/ghostty/config"
+
+    # Remove existing symlink or directory
+    rm -rf "$ghostty_config_dir"
+
+    # Create the directory
+    mkdir -p "$ghostty_config_dir"
+
+    # Create symlink for the configuration file
+    ln -sf "$source_config_file" "$ghostty_config_file"
+
+    echo "Ghostty configuration set up successfully."
+}
+
 setup_git() {
     if command -v git >/dev/null 2>&1; then
         if [[ ! -f "$HOME/.gitconfig" ]]; then
@@ -178,6 +196,8 @@ main() {
 
     echo "-----"
     setup_alacritty
+    echo "-----"
+    setup_ghostty
     echo "-----"
     setup_git
     echo "-----"

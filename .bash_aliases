@@ -94,3 +94,8 @@ alias lgx="xrandr --dpi 120 --output eDP1 --mode 1600x900 --rate 60 --pos 0x0 --
 
 # Alternative LG widescreen settings for Ubuntu
 alias lgu="xrandr --output "eDP-1" --off --output "DP-1" --off --output "DP-2" --mode 3440x1440 --fb 8600x3600 --rate 60 --pos 0x0 --primary --scale 0.8x0.8 --output "DP-3" --off --output "HDMI-1" --off --output "HDMI-2" --off --output "HDMI-3" --off && echo \"Xft.dpi: 144\" | xrdb -merge && i3-msg restart && sleep 5s && echo \"Xft.dpi: 144\" | xrdb -merge "
+
+# Claude Code AI agent aliases
+alias forge="WHO_AM_I=forge claude"
+alias axiom="WHO_AM_I=axiom claude"
+alias jarvis="WHO_AM_I=jarvis claude"
