@@ -37,22 +37,25 @@ fi
 
 # Use git-delta (great for diffs) if it's installed.
 if command -v git >/dev/null 2>&1 && command -v delta >/dev/null 2>&1; then
-    # Core delta setup
-    git config --global core.pager "delta"
-    git config --global interactive.diffFilter "delta --color-only"
+    # Only configure delta if not already set
+    if [[ "$(git config --global --get core.pager)" != "delta" ]]; then
+        # Core delta setup
+        git config --global core.pager "delta"
+        git config --global interactive.diffFilter "delta --color-only"
 
-    # Delta's own config
-    git config --global delta.navigate true
-    git config --global delta.light false
-    git config --global delta.side-by-side true
-    git config --global delta.line-numbers true
-    git config --global delta.syntax-theme "Dracula"
+        # Delta's own config
+        git config --global delta.navigate true
+        git config --global delta.light false
+        git config --global delta.side-by-side true
+        git config --global delta.line-numbers true
+        git config --global delta.syntax-theme "Dracula"
 
-    # Custom colors for diff backgrounds
-    git config --global delta.minus-style "syntax #450a15"
-    git config --global delta.plus-style "syntax #0b4820"
-    git config --global delta.minus-emph-style "syntax #600818"
-    git config --global delta.plus-emph-style "syntax #0f5323"
+        # Custom colors for diff backgrounds
+        git config --global delta.minus-style "syntax #450a15"
+        git config --global delta.plus-style "syntax #0b4820"
+        git config --global delta.minus-emph-style "syntax #600818"
+        git config --global delta.plus-emph-style "syntax #0f5323"
+    fi
 fi
 
 # Add Postgres.app CLI tools to PATH if installed (for pg_isready, psql, etc.)
