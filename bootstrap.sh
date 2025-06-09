@@ -53,6 +53,7 @@ setup_symlinks() {
         .bashrc_shared
         .pam_environment
         .zshrc
+        .zprofile
         .psqlrc
         .sqliterc
         .inputrc
