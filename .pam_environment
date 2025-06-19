@@ -1,3 +1,0 @@
-BROWSER=firefox
-EDITOR=vim
-PS1='\u@\h: \e[33;1m\W\e[0m\$ '

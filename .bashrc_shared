@@ -70,8 +70,6 @@ export PATH="~/.dotnet/tools:$PATH"
 # Rancher Desktop
 export PATH="~/.rd/bin:$PATH"
 
-# xset r rate 190 40
-
 # Use the file type backend for aws-vault because this is compatible
 # with Linux (needed for Geodesic sessions).
 # https://github.com/99designs/aws-vault/

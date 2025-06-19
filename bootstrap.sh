@@ -51,7 +51,6 @@ setup_symlinks() {
         .env
         .bash_aliases
         .bashrc_shared
-        .pam_environment
         .zshrc
         .zprofile
         .psqlrc
@@ -59,9 +58,7 @@ setup_symlinks() {
         .inputrc
         .tmux.conf
         .gitignore
-        .Xresources
         .secrets
-        .wezterm.lua
     )
     for config in "${configs[@]}"; do
         ln -sf "$DOTFILES_DIR/$config" "$HOME/$config"
@@ -109,33 +106,6 @@ setup_linux_configs() {
     if [[ ! -f "$MY_CONFIGS/openai.token" ]]; then
         ln -sf "$DOTFILES_DIR/.config/openai.token" "$MY_CONFIGS/openai.token"
     fi
-
-    mkdir -p "$MY_CONFIGS/i3status"
-    ln -sf "$DOTFILES_DIR/.config/i3status/config" "$MY_CONFIGS/i3status/config"
-
-    mkdir -p "$MY_CONFIGS/conky"
-    ln -sf "$DOTFILES_DIR/.config/conky/conky.conf" "$MY_CONFIGS/conky/conky.conf"
-
-    mkdir -p "$MY_CONFIGS/termite"
-    ln -sf "$DOTFILES_DIR/.config/termite/config" "$MY_CONFIGS/termite/config"
-}
-
-setup_alacritty() {
-    echo "Setting up Alacritty configuration..."
-    local alacritty_config_dir="$HOME/.config/alacritty"
-    local alacritty_config_file="$alacritty_config_dir/alacritty.toml"
-    local source_config_file="$DOTFILES_DIR/.config/alacritty/alacritty.toml"
-
-    # Remove existing symlink or directory
-    rm -rf "$alacritty_config_dir"
-
-    # Create the directory
-    mkdir -p "$alacritty_config_dir"
-
-    # Create symlink for the configuration file
-    ln -sf "$source_config_file" "$alacritty_config_file"
-
-    echo "Alacritty configuration set up successfully."
 }
 
 setup_ghostty() {
@@ -195,9 +165,6 @@ main() {
         setup_linux
     fi
 
-    echo "-----"
-    setup_alacritty
-    echo "-----"
     setup_ghostty
     echo "-----"
     setup_git

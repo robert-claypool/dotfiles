@@ -19,7 +19,6 @@ My dotfiles, except for [my.nvim](https://github.com/robert-claypool/my.nvim).
    - Set up symbolic links for various config files
    - Configure macOS-specific settings (if on macOS)
    - Set up Linux-specific configurations (if on Linux)
-   - Configure Alacritty
    - Set up Git configuration
 
 3. Install and configure Zsh (if not already installed)
@@ -43,7 +42,7 @@ script, you'll need to install Oh My Zsh and the required plugins:
 
 4. Install additional tools:
    - [fzf](https://github.com/junegunn/fzf)
-   - [z](https://github.com/rupa/z)
+   - [zoxide](https://github.com/ajeetdsouza/zoxide)
 
 ## macOS-specific setup (Yabai and skhd)
 
@@ -71,7 +70,6 @@ for more information.
   relevant tools as needed (e.g., Node.js, Python, Ruby, Go, etc.).
 - Custom aliases and functions are defined in separate files: ~/.bashrc_shared, ~/.bash_aliases, and
   ~/.local_aliases. Review them to familiarize yourself with available shortcuts.
-- The bootstrap script sets up Alacritty configuration. Make sure Alacritty is installed on your system.
 - Git configuration is set up by the bootstrap script. Review and adjust the settings as needed.
 - This setup includes configurations for Docker, Rancher Desktop, Neovim, NVM, kubectl, Angular CLI,
   and Terraform. Ensure you have these tools installed if you plan to use them.
