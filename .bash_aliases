@@ -1,7 +1,6 @@
 alias ..='cd ..'
 alias cdh="cd ~/"
 alias cdd="cd ~/downloads"
-alias cdg="cd ~/git"
 
 # alias python="python3"
 
@@ -23,7 +22,7 @@ else
 fi
 
 # Quick directory navigation
-alias ..='cd ..'
+# '..' is already defined earlier; keep a single source of truth.
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
@@ -57,6 +56,14 @@ favorites() {
     local num=${1:-10}  # Default to 10 if no argument provided
     history | awk '{print $2}' | sort | uniq -c | sort -rn | head -n "$num"
 }
+
+# oft-used Git aliases (bash only – Zsh already has Oh-My-Zsh git)
+if [ -n "$BASH_VERSION" ]; then
+    alias g='git'
+    alias gst='git status -sb' # status (short/branch view)
+    alias ga='git add'
+    alias gc='git commit'
+fi
 
 alias rm='rm -Iv'
 alias grep='grep --color=auto'
