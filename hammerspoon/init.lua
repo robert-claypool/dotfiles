@@ -8,10 +8,9 @@ local apps = {
     "1Password",
     "Microsoft Outlook",
     "Microsoft Teams",
-    "Windsurf",
-    "Warp",
-    "Repo Prompt",
     "ChatGPT",
+    "Repo Prompt",
+    "Ghostty",
     "Google Chrome",
     "Safari"
 }
