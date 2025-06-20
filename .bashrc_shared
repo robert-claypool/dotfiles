@@ -45,6 +45,7 @@ if command -v git >/dev/null 2>&1 && command -v delta >/dev/null 2>&1; then
 
         # Delta's own config
         git config --global delta.navigate true
+        git config --global delta.navigate true
         git config --global delta.light false
         git config --global delta.side-by-side true
         git config --global delta.line-numbers true
@@ -76,6 +77,11 @@ export PATH="~/.rd/bin:$PATH"
 # https://docs.cloudposse.com/tools/aws-vault/
 export AWS_VAULT_BACKEND="file"
 
+# Disable the AWS CLI pager. This affects all AWS commands, ensuring that
+# commands with short output like `aws sts get-caller-identity` don't get
+# piped into a pager.
+export AWS_PAGER=""
+
 export PATH=~/.local/bin:$PATH
 export PATH=~/bin:$PATH
 
@@ -103,21 +109,7 @@ export BROWSER=/usr/bin/chromium
 
 # NVM setup
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# FZF configuration
-export FZF_DEFAULT_COMMAND='rg --files'
-export FZF_DEFAULT_OPTS='--height 60% --layout=reverse --border sharp'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-[ -n "$ZSH_VERSION" ] && [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -n "$BASH_VERSION" ] && [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-# Start the default OpenSSH agent automatically and make
-# sure only one ssh-agent process runs at a time.
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    ssh-agent -t 8h > "$XDG_RUNTIME_DIR/ssh-agent.env" 2>/dev/null || ssh-agent -t 8h > "/tmp/ssh-agent.env"
-fi
 if [[ ! "$SSH_AUTH_SOCK" ]]; then
     if [[ -f "$XDG_RUNTIME_DIR/ssh-agent.env" ]]; then
         source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
@@ -167,6 +159,38 @@ if command -v fzf >/dev/null 2>&1; then
     fi
 fi
 
+# --------------------------- Interactive helpers ----------------------------
+# Bash-specific initializations. Zsh has its own in .zshrc.
+if [ -n "$BASH_VERSION" ]; then
+    # direnv
+    if command -v direnv >/dev/null 2>&1; then
+        eval "$(direnv hook bash)"
+    fi
+
+    # Atuin (better, searchable shell history)
+    if command -v atuin >/dev/null 2>&1; then
+        eval "$(atuin init bash)"
+    fi
+
+    # zoxide (smarter cd) for Bash
+    if command -v zoxide >/dev/null 2>&1; then
+        eval "$(zoxide init bash)"
+    fi
+fi
+
+# Pretty man pages with bat, fall back gracefully
+if command -v bat >/dev/null 2>&1; then
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
+# Global ripgrep defaults
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
+# Safer delete: use trash-cli if available
+if command -v trash >/dev/null 2>&1; then
+    alias rm='trash'
+fi
+
 # Checkout git branch (including remote branches) with fzf
 gitf() {
   git checkout $(git branch --all | fzf | sed 's/remotes\/origin\///')
@@ -202,25 +226,6 @@ vsf() {
     local file
     file="$(fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}')"
     [ -n "$file" ] && code "$file"
-}
-
-# Fuzzy history search and execute
-histf() {
-  local cmd
-  cmd=$(history | fzf --tac | sed 's/ *[0-9]* *//')
-  if [ -n "$cmd" ]; then
-    echo "Executing: $cmd"
-    eval $cmd
-  fi
-}
-
-# Fuzzy find and cd into directory
-cdf() {
-    local dir
-    dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m)
-    if [ -n "$dir" ]; then
-        cd "$dir"
-    fi
 }
 
 # Fuzzy find in directory contents (uses ripgrep)
@@ -260,7 +265,7 @@ envf() {
     var=$(printenv | fzf)
     if [ -n "$var" ]; then
         echo "$var" | tr -d '\n' | pbcopy  # Copies to clipboard
-        echo "Copied to clipboard: $var"
+        echo "Copied to clipboard: "$var""
     fi
 }
 

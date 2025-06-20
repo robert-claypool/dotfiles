@@ -1,0 +1,43 @@
+# ~/.config/starship.toml
+#
+# A simple configuration for Starship, aiming for a close-to-default feel
+# with a few high-value customizations.
+#
+# We will use Starship's default layout, which is a single line, and only
+# override the modules below.
+
+# --- High-Value Module Configurations ---
+
+# 1. Directory Path: Show a truncated path instead of just the directory name.
+#    The `truncation_symbol` adds a prefix to make it clear the path is shortened.
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+style = "bold cyan"
+
+[git_branch]
+format = "on [$branch]($style) "
+
+# Git Status: Use descriptive words instead of symbols for clarity.
+[git_status]
+format = '([$all_status$ahead_behind]($style))'
+style = "bold"
+conflicted = "conflicted "
+conflicted_style = "red"
+staged = "staged $count "
+staged_style = "green"
+modified = "unstaged $count "
+modified_style = "yellow"
+renamed = "renamed $count "
+renamed_style = "yellow"
+deleted = "deleted $count "
+deleted_style = "red"
+untracked = "untracked $count "
+untracked_style = "white"
+
+# 2. Prompt Character: The final symbol, indicating success/failure and vi-mode.
+# This provides clear feedback on your shell's state.
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[NORMAL ❯](bold yellow)" # This will be shown in normal mode.

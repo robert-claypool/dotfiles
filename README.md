@@ -28,21 +28,28 @@ My dotfiles, except for [my.nvim](https://github.com/robert-claypool/my.nvim).
 ## Zsh configuration
 
 The .zshrc file is already set up with various plugins and configurations. After running the bootstrap
-script, you'll need to install Oh My Zsh and the required plugins:
+script, you'll need to install Oh My Zsh:
 
-1. Install [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh#basic-installation)
+1.  **Install Oh My Zsh:** Follow instructions at [ohmyzsh/ohmyzsh](https://github.com/ohmyzsh/ohmyzsh#basic-installation).
 
-2. Install the following plugins:
-   - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-   - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
-   - [zsh-history-substring-search](https://github.com/zsh-users/zsh-history-substring-search)
-   - [zsh-completions](https://github.com/zsh-users/zsh-completions)
+2.  **Install Plugins & Tools:** The `bootstrap.sh` script automatically installs necessary Zsh plugins (like `zsh-syntax-highlighting` and `you-should-use`) and tools (like `fzf` and `zoxide`).
 
-3. Install [Spaceship prompt](https://github.com/spaceship-prompt/spaceship-prompt)
+## Enhanced Shell Interaction
 
-4. Install additional tools:
-   - [fzf](https://github.com/junegunn/fzf)
-   - [zoxide](https://github.com/ajeetdsouza/zoxide)
+This setup uses [Starship](https://starship.rs/) for a fast, powerful, and highly-configurable prompt. It has been configured for a more intuitive command-line experience.
+
+### Vi Mode Command Line Editing
+
+Vim keybindings are enabled for the command line.
+- Press `Esc` to enter **Normal Mode**. You can use Vim motions like `b`, `w`, `0`, `$` to navigate.
+- Press `i` or `a` to enter **Insert Mode** for typing.
+- The prompt will display `(N)` for Normal mode and `(I)` for Insert mode, provided by Starship.
+
+### Smarter History Search
+
+History search has been improved to be less disruptive:
+- **Up-Arrow**: Type any part of a command, then press the up arrow to cycle through matching commands from your history without clearing the screen. This is provided by `zsh-history-substring-search`.
+- **`Ctrl-R`**: Press `Ctrl-R` to activate Atuin's powerful inline history search. It searches your synced history without taking over your full screen.
 
 ## macOS-specific setup (Yabai and skhd)
 

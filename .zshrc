@@ -2,7 +2,7 @@
 export ZSH=$HOME/.oh-my-zsh
 
 # Set name of the theme to load
-ZSH_THEME="spaceship"
+# ZSH_THEME="spaceship" <--- Removed as Starship will handle the prompt
 
 # Disable compfix to avoid the mv error
 ZSH_DISABLE_COMPFIX=true
@@ -19,9 +19,9 @@ plugins=(
   zsh-history-substring-search
   command-not-found
   common-aliases
-  fzf
   zsh-syntax-highlighting
   zsh-autosuggestions
+  you-should-use
 )
 
 # Initialize zoxide (a better alternative to z)
@@ -52,43 +52,48 @@ setopt hist_ignore_space
 # Terraform completion
 complete -o nospace -C /usr/bin/terraform terraform
 
-# Initialize the completion system
-autoload -Uz compinit && compinit
-zstyle ':completion:*' menu select
+# direnv
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
 
-# Spaceship prompt configurations
-SPACESHIP_PROMPT_ORDER=(
-  time
-  user
-  dir
-  host
-  git
-  node
-  ruby
-  python
-  golang
-  docker
-  aws
-  exec_time
-  line_sep
-  jobs
-  exit_code
-  char
-)
-SPACESHIP_PROMPT_ADD_NEWLINE=false
-SPACESHIP_TIME_SHOW=true
-SPACESHIP_TIME_FORMAT="%D{%I:%M:%S %p}"
-SPACESHIP_EXEC_TIME_SHOW=true
-SPACESHIP_EXEC_TIME_ELAPSED=0
+# Atuin (better history)
+if command -v atuin >/dev/null 2>&1; then
+  # Disable interactive bindings so Atuin only logs history in the background.
+  # This makes Ctrl-R and Up-Arrow use the classic Zsh/plugin behaviors.
+  eval "$(atuin init zsh --disable-up-arrow --disable-ctrl-r)"
+fi
 
-# Ensure Spaceship is loaded
-autoload -U promptinit; promptinit
-
-# Override Spaceship char section
-SPACESHIP_CHAR_PREFIX=" "
-SPACESHIP_CHAR_SUFFIX=""
-SPACESHIP_CHAR_SYMBOL="❯"
+# ------------------------------------------------------------------
+# History navigation: arrow-keys with substring search (inline, no CLS)
+# ------------------------------------------------------------------
+bindkey "$terminfo[kcuu1]" history-substring-search-up
+bindkey "$terminfo[kcud1]" history-substring-search-down
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/rc/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+alias claude="/Users/rc/.claude/local/claude"
+
+# Starship prompt
+eval "$(starship init zsh)"
+
+# ZLE vi-mode indicator setup
+# Ensures Starship's vicmd_symbol updates correctly.
+autoload -U add-zsh-hook
+
+# Updates Starship keymap and redraws prompt on mode change.
+function zle-keymap-select() {
+    STARSHIP_KEYMAP="$KEYMAP"
+    zle reset-prompt
+}
+zle -N zle-keymap-select
+
+# Ensures shell starts in insert mode.
+function zle-line-init() {
+    zle -K viins
+}
+zle -N zle-line-init
+
+# Ensure vi-mode is enabled after all other plugins and settings.
+bindkey -v

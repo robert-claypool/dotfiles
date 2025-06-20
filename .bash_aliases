@@ -8,9 +8,9 @@ alias cat="bat --paging=never"
 
 # Use eza (modern ls) if available
 if command -v eza >/dev/null 2>&1; then
-    alias ls='eza --group-directories-first --icons'
-    alias ll='eza -lahF --git --group-directories-first --icons'
-    alias lt='eza --tree --level=2 --icons'
+    alias ls='eza --group-directories-first'
+    alias ll='eza -lahF --git --group-directories-first'
+    alias lt='eza --tree --level=2'
     alias lg='eza -lahF --git --git-ignore'
 else
     # Fallback to traditional ls with colors

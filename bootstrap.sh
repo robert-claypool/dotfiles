@@ -29,6 +29,16 @@ setup_tools() {
         doggo
         # JSON processor
         jq
+        # YAML processor
+        yq
+        # Fast, cross-shell prompt
+        starship
+        # Better shell history
+        atuin
+        # Per-directory env vars
+        direnv
+        # Safer rm
+        trash-cli
         # Modern process viewer
         procs
         # Modern grep alternative with type support
@@ -41,6 +51,32 @@ setup_tools() {
             brew install "$tool"
         else
             echo "✓ $tool is already installed"
+        fi
+    done
+}
+
+setup_zsh_plugins() {
+    echo "Setting up Zsh plugins..."
+    # Default ZSH_CUSTOM to ~/.oh-my-zsh/custom if not set
+    local zsh_custom_plugins_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
+    mkdir -p "$zsh_custom_plugins_dir"
+
+    declare -A plugins
+    plugins=(
+        ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+        ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions.git"
+        ["zsh-history-substring-search"]="https://github.com/zsh-users/zsh-history-substring-search.git"
+        ["you-should-use"]="https://github.com/MichaelAquilina/zsh-you-should-use.git"
+    )
+
+    for plugin_name in "${!plugins[@]}"; do
+        local plugin_repo="${plugins[$plugin_name]}"
+        local plugin_dir="$zsh_custom_plugins_dir/$plugin_name"
+        if [ ! -d "$plugin_dir" ]; then
+            echo "Installing '$plugin_name' zsh plugin..."
+            git clone "$plugin_repo" "$plugin_dir"
+        else
+            echo "✓ '$plugin_name' zsh plugin is already installed"
         fi
     done
 }
@@ -71,10 +107,27 @@ setup_symlinks() {
 
     # Reload Hammerspoon if running
     if pgrep -x "Hammerspoon" >/dev/null 2>&1; then
-        osascript -e 'tell application "Hammerspoon" to reload'
+        osascript -e 'tell application "Hammerspoon" to reload config'
         echo "Hammerspoon configuration reloaded."
     else
         echo "Hammerspoon is not running. Configuration will take effect on next launch."
+    fi
+
+    # Symlink executables from bin directory
+    echo "Setting up executables from bin directory..."
+    local bin_dir="$DOTFILES_DIR/bin"
+    local dest_bin_dir="$HOME/bin"
+    if [ -d "$bin_dir" ]; then
+        mkdir -p "$dest_bin_dir"
+        for script in "$bin_dir"/*; do
+            # Only symlink files that are executable
+            if [ -f "$script" ] && [ -x "$script" ]; then
+                local script_name
+                script_name=$(basename "$script")
+                echo "Symlinking $script_name to "$dest_bin_dir/$script_name""
+                ln -sf "$script" "$dest_bin_dir/$script_name"
+            fi
+        done
     fi
 }
 
@@ -126,6 +179,37 @@ setup_ghostty() {
     echo "Ghostty configuration set up successfully."
 }
 
+setup_starship() {
+    echo "Setting up Starship configuration..."
+    local starship_config_file="$HOME/.config/starship.toml"
+    local source_config_file="$DOTFILES_DIR/.config/starship.toml"
+
+    if [ -f "$source_config_file" ]; then
+        mkdir -p "$HOME/.config"
+        ln -sf "$source_config_file" "$starship_config_file"
+        echo "Starship configuration linked successfully."
+    else
+        echo "Warning: Starship config source not found at '$source_config_file'. Skipping symlink."
+    fi
+}
+
+setup_atuin() {
+    echo "Setting up Atuin configuration..."
+    local atuin_config_dir="$HOME/.config/atuin"
+    local atuin_config_file="$atuin_config_dir/config.toml"
+    local source_config_file="$DOTFILES_DIR/.config/atuin/config.toml"
+
+    # Atuin stores its database in ~/.config/atuin, so we must not delete
+    # this directory. We just ensure our config is linked.
+    if [ -f "$source_config_file" ]; then
+        mkdir -p "$atuin_config_dir"
+        ln -sf "$source_config_file" "$atuin_config_file"
+        echo "Atuin configuration linked successfully."
+    else
+        echo "Warning: Atuin config source not found at '$source_config_file'. Skipping symlink."
+    fi
+}
+
 setup_git() {
     if command -v git >/dev/null 2>&1; then
         if [[ ! -f "$HOME/.gitconfig" ]]; then
@@ -161,11 +245,19 @@ main() {
         echo "-----"
         setup_tools
         echo "-----"
+        setup_zsh_plugins
+        echo "-----"
     else
         setup_linux
+        setup_zsh_plugins
+        echo "-----"
     fi
 
     setup_ghostty
+    echo "-----"
+    setup_starship
+    echo "-----"
+    setup_atuin
     echo "-----"
     setup_git
     echo "-----"

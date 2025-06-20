@@ -1,0 +1,5 @@
+# ~/.config/atuin/config.toml
+#
+# Using defaults for maximum compatibility.
+# Ctrl-R is enabled, while the up-arrow binding is disabled in the shell
+# via  `atuin init zsh --disable-up-arrow`.
