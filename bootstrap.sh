@@ -199,8 +199,7 @@ setup_atuin() {
     local atuin_config_file="$atuin_config_dir/config.toml"
     local source_config_file="$DOTFILES_DIR/.config/atuin/config.toml"
 
-    # Atuin stores its database in ~/.config/atuin, so we must not delete
-    # this directory. We just ensure our config is linked.
+    # WARNING: Atuin stores its database in ~/.config/atuin - never delete this directory
     if [ -f "$source_config_file" ]; then
         mkdir -p "$atuin_config_dir"
         ln -sf "$source_config_file" "$atuin_config_file"

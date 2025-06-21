@@ -11,11 +11,11 @@
 "\e[B": history-search-forward
 "\e[C": forward-char
 
-# Perform file completion in a case insensitive fashion
+# Case-insensitive file completion
 set completion-ignore-case on
 # Treat hyphens and underscores as equivalent
 set completion-map-case on
-# Display matches for ambiguous patterns at first tab press
+# Show all matches on first tab
 set show-all-if-ambiguous on
 # Better visual cues during completion
 set colored-completion-prefix on

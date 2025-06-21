@@ -4,7 +4,7 @@ export ZSH=$HOME/.oh-my-zsh
 # Set name of the theme to load
 # ZSH_THEME="spaceship" <--- Removed as Starship will handle the prompt
 
-# Disable compfix to avoid the mv error
+# Disable compfix - prevents permission warnings when dotfiles are owned by different users
 ZSH_DISABLE_COMPFIX=true
 
 # Which plugins would you like to load?
