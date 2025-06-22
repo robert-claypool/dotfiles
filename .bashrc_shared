@@ -44,18 +44,27 @@ if command -v git >/dev/null 2>&1 && command -v delta >/dev/null 2>&1; then
         git config --global interactive.diffFilter "delta --color-only"
 
         # Delta's own config
-        git config --global delta.navigate true
+        git config --global delta.features "unobtrusive-line-numbers"
         git config --global delta.navigate true
         git config --global delta.light false
-        git config --global delta.side-by-side true
-        git config --global delta.line-numbers true
+        git config --global delta.side-by-side false
         git config --global delta.syntax-theme "Dracula"
 
+        # Unobtrusive line numbers feature
+        git config --global "delta.unobtrusive-line-numbers.line-numbers" true
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-minus-style" "#444444"
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-zero-style" "#444444"
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-plus-style" "#444444"
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-left-format" "{nm:>4}┊"
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-right-format" "{np:>4}│"
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-left-style" "blue"
+        git config --global "delta.unobtrusive-line-numbers.line-numbers-right-style" "blue"
+
         # Custom colors for diff backgrounds
-        git config --global delta.minus-style "syntax #450a15"
-        git config --global delta.plus-style "syntax #0b4820"
-        git config --global delta.minus-emph-style "syntax #600818"
-        git config --global delta.plus-emph-style "syntax #0f5323"
+        git config --global delta.minus-style "syntax #4d0e23"
+        git config --global delta.plus-style "syntax #094d3a"
+        git config --global delta.minus-emph-style "syntax #8c1a3f"
+        git config --global delta.plus-emph-style "syntax #138f6c"
     fi
 fi
 
