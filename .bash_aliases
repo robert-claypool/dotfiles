@@ -67,3 +67,39 @@ fi
 
 alias rm='rm -Iv'
 alias grep='grep --color=auto'
+
+# Flexoki theme switching
+flexoki-toggle() {
+    # Toggle macOS appearance
+    osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to not dark mode'
+    
+    # Reload tmux config if in tmux
+    if [ -n "$TMUX" ]; then
+        tmux source-file ~/.tmux.conf
+        tmux display-message "Theme toggled"
+    fi
+}
+
+flexoki-dark() {
+    # Set macOS to dark mode
+    osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to true'
+    
+    # Set tmux theme if in tmux
+    if [ -n "$TMUX" ]; then
+        touch ~/.tmux/.flexoki-dark-active
+        tmux source-file ~/.tmux/themes/flexoki-dark.tmuxtheme
+        tmux display-message "Flexoki Dark theme loaded"
+    fi
+}
+
+flexoki-light() {
+    # Set macOS to light mode
+    osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to false'
+    
+    # Set tmux theme if in tmux
+    if [ -n "$TMUX" ]; then
+        rm -f ~/.tmux/.flexoki-dark-active
+        tmux source-file ~/.tmux/themes/flexoki-light.tmuxtheme
+        tmux display-message "Flexoki Light theme loaded"
+    fi
+}
