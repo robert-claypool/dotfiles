@@ -73,7 +73,6 @@ bindkey "$terminfo[kcud1]" history-substring-search-down
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
 export PATH="/Users/rc/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
-alias claude="/Users/rc/.claude/local/claude"
 
 # Starship prompt
 eval "$(starship init zsh)"
