@@ -57,6 +57,27 @@ if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
+# FZF keybindings and completion
+if command -v fzf >/dev/null 2>&1; then
+  # Try to find FZF installation path
+  if [ -f "/opt/homebrew/opt/fzf/shell/key-bindings.zsh" ]; then
+    source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
+  elif [ -f "/usr/local/opt/fzf/shell/key-bindings.zsh" ]; then
+    source "/usr/local/opt/fzf/shell/key-bindings.zsh"
+  elif [ -f "$HOME/.fzf/shell/key-bindings.zsh" ]; then
+    source "$HOME/.fzf/shell/key-bindings.zsh"
+  fi
+  
+  # Completion
+  if [ -f "/opt/homebrew/opt/fzf/shell/completion.zsh" ]; then
+    source "/opt/homebrew/opt/fzf/shell/completion.zsh"
+  elif [ -f "/usr/local/opt/fzf/shell/completion.zsh" ]; then
+    source "/usr/local/opt/fzf/shell/completion.zsh"
+  elif [ -f "$HOME/.fzf/shell/completion.zsh" ]; then
+    source "$HOME/.fzf/shell/completion.zsh"
+  fi
+fi
+
 # Atuin (better history)
 if command -v atuin >/dev/null 2>&1; then
   # Disable interactive bindings so Atuin only logs history in the background.
