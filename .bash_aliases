@@ -5,6 +5,10 @@ alias cdd="cd ~/downloads"
 # alias python="python3"
 
 alias cat="bat --paging=never"
+alias vim="nvim"
+
+alias tff="terraform fmt -recursive"
+alias tfa="terraform apply"
 
 # Use eza (modern ls) if available
 if command -v eza >/dev/null 2>&1; then
@@ -72,7 +76,7 @@ alias grep='grep --color=auto'
 flexoki-toggle() {
     # Toggle macOS appearance
     osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to not dark mode'
-    
+
     # Reload tmux config if in tmux
     if [ -n "$TMUX" ]; then
         tmux source-file ~/.tmux.conf
@@ -83,7 +87,7 @@ flexoki-toggle() {
 flexoki-dark() {
     # Set macOS to dark mode
     osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to true'
-    
+
     # Set tmux theme if in tmux
     if [ -n "$TMUX" ]; then
         touch ~/.tmux/.flexoki-dark-active
@@ -95,7 +99,7 @@ flexoki-dark() {
 flexoki-light() {
     # Set macOS to light mode
     osascript -e 'tell app "System Events" to tell appearance preferences to set dark mode to false'
-    
+
     # Set tmux theme if in tmux
     if [ -n "$TMUX" ]; then
         rm -f ~/.tmux/.flexoki-dark-active
@@ -103,3 +107,4 @@ flexoki-light() {
         tmux display-message "Flexoki Light theme loaded"
     fi
 }
+

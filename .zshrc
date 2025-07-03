@@ -4,6 +4,10 @@ export ZSH=$HOME/.oh-my-zsh
 # Set name of the theme to load
 # ZSH_THEME="spaceship" <--- Removed as Starship will handle the prompt
 
+# Save my shell line in Vim/Neovim → close with ":wq" → it runs.
+# Quit with ":cq"/":q!" → nothing runs.
+bindkey '^e' edit-command-line # Ctrl-E opens $EDITOR on the current buffer
+
 # Disable compfix - prevents permission warnings when dotfiles are owned by different users
 ZSH_DISABLE_COMPFIX=true
 
@@ -67,7 +71,7 @@ if command -v fzf >/dev/null 2>&1; then
   elif [ -f "$HOME/.fzf/shell/key-bindings.zsh" ]; then
     source "$HOME/.fzf/shell/key-bindings.zsh"
   fi
-  
+
   # Completion
   if [ -f "/opt/homebrew/opt/fzf/shell/completion.zsh" ]; then
     source "/opt/homebrew/opt/fzf/shell/completion.zsh"

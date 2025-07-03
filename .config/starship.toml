@@ -1,15 +1,13 @@
-# ~/.config/starship.toml
-#
-# A simple configuration for Starship, aiming for a close-to-default feel
-# with a few high-value customizations.
-#
-# We will use Starship's default layout, which is a single line, and only
-# override the modules below.
+# Minimal starship configuration
+# Shows only: path, git branch (if in repo), and command duration
 
-# --- High-Value Module Configurations ---
+format = """
+$directory\
+$git_branch\
+$cmd_duration\
+$line_break\
+$character"""
 
-# 1. Directory Path: Show a truncated path instead of just the directory name.
-#    The `truncation_symbol` adds a prefix to make it clear the path is shortened.
 [directory]
 truncation_length = 3
 truncation_symbol = "…/"
@@ -17,27 +15,129 @@ style = "bold cyan"
 
 [git_branch]
 format = "on [$branch]($style) "
+style = "bold purple"
 
-# Git Status: Use descriptive words instead of symbols for clarity.
-[git_status]
-format = '([$all_status$ahead_behind]($style))'
-style = "bold"
-conflicted = "conflicted "
-conflicted_style = "red"
-# staged = "staged $count "
-# staged_style = "green"
-# modified = "unstaged $count "
-# modified_style = "yellow"
-renamed = "renamed $count "
-renamed_style = "yellow"
-deleted = "deleted $count "
-deleted_style = "red"
-untracked = "untracked $count "
-untracked_style = "white"
+[cmd_duration]
+min_time = 500
+format = "[$duration]($style) "
+style = "yellow"
 
-# 2. Prompt Character: The final symbol, indicating success/failure and vi-mode.
-# This provides clear feedback on your shell's state.
 [character]
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
-vicmd_symbol = "[NORMAL ❯](bold yellow)" # This will be shown in normal mode.
+vicmd_symbol = "[NORMAL ❯](bold yellow)"
+
+# Disable all other modules
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[git_commit]
+disabled = true
+
+[git_state]
+disabled = true
+
+[git_metrics]
+disabled = true
+
+[git_status]
+disabled = true
+
+[golang]
+disabled = true
+
+[helm]
+disabled = true
+
+[java]
+disabled = true
+
+[jobs]
+disabled = true
+
+[julia]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[lua]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[nim]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[package]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[python]
+disabled = true
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[scala]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
+
+[username]
+disabled = true
+
+[vagrant]
+disabled = true
+
+[zig]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[conda]
+disabled = true
+
+[dart]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
