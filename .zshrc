@@ -13,7 +13,6 @@ ZSH_DISABLE_COMPFIX=true
 
 # Which plugins would you like to load?
 plugins=(
-  git
   history
   last-working-dir
   npm

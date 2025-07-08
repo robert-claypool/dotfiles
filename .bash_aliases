@@ -61,13 +61,9 @@ favorites() {
     history | awk '{print $2}' | sort | uniq -c | sort -rn | head -n "$num"
 }
 
-# oft-used Git aliases (bash only – Zsh already has Oh-My-Zsh git)
-if [ -n "$BASH_VERSION" ]; then
-    alias g='git'
-    alias gst='git status -sb' # status (short/branch view)
-    alias ga='git add'
-    alias gc='git commit'
-fi
+# Git aliases (only gst and ga as requested)
+alias gst='git status -sb' # status (short/branch view)
+alias ga='git add'
 
 alias rm='rm -Iv'
 alias grep='grep --color=auto'
