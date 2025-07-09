@@ -61,9 +61,10 @@ favorites() {
     history | awk '{print $2}' | sort | uniq -c | sort -rn | head -n "$num"
 }
 
-# Git aliases (only gst and ga as requested)
+# Git aliases (only a few)
 alias gst='git status -sb' # status (short/branch view)
 alias ga='git add'
+alias gp='git push'
 
 alias rm='rm -Iv'
 alias grep='grep --color=auto'
