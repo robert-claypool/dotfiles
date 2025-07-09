@@ -2,6 +2,7 @@
 # Shows only: path, git branch (if in repo), and command duration
 
 format = """
+$time\
 $directory\
 $git_branch\
 $cmd_duration\
@@ -26,6 +27,12 @@ style = "yellow"
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
 vicmd_symbol = "[NORMAL ❯](bold yellow)"
+
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "dimmed white"
+time_format = "%r"
 
 # Disable all other modules
 [aws]
