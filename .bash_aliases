@@ -41,7 +41,6 @@ alias fd='find . -type d -name'
 
 alias killnode="pkill --signal SIGKILL node"
 
-alias claude="/Users/rc/.claude/local/claude"
 
 # Ripgrep with smart defaults
 alias rg='rg --hidden --glob "!.git" --smart-case'
