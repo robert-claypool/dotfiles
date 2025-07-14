@@ -1,3 +1,2 @@
---hidden
---glob=!.git
---smart-case
+# Configuration disabled for Claude Code compatibility
+# Use 'rg --hidden --glob="!.git" --smart-case' manually when needed

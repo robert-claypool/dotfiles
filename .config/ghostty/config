@@ -397,7 +397,13 @@ freetype-load-flags = hinting,force-autohint,monochrome,autohint
 #
 #   - macOS: titlebar tabs style is not updated when switching themes.
 #
-theme = light:flexoki-light,dark:flexoki-dark
+# Previous themes - uncomment to switch back:
+# theme = light:flexoki-light,dark:flexoki-dark
+# theme = nord
+# theme = tokyonight
+
+# Current theme:
+theme = OneHalfDark
 
 # Background color for the window.
 # Specified as either hex (`#RRGGBB` or `RRGGBB`) or a named X11 color.
@@ -614,7 +620,7 @@ background-blur = false
 # is 0.15. This value still looks weird but you can at least see what's going
 # on. A value outside of the range 0.15 to 1 will be clamped to the nearest
 # valid value.
-unfocused-split-opacity = 0.35
+unfocused-split-opacity = 0.4
 
 # The color to dim the unfocused split. Unfocused splits are dimmed by
 # rendering a semi-transparent rectangle over the split. This sets the color of
@@ -1027,7 +1033,7 @@ keybind = shift+page_down=adjust_selection:page_down
 keybind = ctrl+tab=next_tab
 keybind = super+a=select_all
 keybind = alt+right=esc:f
-keybind = super+shift+enter=toggle_split_zoom
+# keybind = super+shift+enter=toggle_split_zoom  # Disabled for Claude Code compatibility
 keybind = super+alt+down=goto_split:down
 keybind = super+ctrl+f=toggle_fullscreen
 keybind = super+ctrl+right=resize_split:right,10

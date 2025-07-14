@@ -42,8 +42,7 @@ alias fd='find . -type d -name'
 alias killnode="pkill --signal SIGKILL node"
 
 
-# Ripgrep with smart defaults
-alias rg='rg --hidden --glob "!.git" --smart-case'
+# Ripgrep configuration moved to ~/.ripgreprc
 
 # Show directory size
 alias dirsize='du -sh'
@@ -66,7 +65,7 @@ alias ga='git add'
 alias gp='git push'
 
 alias rm='rm -Iv'
-alias grep='grep --color=auto'
+alias grep='rg --color=auto'
 
 # Flexoki theme switching
 flexoki-toggle() {

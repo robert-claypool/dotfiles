@@ -193,7 +193,7 @@ if command -v bat >/dev/null 2>&1; then
 fi
 
 # Global ripgrep defaults
-export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+# export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"  # Disabled because Claude Code's Grep tool uses ripgrep internally and config flags cause search failures
 
 # Safer delete: use trash-cli if available
 if command -v trash >/dev/null 2>&1; then

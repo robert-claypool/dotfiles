@@ -88,6 +88,16 @@ if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh --disable-up-arrow --disable-ctrl-r)"
 fi
 
+# Fix autosuggestions color for specific dark themes
+# The default fg=8 color is invisible in some dark themes
+if command -v ghostty >/dev/null 2>&1; then
+  current_theme=$(ghostty +show-config 2>/dev/null | grep "^theme = " | cut -d' ' -f3)
+  if [[ "$current_theme" == "OneHalfDark" ]] || [[ "$current_theme" == "OneDark" ]]; then
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=244"
+    echo "▸ Overriding autosuggestions color for $current_theme theme"
+  fi
+fi
+
 # ------------------------------------------------------------------
 # History navigation: arrow-keys with substring search (inline, no CLS)
 # ------------------------------------------------------------------
@@ -120,3 +130,13 @@ zle -N zle-line-init
 
 # Ensure vi-mode is enabled after all other plugins and settings.
 bindkey -v
+
+# Vi-mode overwrites the key bindings that zsh-autosuggestions needs to work.
+# Since vi-mode is enabled at the end of .zshrc (after plugins load), we need
+# to restore the autosuggestion bindings and restart the suggestion engine.
+
+bindkey '^F' autosuggest-accept    # Ctrl+F to accept suggestion
+bindkey '^[[C' autosuggest-accept  # Right arrow to accept suggestion
+
+# Restart autosuggestions so they appear as you type
+_zsh_autosuggest_start 2>/dev/null || true
