@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # tms - tmux session helper
 # Usage: tms <session-name>
-# Creates or attaches to a session with a predictable layout:
-#   1:editor  2:server  3:logs
 set -euo pipefail
 session="${1:-main}"
 if ! command -v tmux >/dev/null 2>&1; then
   echo "tmux not installed"; exit 1
 fi
 
+# Creates or attaches to a session with a predictable layout:
+#   1:ai  2:vim  3:runners  4:logs
 if ! tmux has-session -t="$session" 2>/dev/null; then
-  tmux new-session -d -s "$session" -n editor
-  tmux new-window  -t "$session":2 -n server
-  tmux new-window  -t "$session":3 -n logs
+  tmux new-session -d -s "$session" -n ai
+  tmux new-window  -t "$session":2 -n vim
+  tmux new-window  -t "$session":3 -n runners
+  tmux new-window  -t "$session":4 -n logs
 fi
 tmux attach -t "$session"
