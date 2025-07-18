@@ -116,6 +116,10 @@ fi
 # Other environment variables
 export BROWSER=/usr/bin/chromium
 
+# A hack to stop Claude Code from using cd and then
+# getting confused on which directory it is in.
+export CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1
+
 # NVM setup
 export NVM_DIR="$HOME/.nvm"
 
