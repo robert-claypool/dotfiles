@@ -60,9 +60,14 @@ favorites() {
 }
 
 # Git aliases (only a few)
-alias gst='git status -sb' # status (short/branch view)
+alias gst='git status'
 alias ga='git add'
 alias gp='git push'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl1='git log -1'
+alias gl2='git log -1'
+alias gl3='git log -1'
 
 alias rm='rm -Iv'
 alias grep='rg --color=auto'

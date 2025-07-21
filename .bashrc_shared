@@ -303,3 +303,7 @@ extract() {
         echo "'$1' is not a valid file"
     fi
 }
+
+# OpenJDK
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+
