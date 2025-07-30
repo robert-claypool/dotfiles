@@ -137,5 +137,11 @@ bindkey -v
 bindkey '^F' autosuggest-accept    # Ctrl+F to accept suggestion
 bindkey '^[[C' autosuggest-accept  # Right arrow to accept suggestion
 
+# Fix arrow keys in vi mode
+bindkey "^[[C" forward-char        # Right arrow
+bindkey "^[[D" backward-char       # Left arrow
+bindkey "^[[A" up-line-or-history  # Up arrow
+bindkey "^[[B" down-line-or-history # Down arrow
+
 # Restart autosuggestions so they appear as you type
 _zsh_autosuggest_start 2>/dev/null || true
