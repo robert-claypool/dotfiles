@@ -10,6 +10,10 @@ alias vim="nvim"
 alias tff="terraform fmt -recursive"
 alias tfa="terraform apply"
 
+# Caliber Dev CLI
+alias cali="bun run ~/git/caliber/cli/dev.ts"
+alias sfr="bun run cli/dev.ts system factory-reset"
+
 # Use eza (modern ls) if available
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --group-directories-first'

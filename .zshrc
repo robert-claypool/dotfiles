@@ -18,7 +18,6 @@ plugins=(
   npm
   zsh-completions
   colored-man-pages
-  web-search
   zsh-history-substring-search
   command-not-found
   common-aliases
