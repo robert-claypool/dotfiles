@@ -97,13 +97,13 @@ setup_symlinks() {
         .secrets
     )
     for config in "${configs[@]}"; do
-        ln -sf "$DOTFILES_DIR/$config" "$HOME/$config"
+        ln -s "$DOTFILES_DIR/$config" "$HOME/$config"
     done
 
     # Add Hammerspoon configuration symlink
     echo "Setting up Hammerspoon configuration..."
     mkdir -p "$HOME/.hammerspoon"
-    ln -sf "$DOTFILES_DIR/hammerspoon/init.lua" "$HOME/.hammerspoon/init.lua"
+    ln -s "$DOTFILES_DIR/hammerspoon/init.lua" "$HOME/.hammerspoon/init.lua"
 
     # Reload Hammerspoon if running
     if pgrep -x "Hammerspoon" >/dev/null 2>&1; then
@@ -125,7 +125,7 @@ setup_symlinks() {
                 local script_name
                 script_name=$(basename "$script")
                 echo "Symlinking $script_name to "$dest_bin_dir/$script_name""
-                ln -sf "$script" "$dest_bin_dir/$script_name"
+                ln -s "$script" "$dest_bin_dir/$script_name"
             fi
         done
     fi
@@ -136,7 +136,7 @@ setup_macos() {
 
     if [[ ! -f "$HOME/.ssh/config" ]]; then
         mkdir -p "$HOME/.ssh"
-        ln -sf "$DOTFILES_DIR/macOS/.ssh/config" "$HOME/.ssh/config"
+        ln -s "$DOTFILES_DIR/macOS/.ssh/config" "$HOME/.ssh/config"
     fi
 }
 
@@ -150,14 +150,14 @@ setup_linux() {
     setup_linux_configs
 
     mkdir -p "$MY_CONFIGS/i3"
-    ln -sf "$DOTFILES_DIR/.config/i3/config" "$MY_CONFIGS/i3/config"
+    ln -s "$DOTFILES_DIR/.config/i3/config" "$MY_CONFIGS/i3/config"
 }
 
 setup_linux_configs() {
     mkdir -p "$MY_CONFIGS"
 
     if [[ ! -f "$MY_CONFIGS/openai.token" ]]; then
-        ln -sf "$DOTFILES_DIR/.config/openai.token" "$MY_CONFIGS/openai.token"
+        ln -s "$DOTFILES_DIR/.config/openai.token" "$MY_CONFIGS/openai.token"
     fi
 }
 
@@ -174,7 +174,7 @@ setup_ghostty() {
     mkdir -p "$ghostty_config_dir"
 
     # Create symlink for the configuration file
-    ln -sf "$source_config_file" "$ghostty_config_file"
+    ln -s "$source_config_file" "$ghostty_config_file"
 
     echo "Ghostty configuration set up successfully."
 }
@@ -186,7 +186,7 @@ setup_starship() {
 
     if [ -f "$source_config_file" ]; then
         mkdir -p "$HOME/.config"
-        ln -sf "$source_config_file" "$starship_config_file"
+        ln -s "$source_config_file" "$starship_config_file"
         echo "Starship configuration linked successfully."
     else
         echo "Warning: Starship config source not found at '$source_config_file'. Skipping symlink."
@@ -202,7 +202,7 @@ setup_atuin() {
     # WARNING: Atuin stores its database in ~/.config/atuin - never delete this directory
     if [ -f "$source_config_file" ]; then
         mkdir -p "$atuin_config_dir"
-        ln -sf "$source_config_file" "$atuin_config_file"
+        ln -s "$source_config_file" "$atuin_config_file"
         echo "Atuin configuration linked successfully."
     else
         echo "Warning: Atuin config source not found at '$source_config_file'. Skipping symlink."
