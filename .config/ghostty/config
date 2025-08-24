@@ -49,11 +49,11 @@
 #
 # Changing this configuration at runtime will only affect new terminals, i.e.
 # new windows, tabs, etc.
-font-family =
+# font-family =
 
-font-family-bold =
-font-family-italic =
-font-family-bold-italic =
+# font-family-bold =
+# font-family-italic =
+# font-family-bold-italic =
 # The named font style to use for each of the requested terminal font styles.
 # This looks up the style based on the font style string advertised by the
 # font itself. For example, "Iosevka Heavy" has a style of "Heavy".
