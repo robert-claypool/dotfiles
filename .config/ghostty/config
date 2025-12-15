@@ -397,13 +397,8 @@ freetype-load-flags = hinting,force-autohint,monochrome,autohint
 #
 #   - macOS: titlebar tabs style is not updated when switching themes.
 #
-# Previous themes:
-# theme = light:flexoki-light,dark:flexoki-dark
-# theme = nord
-# theme = tokyonight
-
-# Current theme:
-theme = light:Desert,dark:OneHalfDark
+# Theme - Catppuccin has excellent contrast for tabs and text
+theme = Catppuccin Mocha
 
 # Background color for the window.
 # Specified as either hex (`#RRGGBB` or `RRGGBB`) or a named X11 color.
@@ -426,7 +421,7 @@ selection-background =
 #
 # If you select across cells with differing foregrounds and backgrounds, the
 # selection color will vary across the selection.
-selection-invert-fg-bg = false
+# selection-invert-fg-bg deprecated in 1.2.0 - use selection-foreground/background instead
 
 # The minimum contrast ratio between the foreground and background colors.
 # The contrast ratio is a value between 1 and 21. A value of 1 allows for no
@@ -457,7 +452,7 @@ cursor-color =
 
 # Swap the foreground and background colors of the cell under the cursor. This
 # option overrides the `cursor-color` and `cursor-text` options.
-cursor-invert-fg-bg = false
+# cursor-invert-fg-bg deprecated in 1.2.0 - use cursor-color/cursor-text instead
 
 # The opacity level (opposite of transparency) of the cursor. A value of 1
 # is fully opaque and a value of 0 is fully transparent. A value less than 0
@@ -1888,7 +1883,7 @@ macos-non-native-fullscreen = false
 # most cases.
 #
 # Changing this option at runtime only applies to new windows.
-macos-titlebar-style = transparent
+macos-titlebar-style = tabs
 
 # Whether the proxy icon in the macOS titlebar is visible. The proxy icon
 # is the icon that represents the folder of the current working directory.
@@ -2150,7 +2145,7 @@ gtk-titlebar = true
 # tab overview for displaying tabs. Alternatively, you can use the
 # `toggle_tab_overview` action in a keybind if your window doesn't have a
 # title bar, or you can switch tabs with keybinds.
-gtk-tabs-location = top
+# gtk-tabs-location deprecated in 1.2.0 - use window-show-tab-bar instead
 
 # If this is `true`, the titlebar will be hidden when the window is maximized,
 # and shown when the titlebar is unmaximized. GTK only.
@@ -2168,7 +2163,7 @@ gtk-titlebar-hide-when-maximized = false
 #    more subtle border.
 #
 # Changing this value at runtime will only affect new windows.
-adw-toolbar-style = raised
+# adw-toolbar-style deprecated in 1.2.0 - use gtk-toolbar-style instead
 
 # If `true` (default), then the Ghostty GTK tabs will be "wide." Wide tabs
 # are the new typical Gnome style where tabs fill their available space.
@@ -2263,4 +2258,3 @@ auto-update =
 #
 # This only works on macOS since only macOS has an auto-update feature.
 auto-update-channel =
-

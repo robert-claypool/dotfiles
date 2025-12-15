@@ -1,6 +1,13 @@
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
+# Homebrew-provided zsh completions (e.g. fd, eza).
+if command -v brew >/dev/null 2>&1; then
+  HOMEBREW_PREFIX="$(brew --prefix)"
+  [ -d "$HOMEBREW_PREFIX/share/zsh/site-functions" ] && fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
+  [ -d "$HOMEBREW_PREFIX/share/zsh-completions" ] && fpath=("$HOMEBREW_PREFIX/share/zsh-completions" $fpath)
+fi
+
 # Set name of the theme to load
 # ZSH_THEME="spaceship" <--- Removed as Starship will handle the prompt
 
@@ -87,15 +94,7 @@ if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh --disable-up-arrow --disable-ctrl-r)"
 fi
 
-# Fix autosuggestions color for specific dark themes
-# The default fg=8 color is invisible in some dark themes
-if command -v ghostty >/dev/null 2>&1; then
-  current_theme=$(ghostty +show-config 2>/dev/null | grep "^theme = " | cut -d' ' -f3)
-  if [[ "$current_theme" == "OneHalfDark" ]] || [[ "$current_theme" == "OneDark" ]]; then
-    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=244"
-    echo "▸ Overriding autosuggestions color for $current_theme theme"
-  fi
-fi
+# Catppuccin handles autosuggestions colors well - no override needed
 
 # ------------------------------------------------------------------
 # History navigation: arrow-keys with substring search (inline, no CLS)
@@ -145,3 +144,9 @@ bindkey "^[[B" down-line-or-history # Down arrow
 
 # Restart autosuggestions so they appear as you type
 _zsh_autosuggest_start 2>/dev/null || true
+
+# Added by Windsurf - Next
+export PATH="/Users/rc/.codeium/windsurf/bin:$PATH"
+
+# Added by Antigravity
+export PATH="/Users/rc/.antigravity/antigravity/bin:$PATH"

@@ -26,7 +26,6 @@ else
     alias ll='ls -lahGFT'
     alias la='ls -AGF'
     alias l='ls -CFG'
-    echo "eza not found, falling back to traditional ls"
 fi
 
 # Quick directory navigation
@@ -40,8 +39,24 @@ alias du='du -h'
 alias free='free -m'
 
 # Find stuff fast
-alias ff='find . -type f -name'
-alias fd='find . -type d -name'
+if command -v fd >/dev/null 2>&1; then
+    # Show hidden files by default, but keep common junk excluded.
+    export FD_OPTIONS="${FD_OPTIONS:---hidden --exclude .git}"
+
+    alias f='fd'
+    alias ff='fd -t f'
+    alias fdd='fd -t d'
+
+    # Make fzf use fd (faster than `find`) if both are installed.
+    if command -v fzf >/dev/null 2>&1; then
+        export FZF_DEFAULT_COMMAND='fd -t f --hidden --exclude .git'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+        export FZF_ALT_C_COMMAND='fd -t d --hidden --exclude .git'
+    fi
+else
+    alias ff='find . -type f -name'
+    alias fd='find . -type d -name'
+fi
 
 alias killnode="pkill --signal SIGKILL node"
 
@@ -111,4 +126,3 @@ flexoki-light() {
         tmux display-message "Flexoki Light theme loaded"
     fi
 }
-
