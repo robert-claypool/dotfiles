@@ -18,6 +18,11 @@ if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Tool-specific PATH additions
+[ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"                         # Rancher Desktop
+[ -d "$HOME/.codeium/windsurf/bin" ] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"  # Windsurf
+[ -d "$HOME/.antigravity/antigravity/bin" ] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"  # Antigravity
+
 if [[ -n "$SSH_CONNECTION" && -t 0 ]]; then
   keychain=$(security login-keychain | tr -d '"' | xargs)
 

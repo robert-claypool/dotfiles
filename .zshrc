@@ -27,7 +27,6 @@ plugins=(
   colored-man-pages
   zsh-history-substring-search
   command-not-found
-  common-aliases
   zsh-syntax-highlighting
   zsh-autosuggestions
   you-should-use
@@ -43,9 +42,12 @@ source $ZSH/oh-my-zsh.sh
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=1000000
 SAVEHIST=1000000
-setopt extended_history
-setopt inc_append_history
-setopt hist_ignore_space
+setopt extended_history       # Record timestamp in history
+setopt inc_append_history     # Write immediately, not on shell exit
+setopt hist_ignore_space      # Ignore commands starting with space
+setopt hist_ignore_dups       # Ignore consecutive duplicates
+setopt hist_find_no_dups      # Skip duplicates when searching
+setopt share_history          # Share history across sessions
 
 # Source shared environment and aliases
 [ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
@@ -59,32 +61,18 @@ setopt hist_ignore_space
 # (( $+commands[ng] )) && source <(ng completion script)
 
 # Terraform completion
-complete -o nospace -C /usr/bin/terraform terraform
+if command -v terraform >/dev/null 2>&1; then
+  complete -o nospace -C "$(command -v terraform)" terraform
+fi
 
 # direnv
 if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
-# FZF keybindings and completion
+# FZF keybindings and completion (requires fzf 0.48+)
 if command -v fzf >/dev/null 2>&1; then
-  # Try to find FZF installation path
-  if [ -f "/opt/homebrew/opt/fzf/shell/key-bindings.zsh" ]; then
-    source "/opt/homebrew/opt/fzf/shell/key-bindings.zsh"
-  elif [ -f "/usr/local/opt/fzf/shell/key-bindings.zsh" ]; then
-    source "/usr/local/opt/fzf/shell/key-bindings.zsh"
-  elif [ -f "$HOME/.fzf/shell/key-bindings.zsh" ]; then
-    source "$HOME/.fzf/shell/key-bindings.zsh"
-  fi
-
-  # Completion
-  if [ -f "/opt/homebrew/opt/fzf/shell/completion.zsh" ]; then
-    source "/opt/homebrew/opt/fzf/shell/completion.zsh"
-  elif [ -f "/usr/local/opt/fzf/shell/completion.zsh" ]; then
-    source "/usr/local/opt/fzf/shell/completion.zsh"
-  elif [ -f "$HOME/.fzf/shell/completion.zsh" ]; then
-    source "$HOME/.fzf/shell/completion.zsh"
-  fi
+  eval "$(fzf --zsh)"
 fi
 
 # Atuin (better history)
@@ -101,10 +89,6 @@ fi
 # ------------------------------------------------------------------
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/rc/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 
 # Starship prompt
 eval "$(starship init zsh)"
@@ -144,9 +128,3 @@ bindkey "^[[B" down-line-or-history # Down arrow
 
 # Restart autosuggestions so they appear as you type
 _zsh_autosuggest_start 2>/dev/null || true
-
-# Added by Windsurf - Next
-export PATH="/Users/rc/.codeium/windsurf/bin:$PATH"
-
-# Added by Antigravity
-export PATH="/Users/rc/.antigravity/antigravity/bin:$PATH"
