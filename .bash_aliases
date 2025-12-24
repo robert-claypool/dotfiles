@@ -38,24 +38,14 @@ alias df='df -h'
 alias du='du -h'
 alias free='free -m'
 
-# Find stuff fast
+# Find stuff fast (FZF integration is configured in .bashrc_shared)
 if command -v fd >/dev/null 2>&1; then
-    # Show hidden files by default, but keep common junk excluded.
-    export FD_OPTIONS="${FD_OPTIONS:---hidden --exclude .git}"
-
     alias f='fd'
-    alias ff='fd -t f'
-    alias fdd='fd -t d'
-
-    # Make fzf use fd (faster than `find`) if both are installed.
-    if command -v fzf >/dev/null 2>&1; then
-        export FZF_DEFAULT_COMMAND='fd -t f --hidden --exclude .git'
-        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-        export FZF_ALT_C_COMMAND='fd -t d --hidden --exclude .git'
-    fi
+    alias ff='fd --type f'
+    alias fdd='fd --type d'
 else
     alias ff='find . -type f -name'
-    alias fd='find . -type d -name'
+    # Note: Don't alias 'fd' here - it shadows the fd command if installed later
 fi
 
 alias killnode="pkill --signal SIGKILL node"
@@ -85,8 +75,8 @@ alias gp='git push'
 alias gd='git diff'
 alias gds='git diff --staged'
 alias gl1='git log -1'
-alias gl2='git log -1'
-alias gl3='git log -1'
+alias gl2='git log -2'
+alias gl3='git log -3'
 
 alias rm='rm -Iv'
 alias grep='rg --color=auto'
@@ -126,3 +116,4 @@ flexoki-light() {
         tmux display-message "Flexoki Light theme loaded"
     fi
 }
+

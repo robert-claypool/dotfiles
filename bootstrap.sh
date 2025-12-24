@@ -97,13 +97,29 @@ setup_symlinks() {
         .secrets
     )
     for config in "${configs[@]}"; do
-        ln -s "$DOTFILES_DIR/$config" "$HOME/$config"
+        local target="$HOME/$config"
+        if [[ -L "$target" ]]; then
+            echo "✓ $config symlink already exists"
+        elif [[ -e "$target" ]]; then
+            echo "⚠ $config exists but is not a symlink (skipping)"
+        else
+            ln -s "$DOTFILES_DIR/$config" "$target"
+            echo "✓ Linked $config"
+        fi
     done
 
     # Add Hammerspoon configuration symlink
     echo "Setting up Hammerspoon configuration..."
     mkdir -p "$HOME/.hammerspoon"
-    ln -s "$DOTFILES_DIR/hammerspoon/init.lua" "$HOME/.hammerspoon/init.lua"
+    local hs_target="$HOME/.hammerspoon/init.lua"
+    if [[ -L "$hs_target" ]]; then
+        echo "✓ Hammerspoon init.lua symlink already exists"
+    elif [[ -e "$hs_target" ]]; then
+        echo "⚠ Hammerspoon init.lua exists but is not a symlink (skipping)"
+    else
+        ln -s "$DOTFILES_DIR/hammerspoon/init.lua" "$hs_target"
+        echo "✓ Linked Hammerspoon init.lua"
+    fi
 
     # Reload Hammerspoon if running
     if pgrep -x "Hammerspoon" >/dev/null 2>&1; then
@@ -117,15 +133,22 @@ setup_symlinks() {
     echo "Setting up executables from bin directory..."
     local bin_dir="$DOTFILES_DIR/bin"
     local dest_bin_dir="$HOME/bin"
-    if [ -d "$bin_dir" ]; then
+    if [[ -d "$bin_dir" ]]; then
         mkdir -p "$dest_bin_dir"
         for script in "$bin_dir"/*; do
             # Only symlink files that are executable
-            if [ -f "$script" ] && [ -x "$script" ]; then
+            if [[ -f "$script" ]] && [[ -x "$script" ]]; then
                 local script_name
                 script_name=$(basename "$script")
-                echo "Symlinking $script_name to "$dest_bin_dir/$script_name""
-                ln -s "$script" "$dest_bin_dir/$script_name"
+                local target="$dest_bin_dir/$script_name"
+                if [[ -L "$target" ]]; then
+                    echo "✓ $script_name symlink already exists"
+                elif [[ -e "$target" ]]; then
+                    echo "⚠ $script_name exists but is not a symlink (skipping)"
+                else
+                    ln -s "$script" "$target"
+                    echo "✓ Linked $script_name"
+                fi
             fi
         done
     fi
@@ -167,16 +190,16 @@ setup_ghostty() {
     local ghostty_config_file="$ghostty_config_dir/config"
     local source_config_file="$DOTFILES_DIR/.config/ghostty/config"
 
-    # Remove existing symlink or directory
-    rm -rf "$ghostty_config_dir"
-
-    # Create the directory
     mkdir -p "$ghostty_config_dir"
 
-    # Create symlink for the configuration file
-    ln -s "$source_config_file" "$ghostty_config_file"
-
-    echo "Ghostty configuration set up successfully."
+    if [[ -L "$ghostty_config_file" ]]; then
+        echo "✓ Ghostty config symlink already exists"
+    elif [[ -e "$ghostty_config_file" ]]; then
+        echo "⚠ Ghostty config exists but is not a symlink (skipping)"
+    else
+        ln -s "$source_config_file" "$ghostty_config_file"
+        echo "✓ Linked Ghostty config"
+    fi
 }
 
 setup_starship() {
@@ -184,12 +207,20 @@ setup_starship() {
     local starship_config_file="$HOME/.config/starship.toml"
     local source_config_file="$DOTFILES_DIR/.config/starship.toml"
 
-    if [ -f "$source_config_file" ]; then
-        mkdir -p "$HOME/.config"
-        ln -s "$source_config_file" "$starship_config_file"
-        echo "Starship configuration linked successfully."
+    if [[ ! -f "$source_config_file" ]]; then
+        echo "⚠ Starship config source not found at '$source_config_file' (skipping)"
+        return
+    fi
+
+    mkdir -p "$HOME/.config"
+
+    if [[ -L "$starship_config_file" ]]; then
+        echo "✓ Starship config symlink already exists"
+    elif [[ -e "$starship_config_file" ]]; then
+        echo "⚠ Starship config exists but is not a symlink (skipping)"
     else
-        echo "Warning: Starship config source not found at '$source_config_file'. Skipping symlink."
+        ln -s "$source_config_file" "$starship_config_file"
+        echo "✓ Linked Starship config"
     fi
 }
 
@@ -199,13 +230,21 @@ setup_atuin() {
     local atuin_config_file="$atuin_config_dir/config.toml"
     local source_config_file="$DOTFILES_DIR/.config/atuin/config.toml"
 
-    # WARNING: Atuin stores its database in ~/.config/atuin - never delete this directory
-    if [ -f "$source_config_file" ]; then
-        mkdir -p "$atuin_config_dir"
-        ln -s "$source_config_file" "$atuin_config_file"
-        echo "Atuin configuration linked successfully."
+    if [[ ! -f "$source_config_file" ]]; then
+        echo "⚠ Atuin config source not found at '$source_config_file' (skipping)"
+        return
+    fi
+
+    # Note: Atuin stores its database in ~/.config/atuin - never delete this directory
+    mkdir -p "$atuin_config_dir"
+
+    if [[ -L "$atuin_config_file" ]]; then
+        echo "✓ Atuin config symlink already exists"
+    elif [[ -e "$atuin_config_file" ]]; then
+        echo "⚠ Atuin config exists but is not a symlink (skipping)"
     else
-        echo "Warning: Atuin config source not found at '$source_config_file'. Skipping symlink."
+        ln -s "$source_config_file" "$atuin_config_file"
+        echo "✓ Linked Atuin config"
     fi
 }
 
