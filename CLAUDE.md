@@ -1,5 +1,25 @@
 # CLAUDE.md - Guidelines for AI Assistance
 
+All task tracking goes through bd. No other TODO systems.
+
+## Beads (bd) + Beads Viewer (bv)
+
+Beads captures decisions in a dependency-aware graph. Source-controlled,
+branch-aware. Track config decisions and their rationale.
+
+```bash
+bd ready --json                    # What's ready to work on
+bd create "Title" -t task --json   # Create new task
+bd close <id> --reason "..." --json # Close with outcome
+bd comments add <id> "..." --json  # Add context during work
+bv --robot-triage                  # Unified analysis
+bv --robot-next                    # Top recommendation
+```
+
+Key invariants:
+- `.beads/` is authoritative state; always commit with code changes
+- Do not edit `.beads/*.jsonl` directly; only via bd
+
 ## Build/Setup Commands
 - `./bootstrap.sh` - Main setup script for dotfiles
 - No explicit lint/test commands (dotfiles repository)

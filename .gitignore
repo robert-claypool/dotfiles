@@ -17,6 +17,9 @@ openai.token
 # macOS
 .DS_Store
 
-# Claude Code local data
-.claude
+# Claude Code - track hooks and settings, ignore local data
+.claude/*
+!.claude/hooks/
+!.claude/settings.json
+**/.claude/settings.local.json
 
