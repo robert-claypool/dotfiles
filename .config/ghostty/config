@@ -8,8 +8,10 @@ font-size = 18
 # Theme - Catppuccin Mocha for excellent contrast
 theme = Catppuccin Mocha
 
-# Scrollback - 10 million lines (effectively unlimited)
-scrollback-limit = 10000000
+# Scrollback - 50k lines balances history with memory safety
+# Note: Claude Code's TUI generates ~4000 scroll events/sec, which can
+# exhaust memory with unlimited scrollback. See dotfiles-4px for details.
+scrollback-limit = 50000
 
 # Splits - dim unfocused panes
 unfocused-split-opacity = 0.4
