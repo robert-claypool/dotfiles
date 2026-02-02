@@ -5,58 +5,86 @@
 # regardless of where it's executed.
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-setup_tools() {
-    echo "Setting up additional command line tools..."
+set -euo pipefail
 
-    local tools=(
-        # Better ls replacement
-        eza
-        # Better find replacement
-        fd
-        # Smarter cd with directory jumping (better than z)
-        zoxide
-        # Simplified man pages
-        tldr
-        # Better disk usage viewer
-        duf
-        # Directory size analyzer
-        dust
-        # Modern cut replacement
-        choose
-        # Modern system monitor
-        bottom
-        # Modern replacement for dig (and dog)
-        doggo
-        # JSON processor
-        jq
-        # YAML processor
-        yq
-        # Fast, cross-shell prompt
-        starship
-        # Better shell history
+setup_tools_macos() {
+    echo "Installing tools via Homebrew Bundle..."
+
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "⚠ Homebrew not found. Install it from https://brew.sh and re-run ./bootstrap.sh"
+        return 0
+    fi
+
+    local brewfile="$DOTFILES_DIR/Brewfile"
+    if [[ ! -f "$brewfile" ]]; then
+        echo "⚠ Brewfile not found at '$brewfile' (skipping)"
+        return 0
+    fi
+
+    if ! brew bundle --file "$brewfile" --no-lock; then
+        echo "⚠ Homebrew Bundle failed (continuing)."
+        return 0
+    fi
+}
+
+setup_tools_omarchy() {
+    echo "Installing tools via pacman (Omarchy/Arch)..."
+
+    if ! command -v pacman >/dev/null 2>&1; then
+        echo "⚠ pacman not found (skipping)"
+        return 0
+    fi
+
+    local sudo_cmd=""
+    if command -v sudo >/dev/null 2>&1; then
+        sudo_cmd="sudo"
+    fi
+
+    local packages=(
         atuin
-        # Per-directory env vars
+        bat
+        bottom
+        doggo
         direnv
-        # Safer rm
-        trash-cli
-        # Modern process viewer
+        duf
+        dust
+        eza
+        fd
+        fzf
+        git-delta
+        jq
         procs
-        # Modern grep alternative with type support
-        rg
+        pspg
+        pyenv
+        ripgrep
+        starship
+        tldr
+        tmux
+        trash-cli
+        yq
+        zsh-completions
+        zoxide
     )
 
-    for tool in "${tools[@]}"; do
-        if ! command -v "$tool" >/dev/null 2>&1; then
-            echo "Installing $tool..."
-            brew install "$tool"
-        else
-            echo "✓ $tool is already installed"
+    for pkg in "${packages[@]}"; do
+        if pacman -Qi "$pkg" >/dev/null 2>&1; then
+            echo "✓ $pkg is already installed"
+            continue
+        fi
+        echo "Installing $pkg..."
+        if ! $sudo_cmd pacman -S --needed --noconfirm "$pkg"; then
+            echo "⚠ Failed to install '$pkg' (skipping)"
         fi
     done
 }
 
 setup_zsh_plugins() {
     echo "Setting up Zsh plugins..."
+    if [[ ! -d "$HOME/.oh-my-zsh" && -z "${ZSH_CUSTOM:-}" ]]; then
+        echo "⚠ Oh My Zsh not found at '$HOME/.oh-my-zsh' (skipping). Install it, then re-run ./bootstrap.sh"
+        return 0
+    fi
+
     # Default ZSH_CUSTOM to ~/.oh-my-zsh/custom if not set
     local zsh_custom_plugins_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
     mkdir -p "$zsh_custom_plugins_dir"
@@ -65,8 +93,8 @@ setup_zsh_plugins() {
     plugins=(
         ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
         ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions.git"
-        ["zsh-history-substring-search"]="https://github.com/zsh-users/zsh-history-substring-search.git"
         ["you-should-use"]="https://github.com/MichaelAquilina/zsh-you-should-use.git"
+        ["fzf-tab"]="https://github.com/Aloxaf/fzf-tab.git"
     )
 
     for plugin_name in "${!plugins[@]}"; do
@@ -74,7 +102,10 @@ setup_zsh_plugins() {
         local plugin_dir="$zsh_custom_plugins_dir/$plugin_name"
         if [ ! -d "$plugin_dir" ]; then
             echo "Installing '$plugin_name' zsh plugin..."
-            git clone "$plugin_repo" "$plugin_dir"
+            if ! git clone "$plugin_repo" "$plugin_dir"; then
+                echo "⚠ Failed to clone '$plugin_name' (skipping)"
+                continue
+            fi
         else
             echo "✓ '$plugin_name' zsh plugin is already installed"
         fi
@@ -87,6 +118,7 @@ setup_symlinks() {
         .env
         .bash_aliases
         .bashrc_shared
+        .ripgreprc
         .zshrc
         .zprofile
         .psqlrc
@@ -97,37 +129,21 @@ setup_symlinks() {
         .secrets
     )
     for config in "${configs[@]}"; do
+        local source="$DOTFILES_DIR/$config"
         local target="$HOME/$config"
+        if [[ ! -e "$source" ]]; then
+            echo "⚠ $config source not found at '$source' (skipping)"
+            continue
+        fi
         if [[ -L "$target" ]]; then
             echo "✓ $config symlink already exists"
         elif [[ -e "$target" ]]; then
             echo "⚠ $config exists but is not a symlink (skipping)"
         else
-            ln -s "$DOTFILES_DIR/$config" "$target"
+            ln -s "$source" "$target"
             echo "✓ Linked $config"
         fi
     done
-
-    # Add Hammerspoon configuration symlink
-    echo "Setting up Hammerspoon configuration..."
-    mkdir -p "$HOME/.hammerspoon"
-    local hs_target="$HOME/.hammerspoon/init.lua"
-    if [[ -L "$hs_target" ]]; then
-        echo "✓ Hammerspoon init.lua symlink already exists"
-    elif [[ -e "$hs_target" ]]; then
-        echo "⚠ Hammerspoon init.lua exists but is not a symlink (skipping)"
-    else
-        ln -s "$DOTFILES_DIR/hammerspoon/init.lua" "$hs_target"
-        echo "✓ Linked Hammerspoon init.lua"
-    fi
-
-    # Reload Hammerspoon if running
-    if pgrep -x "Hammerspoon" >/dev/null 2>&1; then
-        osascript -e 'tell application "Hammerspoon" to reload config'
-        echo "Hammerspoon configuration reloaded."
-    else
-        echo "Hammerspoon is not running. Configuration will take effect on next launch."
-    fi
 
     # Symlink executables from bin directory
     echo "Setting up executables from bin directory..."
@@ -154,33 +170,49 @@ setup_symlinks() {
     fi
 }
 
+setup_shell_config() {
+    echo "Setting up shared shell configuration (~/.config/shell)..."
+    local shell_config_dir="$HOME/.config"
+    local shell_config_target="$shell_config_dir/shell"
+    local shell_config_source="$DOTFILES_DIR/.config/shell"
+
+    if [[ ! -d "$shell_config_source" ]]; then
+        echo "⚠ Shell config source not found at '$shell_config_source' (skipping)"
+        return 0
+    fi
+
+    mkdir -p "$shell_config_dir"
+
+    if [[ -L "$shell_config_target" ]]; then
+        echo "✓ Shell config symlink already exists"
+    elif [[ -e "$shell_config_target" ]]; then
+        echo "⚠ '$shell_config_target' exists but is not a symlink (skipping)"
+    else
+        ln -s "$shell_config_source" "$shell_config_target"
+        echo "✓ Linked shell config directory"
+    fi
+}
+
 setup_macos() {
     echo "Setting up macOS-specific configurations..."
 
-    if [[ ! -f "$HOME/.ssh/config" ]]; then
-        mkdir -p "$HOME/.ssh"
-        ln -s "$DOTFILES_DIR/macOS/.ssh/config" "$HOME/.ssh/config"
-    fi
-}
+    local ssh_config_source="$DOTFILES_DIR/macOS/.ssh/config"
+    local ssh_config_target="$HOME/.ssh/config"
 
-setup_linux() {
-    echo "Setting up Linux-specific configurations..."
-    MY_CONFIGS="$HOME/.config"
-    if [[ -f /etc/regolith/i3/config ]]; then
-        MY_CONFIGS="$HOME/.config/regolith"
+    if [[ ! -f "$ssh_config_source" ]]; then
+        echo "⚠ SSH config source not found at '$ssh_config_source' (skipping)"
+        return 0
     fi
 
-    setup_linux_configs
+    mkdir -p "$HOME/.ssh"
 
-    mkdir -p "$MY_CONFIGS/i3"
-    ln -s "$DOTFILES_DIR/.config/i3/config" "$MY_CONFIGS/i3/config"
-}
-
-setup_linux_configs() {
-    mkdir -p "$MY_CONFIGS"
-
-    if [[ ! -f "$MY_CONFIGS/openai.token" ]]; then
-        ln -s "$DOTFILES_DIR/.config/openai.token" "$MY_CONFIGS/openai.token"
+    if [[ -L "$ssh_config_target" ]]; then
+        echo "✓ ~/.ssh/config symlink already exists"
+    elif [[ -e "$ssh_config_target" ]]; then
+        echo "⚠ ~/.ssh/config exists but is not a symlink (skipping)"
+    else
+        ln -s "$ssh_config_source" "$ssh_config_target"
+        echo "✓ Linked ~/.ssh/config"
     fi
 }
 
@@ -199,6 +231,40 @@ setup_ghostty() {
     else
         ln -s "$source_config_file" "$ghostty_config_file"
         echo "✓ Linked Ghostty config"
+    fi
+}
+
+setup_ghostty_app_macos() {
+    if ! command -v brew >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local channel="${DOTFILES_GHOSTTY_CHANNEL:-tip}"
+    local desired_cask=""
+    local other_cask=""
+
+    case "$channel" in
+        tip|nightly)
+            desired_cask="ghostty@tip"
+            other_cask="ghostty"
+            ;;
+        stable)
+            desired_cask="ghostty"
+            other_cask="ghostty@tip"
+            ;;
+        *)
+            echo "⚠ Unknown DOTFILES_GHOSTTY_CHANNEL='$channel' (use 'stable' or 'tip'); skipping Ghostty install"
+            return 0
+            ;;
+    esac
+
+    echo "Ensuring Ghostty is installed ($desired_cask)..."
+    if brew list --cask "$other_cask" >/dev/null 2>&1; then
+        brew uninstall --cask "$other_cask" || true
+    fi
+    if ! brew install --cask "$desired_cask"; then
+        echo "⚠ Failed to install '$desired_cask' (continuing)"
+        return 0
     fi
 }
 
@@ -249,47 +315,73 @@ setup_atuin() {
 }
 
 setup_git() {
-    if command -v git >/dev/null 2>&1; then
-        if [[ ! -f "$HOME/.gitconfig" ]]; then
-            echo "Git configuration not found. Creating one..."
-            read -p "Set your Git name to 'Robert Claypool'? [y,N] " doit
-            case $doit in
-                y|Y) git config --global user.name 'Robert Claypool' ;;
-                  *) ;;
-            esac
-            read -p "Set your Git email to 'robert-claypool@outlook.com'? [y,N] " doit
-            case $doit in
-                y|Y) git config --global user.email 'robert-claypool@outlook.com' ;;
-                  *) ;;
-            esac
-            git config --global core.excludesfile ~/.gitignore
-            git config --global merge.tool vimdiff
-            echo "Run 'git config --global -e' to review/edit the configuration."
-        else
-            echo "Git configuration found."
-        fi
-    else
-        echo "Error: Cannot find Git. '.gitconfig' was not updated."
+    if ! command -v git >/dev/null 2>&1; then
+        echo "Error: Cannot find Git. Global config was not updated."
         return 1
+    fi
+
+    if [[ ! -f "$HOME/.gitconfig" ]]; then
+        echo "Git configuration not found. Setting optional user identity..."
+        local git_name=""
+        local git_email=""
+
+        read -r -p "Git user.name (blank to skip): " git_name
+        if [[ -n "$git_name" ]]; then
+            git config --global user.name "$git_name"
+        fi
+
+        read -r -p "Git user.email (blank to skip): " git_email
+        if [[ -n "$git_email" ]]; then
+            git config --global user.email "$git_email"
+        fi
+
+        echo "Run 'git config --global -e' to review/edit the configuration."
+    else
+        echo "Git configuration found."
+    fi
+
+    if [[ -z "$(git config --global --get core.excludesfile || true)" ]]; then
+        git config --global core.excludesfile "$HOME/.gitignore"
+    fi
+
+    if [[ -z "$(git config --global --get merge.tool || true)" ]]; then
+        git config --global merge.tool vimdiff
+    fi
+
+    # Optional: configure delta if installed, but only if the user hasn't set a pager.
+    if command -v delta >/dev/null 2>&1; then
+        if [[ -z "$(git config --global --get core.pager || true)" ]]; then
+            git config --global core.pager "delta"
+        fi
+        if [[ -z "$(git config --global --get interactive.diffFilter || true)" ]]; then
+            git config --global interactive.diffFilter "delta --color-only"
+        fi
+        if [[ -z "$(git config --global --get delta.navigate || true)" ]]; then
+            git config --global delta.navigate true
+        fi
     fi
 }
 
 main() {
     setup_symlinks
     echo "-----"
+    setup_shell_config
+    echo "-----"
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
         setup_macos
         echo "-----"
-        setup_tools
+        setup_tools_macos
         echo "-----"
-        setup_zsh_plugins
+        setup_ghostty_app_macos
         echo "-----"
     else
-        setup_linux
-        setup_zsh_plugins
+        setup_tools_omarchy
         echo "-----"
     fi
+
+    setup_zsh_plugins
+    echo "-----"
 
     setup_ghostty
     echo "-----"
@@ -299,7 +391,7 @@ main() {
     echo "-----"
     setup_git
     echo "-----"
-    echo "Open README.md and install ZSH plugins as described."
+    echo "Open README.md for next steps."
 }
 
 main

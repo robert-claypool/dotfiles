@@ -6,7 +6,7 @@ My dotfiles, except for [my.nvim](https://github.com/robert-claypool/my.nvim).
 
 1. Clone this repository:
    ```
-   git clone https://github.com/your-username/dotfiles.git
+   git clone https://github.com/robert-claypool/dotfiles.git
    cd dotfiles
    ```
 
@@ -17,9 +17,10 @@ My dotfiles, except for [my.nvim](https://github.com/robert-claypool/my.nvim).
 
    This script will:
    - Set up symbolic links for various config files
-   - Configure macOS-specific settings (if on macOS)
-   - Set up Linux-specific configurations (if on Linux)
-   - Set up Git configuration
+   - Install tools on macOS (Homebrew Bundle via `Brewfile`)
+   - Install tools on Omarchy/Arch (pacman)
+   - Configure Ghostty (and install `ghostty@tip` by default on macOS)
+   - Set up Git defaults (and optional identity prompts)
 
 3. Install and configure Zsh (if not already installed)
 
@@ -48,28 +49,16 @@ Vim keybindings are enabled for the command line.
 ### Smarter History Search
 
 History search has been improved to be less disruptive:
-- **Up-Arrow**: Type any part of a command, then press the up arrow to cycle through matching commands from your history without clearing the screen. This is provided by `zsh-history-substring-search`.
-- **`Ctrl-R`**: Press `Ctrl-R` to activate Atuin's powerful inline history search. It searches your synced history without taking over your full screen.
+- **Up-Arrow**: Cycles through your normal shell history (classic behavior).
+- **`Ctrl-R`**: Opens Atuin's history search UI (synced history).
 
-## macOS-specific setup (Yabai and skhd)
+### Ghostty channel (macOS)
 
-If you're on macOS, the bootstrap script will set up Yabai and skhd. After running the script:
+By default, `./bootstrap.sh` installs `ghostty@tip` (nightly). To use stable instead:
 
-1. Restart your computer to ensure all changes take effect.
-
-2. Enable the Yabai scripting addition:
-   ```
-   sudo yabai --install-sa
-   ```
-
-3. If you encounter issues, check the system logs or run:
-   ```
-   yabai --verbose --debug-output
-   ```
-
-Note: Yabai requires System Integrity Protection (SIP) to be partially disabled for full functionality.
-Refer to the [Yabai documentation](https://github.com/koekeishiya/yabai/wiki/Disabling-System-Integrity-Protection)
-for more information.
+```bash
+DOTFILES_GHOSTTY_CHANNEL=stable ./bootstrap.sh
+```
 
 ## Additional notes
 

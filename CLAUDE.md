@@ -24,7 +24,6 @@ Key invariants:
 - `./bootstrap.sh` - Main setup script for dotfiles
 - No explicit lint/test commands (dotfiles repository)
 - Use `which <command>` to verify tool availability
-- For Hammerspoon: `osascript -e 'tell application "Hammerspoon" to reload'`
 
 ## Code Style Guidelines
 - Shell scripts use bash (`#!/usr/bin/env bash`)

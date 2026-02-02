@@ -23,3 +23,5 @@ openai.token
 !.claude/settings.json
 **/.claude/settings.local.json
 
+# Homebrew Bundle
+Brewfile.lock.json

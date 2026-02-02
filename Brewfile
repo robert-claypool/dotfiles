@@ -1,0 +1,32 @@
+tap "homebrew/bundle"
+
+# CLI essentials
+brew "atuin"
+brew "bat"
+brew "bottom"
+brew "choose-rust"
+brew "direnv"
+brew "duf"
+brew "dust"
+brew "eza"
+brew "fd"
+brew "fzf"
+brew "git"
+brew "git-delta"
+brew "doggo"
+brew "jq"
+brew "procs"
+brew "pspg"
+brew "pyenv"
+brew "ripgrep"
+brew "starship"
+brew "tldr"
+brew "tmux"
+brew "trash"
+brew "vimpager"
+brew "yq"
+brew "zoxide"
+
+# Completions
+brew "zsh-completions"
+

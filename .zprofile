@@ -18,10 +18,19 @@ if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-# Tool-specific PATH additions
-[ -d "$HOME/.rd/bin" ] && export PATH="$HOME/.rd/bin:$PATH"                         # Rancher Desktop
-[ -d "$HOME/.codeium/windsurf/bin" ] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"  # Windsurf
-[ -d "$HOME/.antigravity/antigravity/bin" ] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"  # Antigravity
+# Shared environment (PATH, EDITOR, etc.)
+dotfiles_shell_dir="$HOME/.config/shell"
+if [ ! -d "$dotfiles_shell_dir" ]; then
+  dotfiles_zprofile_target="$(readlink "$HOME/.zprofile" 2>/dev/null || true)"
+  if [ -n "$dotfiles_zprofile_target" ]; then
+    dotfiles_shell_dir="$(cd "$(dirname "$dotfiles_zprofile_target")" && pwd)/.config/shell"
+  fi
+fi
+if [ -f "$dotfiles_shell_dir/env.sh" ]; then
+  # shellcheck disable=SC1090
+  . "$dotfiles_shell_dir/env.sh"
+fi
+unset dotfiles_shell_dir dotfiles_zprofile_target
 
 if [[ -n "$SSH_CONNECTION" && -t 0 ]]; then
   keychain=$(security login-keychain | tr -d '"' | xargs)

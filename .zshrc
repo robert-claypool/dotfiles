@@ -25,18 +25,39 @@ plugins=(
   npm
   zsh-completions
   colored-man-pages
-  zsh-history-substring-search
   command-not-found
   zsh-syntax-highlighting
   zsh-autosuggestions
   you-should-use
 )
 
-# Initialize zoxide (a better alternative to z)
-eval "$(zoxide init zsh)"
+if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]; then
+  plugins+=(fzf-tab)
+fi
 
 # Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
+
+# Shared shell config (env, aliases, functions, fzf defaults, etc.)
+dotfiles_shell_dir="$HOME/.config/shell"
+if [ ! -d "$dotfiles_shell_dir" ]; then
+  dotfiles_zshrc_target="$(readlink "$HOME/.zshrc" 2>/dev/null || true)"
+  if [ -n "$dotfiles_zshrc_target" ]; then
+    dotfiles_shell_dir="$(cd "$(dirname "$dotfiles_zshrc_target")" && pwd)/.config/shell"
+  fi
+fi
+for dotfiles_shell_file in env.sh aliases.sh functions.sh interactive.sh; do
+  if [ -f "$dotfiles_shell_dir/$dotfiles_shell_file" ]; then
+    # shellcheck disable=SC1090
+    source "$dotfiles_shell_dir/$dotfiles_shell_file"
+  fi
+done
+unset dotfiles_shell_dir dotfiles_zshrc_target dotfiles_shell_file
+
+# pyenv (optional)
+if command -v pyenv >/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
 
 # History configuration
 HISTFILE="$HOME/.zsh_history"
@@ -49,9 +70,7 @@ setopt hist_ignore_dups       # Ignore consecutive duplicates
 setopt hist_find_no_dups      # Skip duplicates when searching
 setopt share_history          # Share history across sessions
 
-# Source shared environment and aliases
-[ -f ~/.bashrc_shared ] && source ~/.bashrc_shared
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
+# Local-only aliases (not checked in)
 [ -f ~/.local_aliases ] && source ~/.local_aliases
 
 # Kubectl completion
@@ -59,11 +78,6 @@ setopt share_history          # Share history across sessions
 
 # Angular CLI completion
 # (( $+commands[ng] )) && source <(ng completion script)
-
-# Terraform completion
-if command -v terraform >/dev/null 2>&1; then
-  complete -o nospace -C "$(command -v terraform)" terraform
-fi
 
 # direnv
 if command -v direnv >/dev/null 2>&1; then
@@ -77,18 +91,12 @@ fi
 
 # Atuin (better history)
 if command -v atuin >/dev/null 2>&1; then
-  # Disable interactive bindings so Atuin only logs history in the background.
-  # This makes Ctrl-R and Up-Arrow use the classic Zsh/plugin behaviors.
-  eval "$(atuin init zsh --disable-up-arrow --disable-ctrl-r)"
+  # Ctrl-R: Atuin search UI
+  # Up-Arrow: keep classic shell history
+  eval "$(atuin init zsh --disable-up-arrow)"
 fi
 
 # Catppuccin handles autosuggestions colors well - no override needed
-
-# ------------------------------------------------------------------
-# History navigation: arrow-keys with substring search (inline, no CLS)
-# ------------------------------------------------------------------
-bindkey "$terminfo[kcuu1]" history-substring-search-up
-bindkey "$terminfo[kcud1]" history-substring-search-down
 
 # Starship prompt
 eval "$(starship init zsh)"
@@ -118,7 +126,6 @@ bindkey -v
 # to restore the autosuggestion bindings and restart the suggestion engine.
 
 bindkey '^F' autosuggest-accept    # Ctrl+F to accept suggestion
-bindkey '^[[C' autosuggest-accept  # Right arrow to accept suggestion
 
 # Fix arrow keys in vi mode
 bindkey "^[[C" forward-char        # Right arrow
