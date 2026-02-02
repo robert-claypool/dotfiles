@@ -64,8 +64,8 @@ DOTFILES_GHOSTTY_CHANNEL=stable ./bootstrap.sh
 
 - The .zshrc file includes configurations for various tools and languages. Make sure to install the
   relevant tools as needed (e.g., Node.js, Python, Ruby, Go, etc.).
-- Custom aliases and functions are defined in separate files: ~/.bashrc_shared, ~/.bash_aliases, and
-  ~/.local_aliases. Review them to familiarize yourself with available shortcuts.
+- Shared shell config (env/aliases/functions) lives in `~/.config/shell/` with local-only overrides in
+  `~/.local_aliases` (not checked in).
 - Git configuration is set up by the bootstrap script. Review and adjust the settings as needed.
 - This setup includes configurations for Docker, Rancher Desktop, Neovim, NVM, kubectl, Angular CLI,
   and Terraform. Ensure you have these tools installed if you plan to use them.
