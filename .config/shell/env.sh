@@ -56,6 +56,9 @@ fi
 
 # Pretty man pages
 if command -v bat >/dev/null 2>&1; then
+    if [ -z "${BAT_THEME:-}" ]; then
+        export BAT_THEME="Catppuccin Mocha"
+    fi
     export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 fi
 

@@ -89,6 +89,19 @@ if command -v fzf >/dev/null 2>&1; then
   eval "$(fzf --zsh)"
 fi
 
+# fzf-tab: polished completion UI (optional)
+if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]; then
+  zstyle ':fzf-tab:*' switch-group ',' '.'
+  zstyle ':fzf-tab:*' fzf-flags --height=60% --layout=reverse --border=sharp \
+    --color=bg:#1e1e2e,bg+:#313244,fg:#cdd6f4,fg+:#cdd6f4,hl:#f38ba8,hl+:#f38ba8,header:#f38ba8,info:#cba6f7,prompt:#cba6f7,pointer:#f5e0dc,marker:#b4befe,spinner:#f5e0dc
+
+  if command -v eza >/dev/null 2>&1; then
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --color=always $realpath | head -200'
+  else
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -la $realpath | head -200'
+  fi
+fi
+
 # zoxide (smart cd / `z`)
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"

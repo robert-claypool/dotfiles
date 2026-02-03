@@ -259,11 +259,30 @@ setup_ghostty_app_macos() {
     esac
 
     echo "Ensuring Ghostty is installed ($desired_cask)..."
-    if brew list --cask "$other_cask" >/dev/null 2>&1; then
-        brew uninstall --cask "$other_cask" || true
+    if brew list --cask "$desired_cask" >/dev/null 2>&1; then
+        echo "✓ '$desired_cask' is already installed"
+        return 0
     fi
+
+    local other_installed="false"
+    if brew list --cask "$other_cask" >/dev/null 2>&1; then
+        other_installed="true"
+    fi
+
+    if [[ "$other_installed" == "true" ]]; then
+        echo "Switching Ghostty channel: $other_cask -> $desired_cask"
+        if ! brew uninstall --cask "$other_cask"; then
+            echo "⚠ Failed to uninstall '$other_cask' (continuing)"
+            return 0
+        fi
+    fi
+
     if ! brew install --cask "$desired_cask"; then
-        echo "⚠ Failed to install '$desired_cask' (continuing)"
+        echo "⚠ Failed to install '$desired_cask'"
+        if [[ "$other_installed" == "true" ]]; then
+            echo "Attempting to restore '$other_cask'..."
+            brew install --cask "$other_cask" || true
+        fi
         return 0
     fi
 }
@@ -358,6 +377,9 @@ setup_git() {
         fi
         if [[ -z "$(git config --global --get delta.navigate || true)" ]]; then
             git config --global delta.navigate true
+        fi
+        if [[ -z "$(git config --global --get delta.syntax-theme || true)" ]]; then
+            git config --global delta.syntax-theme "Catppuccin Mocha"
         fi
     fi
 }
