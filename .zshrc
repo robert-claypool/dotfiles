@@ -89,6 +89,11 @@ if command -v fzf >/dev/null 2>&1; then
   eval "$(fzf --zsh)"
 fi
 
+# zoxide (smart cd / `z`)
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
 # Atuin (better history)
 if command -v atuin >/dev/null 2>&1; then
   # Ctrl-R: Atuin search UI

@@ -17,3 +17,18 @@ fi
 [ -f "$dotfiles_shell_dir/interactive.sh" ] && . "$dotfiles_shell_dir/interactive.sh"
 
 unset dotfiles_shell_dir dotfiles_bashrc_shared_target
+
+# Bash-only init for tools that need to hook the shell.
+if [ -n "${BASH_VERSION:-}" ]; then
+    if command -v direnv >/dev/null 2>&1; then
+        eval "$(direnv hook bash)"
+    fi
+
+    if command -v atuin >/dev/null 2>&1; then
+        eval "$(atuin init bash)"
+    fi
+
+    if command -v zoxide >/dev/null 2>&1; then
+        eval "$(zoxide init bash)"
+    fi
+fi
