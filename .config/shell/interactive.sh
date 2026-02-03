@@ -34,10 +34,13 @@ if command -v fzf >/dev/null 2>&1; then
     export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window=down:3:wrap"
 
     if command -v eza >/dev/null 2>&1; then
+        # shellcheck disable=SC2089,SC2090
         export FZF_ALT_C_OPTS="--preview 'eza --tree {} | head -200'"
     elif command -v tree >/dev/null 2>&1; then
+        # shellcheck disable=SC2089,SC2090
         export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
     else
+        # shellcheck disable=SC2090
         export FZF_ALT_C_OPTS="--preview 'ls -la {}'"
     fi
 

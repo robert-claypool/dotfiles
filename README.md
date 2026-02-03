@@ -60,6 +60,10 @@ By default, `./bootstrap.sh` installs `ghostty@tip` (nightly). To use stable ins
 DOTFILES_GHOSTTY_CHANNEL=stable ./bootstrap.sh
 ```
 
+## Quality gates
+
+Run `bin/check` from the repo root.
+
 ## Additional notes
 
 - The .zshrc file includes configurations for various tools and languages. Make sure to install the

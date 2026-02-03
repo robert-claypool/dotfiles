@@ -53,6 +53,8 @@ setup_tools_omarchy() {
         fzf
         git-delta
         jq
+        shellcheck
+        shfmt
         procs
         pspg
         pyenv

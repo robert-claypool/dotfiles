@@ -22,7 +22,7 @@ Key invariants:
 
 ## Build/Setup Commands
 - `./bootstrap.sh` - Main setup script for dotfiles
-- No explicit lint/test commands (dotfiles repository)
+- `bin/check` - Quality gates (shell syntax, shellcheck, formatting)
 - Use `which <command>` to verify tool availability
 
 ## Code Style Guidelines

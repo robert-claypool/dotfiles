@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+SKIP_MISSING="false"
+FIX="false"
+
+usage() {
+    cat <<'EOF'
+Usage: bin/check [--skip-missing] [--fix]
+
+Runs quick quality gates for this repo:
+  - bash syntax checks
+  - zsh syntax checks
+  - shellcheck (if installed)
+  - shfmt (if installed; use --fix to format)
+EOF
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --skip-missing)
+            SKIP_MISSING="true"
+            shift
+            ;;
+        --fix)
+            FIX="true"
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            usage
+            exit 2
+            ;;
+    esac
+done
+
+fail() {
+    echo "✗ $*"
+    exit 1
+}
+
+warn() {
+    echo "⚠ $*"
+}
+
+require_cmd() {
+    local cmd="$1"
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        if [ "$SKIP_MISSING" = "true" ]; then
+            warn "Missing '$cmd' (skipping)."
+            return 1
+        fi
+        fail "Missing '$cmd'. Install dependencies (macOS: run ./bootstrap.sh) and retry."
+    fi
+    return 0
+}
+
+run() {
+    echo "+ $*"
+    "$@"
+}
+
+shopt -s nullglob
+
+BASH_FILES=(
+    bootstrap.sh
+    .bashrc_shared
+    .bash_aliases
+    bin/*
+)
+
+ZSH_FILES=(
+    .zshrc
+    .zprofile
+)
+
+SH_FILES=(
+    .config/shell/*.sh
+)
+
+echo "== Syntax checks"
+run bash -n "${BASH_FILES[@]}"
+run zsh -n "${ZSH_FILES[@]}"
+run sh -n "${SH_FILES[@]}"
+
+echo
+echo "== Shellcheck"
+if require_cmd shellcheck; then
+    # Shellcheck doesn't support zsh; lint bash/sh scripts only.
+    run shellcheck -e SC1091 "${SH_FILES[@]}" bootstrap.sh bin/*
+fi
+
+echo
+echo "== shfmt"
+if require_cmd shfmt; then
+    if [ "$FIX" = "true" ]; then
+        run shfmt -w -i 4 -ci -bn bootstrap.sh bin/* "${SH_FILES[@]}"
+    else
+        run shfmt -d -i 4 -ci -bn bootstrap.sh bin/* "${SH_FILES[@]}"
+    fi
+fi
+
+echo
+echo "== Starship config"
+if command -v starship >/dev/null 2>&1; then
+    STARSHIP_CONFIG="$ROOT_DIR/.config/starship.toml" run starship print-config >/dev/null
+else
+    warn "Missing 'starship' (skipping config validation)."
+fi
+
+echo
+echo "✓ All checks passed"

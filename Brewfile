@@ -13,8 +13,11 @@ brew "fd"
 brew "fzf"
 brew "git"
 brew "git-delta"
+brew "lazygit"
 brew "doggo"
 brew "jq"
+brew "shellcheck"
+brew "shfmt"
 brew "procs"
 brew "pspg"
 brew "pyenv"
@@ -29,4 +32,3 @@ brew "zoxide"
 
 # Completions
 brew "zsh-completions"
-

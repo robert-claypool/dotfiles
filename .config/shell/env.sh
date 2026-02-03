@@ -47,7 +47,8 @@ fi
 if command -v vimpager >/dev/null 2>&1; then
     export PAGER="vimpager"
     export VIMPAGER="vimpager"
-    alias less="$VIMPAGER"
+    # shellcheck disable=SC2139
+    alias less='$VIMPAGER'
 
     if command -v nvim >/dev/null 2>&1; then
         export VIMPAGER_VIM="nvim"

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Shared helper functions for interactive shells (zsh + bash).
 # Safe to source multiple times.
