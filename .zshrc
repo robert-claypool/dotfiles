@@ -26,7 +26,6 @@ plugins=(
   zsh-completions
   colored-man-pages
   command-not-found
-  zsh-syntax-highlighting
   zsh-autosuggestions
   you-should-use
 )
@@ -34,6 +33,8 @@ plugins=(
 if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]; then
   plugins+=(fzf-tab)
 fi
+
+plugins+=(zsh-syntax-highlighting)
 
 # Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
