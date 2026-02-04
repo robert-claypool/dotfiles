@@ -27,12 +27,7 @@ if command -v bat >/dev/null 2>&1; then
     alias cat='bat --paging=never'
 fi
 
-# Safer delete: prefer trash when available (macOS: `trash`, Linux: `trash-put`)
-if command -v trash >/dev/null 2>&1; then
-    alias rm='trash'
-elif command -v trash-put >/dev/null 2>&1; then
-    alias rm='trash-put'
-fi
+# Safer delete: use `del` (see functions.sh) to move to Trash when available.
 
 # Escape hatch for real rm
 alias rmd='command rm -Iv'
@@ -89,4 +84,3 @@ fi
 cdg() {
     command cd "$(git rev-parse --show-toplevel 2>/dev/null)" || return 1
 }
-

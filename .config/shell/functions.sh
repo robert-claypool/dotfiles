@@ -145,3 +145,90 @@ extract() {
         *) printf "'%s' cannot be extracted via extract()\n" "$1" ;;
     esac
 }
+
+# Safer delete: `del` moves things to Trash when available.
+# - macOS: `trash` (brew install trash)
+# - Linux: `trash-put` (trash-cli)
+_dotfiles_del_usage() {
+    printf 'Usage: del [-f] [-v] <path>...\n'
+}
+
+_dotfiles_del_via_trash() {
+    local trash_cmd
+    trash_cmd="$1"
+    shift
+
+    local force=0 verbose=0
+    local opt
+
+    local old_optind="${OPTIND:-1}"
+    OPTIND=1
+    while getopts ":fRrdiIv" opt; do
+        case "$opt" in
+            f) force=1 ;;
+            v) verbose=1 ;;
+            r | R | d) : ;;
+            i | I)
+                printf 'del: interactive prompts are not supported (use rmd or rm -i).\n' >&2
+                return 2
+                ;;
+            \?)
+                printf 'del: unrecognized option -%s\n' "$OPTARG" >&2
+                _dotfiles_del_usage >&2
+                return 2
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    OPTIND="$old_optind"
+
+    if [ "$#" -eq 0 ]; then
+        _dotfiles_del_usage >&2
+        return 2
+    fi
+
+    # `trash` doesn't support `--` to end options; ensure leading '-' args are treated as paths.
+    local -a paths
+    local path
+    paths=()
+    for path in "$@"; do
+        if [[ "$path" == -* ]]; then
+            paths+=("./$path")
+        else
+            paths+=("$path")
+        fi
+    done
+
+    if [ "$force" -eq 1 ]; then
+        local status=0
+        for path in "${paths[@]}"; do
+            if [ -e "$path" ] || [ -L "$path" ]; then
+                if [ "$trash_cmd" = "trash" ] && [ "$verbose" -eq 1 ]; then
+                    trash -v "$path" || status=$?
+                else
+                    "$trash_cmd" "$path" || status=$?
+                fi
+            fi
+        done
+        return $status
+    fi
+
+    if [ "$trash_cmd" = "trash" ] && [ "$verbose" -eq 1 ]; then
+        trash -v "${paths[@]}"
+    else
+        "$trash_cmd" "${paths[@]}"
+    fi
+}
+
+del() {
+    if command -v trash >/dev/null 2>&1; then
+        _dotfiles_del_via_trash trash "$@"
+        return $?
+    fi
+    if command -v trash-put >/dev/null 2>&1; then
+        _dotfiles_del_via_trash trash-put "$@"
+        return $?
+    fi
+    printf "del: missing dependency ('trash' on macOS, 'trash-put' on Linux)\n" >&2
+    return 127
+}
