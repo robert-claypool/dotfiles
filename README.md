@@ -71,6 +71,7 @@ Run `bin/check` from the repo root.
 - Shared shell config (env/aliases/functions) lives in `~/.config/shell/` with local-only overrides in
   `~/.local_aliases` (not checked in).
 - Git configuration is set up by the bootstrap script. Review and adjust the settings as needed.
+- If Git diffs are hard to read, delta's syntax theme can be changed (e.g. `git config --global delta.syntax-theme ansi`).
 - This setup includes configurations for Docker, Rancher Desktop, Neovim, NVM, kubectl, Angular CLI,
   and Terraform. Ensure you have these tools installed if you plan to use them.
 - The FZF configuration uses ripgrep (rg) for file searching. Make sure to install ripgrep for optimal

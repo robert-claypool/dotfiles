@@ -380,9 +380,13 @@ setup_git() {
         if [[ -z "$(git config --global --get delta.navigate || true)" ]]; then
             git config --global delta.navigate true
         fi
-        if [[ -z "$(git config --global --get delta.syntax-theme || true)" ]]; then
-            git config --global delta.syntax-theme "Catppuccin Mocha"
+        delta_syntax_theme="$(git config --global --get delta.syntax-theme || true)"
+        if [[ -z "$delta_syntax_theme" || "$delta_syntax_theme" == "Catppuccin Mocha" ]]; then
+            # Delta syntax themes don't match bat themes. Use "ansi" to leverage the terminal palette
+            # (Catppuccin Mocha in this dotfiles setup) without relying on a theme that delta may not ship.
+            git config --global delta.syntax-theme "ansi"
         fi
+        unset delta_syntax_theme
     fi
 }
 
