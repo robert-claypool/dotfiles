@@ -70,6 +70,14 @@ if command -v bat >/dev/null 2>&1; then
     export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 fi
 
+# Git: keep delta readable even if global config is stale.
+# (Delta syntax themes are not the same as bat themes; 'ansi' matches the terminal palette.)
+if command -v delta >/dev/null 2>&1; then
+    if [ -z "${GIT_PAGER:-}" ]; then
+        export GIT_PAGER="delta --syntax-theme ansi"
+    fi
+fi
+
 # ---------------------------------------------------------------------------
 # PATH
 # ---------------------------------------------------------------------------
