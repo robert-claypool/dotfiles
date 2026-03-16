@@ -1,25 +1,5 @@
 # CLAUDE.md - Guidelines for AI Assistance
 
-All task tracking goes through bd. No other TODO systems.
-
-## Beads (bd) + Beads Viewer (bv)
-
-Beads captures decisions in a dependency-aware graph. Source-controlled,
-branch-aware. Track config decisions and their rationale.
-
-```bash
-bd ready --json                    # What's ready to work on
-bd create "Title" -t task --json   # Create new task
-bd close <id> --reason "..." --json # Close with outcome
-bd comments add <id> "..." --json  # Add context during work
-bv --robot-triage                  # Unified analysis
-bv --robot-next                    # Top recommendation
-```
-
-Key invariants:
-- `.beads/` is authoritative state; always commit with code changes
-- Do not edit `.beads/*.jsonl` directly; only via bd
-
 ## Build/Setup Commands
 - `./bootstrap.sh` - Main setup script for dotfiles
 - `bin/check` - Quality gates (shell syntax, shellcheck, formatting)
@@ -38,3 +18,21 @@ Key invariants:
 - Follow defensive programming: validate paths, check for errors
 - For Git configuration, use delta for diffs when available
 - Prefer long flag options (--version) except for common flags like rm -r, ls -la
+
+<!-- ksmem:onboard:start -->
+## Keystone Memory
+
+This project uses ksmem for structured memory management.
+
+- Prefer ksmem CLI for all memory operations (tool precedence rule)
+- Run ksmem show context at session start for orientation
+- Run ksmem show surface to see canonical command recipes
+- Use stdin for prose input: echo "..." | ksmem note stone <id>
+
+Delegation posture (co-equal builder under guardrails):
+
+- Treat specs as high-fidelity intent, not literal scripts
+- Preserve hard invariants and explicit acceptance criteria
+- Improve implementation details when a better path exists
+- Explain deviations and land code, tests, and docs together
+<!-- ksmem:onboard:end -->

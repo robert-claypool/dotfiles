@@ -5,8 +5,8 @@
 # Font
 font-size = 18
 
-# Theme - Catppuccin Mocha for excellent contrast
-theme = Catppuccin Mocha
+# Theme
+theme = Kanagawa Wave
 
 # Scrollback - 50k lines balances history with memory safety
 # Note: Claude Code's TUI generates ~4000 scroll events/sec, which can
@@ -19,7 +19,7 @@ unfocused-split-opacity = 0.4
 # Window
 window-padding-x = 2
 window-padding-y = 2
-window-theme = auto
+window-theme = ghostty
 
 # Clipboard
 copy-on-select = true

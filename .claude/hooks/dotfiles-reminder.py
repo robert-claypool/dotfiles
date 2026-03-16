@@ -16,8 +16,7 @@ from pathlib import Path
 STATE_FILE = Path.home() / ".claude" / "dotfiles-reminder-state.json"
 
 FULL_REMINDER = """
-Continuing work on dotfiles. Context may have been lost. Tools below bridge
-that gap; Beads creates continuity across sessions.
+Continuing work on dotfiles. Context may have been lost.
 
 ---
 CORE PRINCIPLES
@@ -31,44 +30,6 @@ POSIX when possible.
 
 Public repo.
   This is part of an online portfolio. Code quality matters.
-
----
-BEADS + BEADS VIEWER
----
-
-Beads captures decisions in a dependency-aware graph. Source-controlled,
-branch-aware. Use it to track config decisions and their rationale.
-
-  `bd` - Manage beads: create, update, close, comment, sync
-  `bv` - Search and analyze (use `--robot-*` flags)
-
-COMMANDS:
-
-  `bd ready --json`
-  `bd create "Title" --description "Description" -t task -p 2 --json`
-  `bd close bd-42 --reason "Completed: [describe what was learned]" --json`
-  `bd comments add bd-42 "Tried X, failed because Y. Switching to Z." --json`
-  `bd sync`
-
-  `bv --robot-triage`        # Unified analysis
-  `bv --robot-next`          # Single top recommendation
-  `bv --search "query" --robot-search`
-
-TELL THE FULL STORY
-
-Each bead should hold enough context for a future session to understand
-without re-investigation:
-
-  - What config was changed and why
-  - What alternatives were considered
-  - What tradeoffs were made (portability vs features, etc.)
-  - Outcome and lessons learned
-
-RULES:
-  * Beads track decisions, not file types
-  * Use `bd` for all task tracking (not markdown TODOs)
-  * Use `--json` flag for programmatic access
-  * Commit `.beads/` with your changes
 
 ---
 COMPOUND ENGINEERING
@@ -88,7 +49,7 @@ REVIEW: Verify:
   - Works in target shells (bash, zsh as needed)
   - No secrets or machine-specific paths committed
 
-COMPOUND: Update beads with what was learned.
+COMPOUND: Capture learnings in ksmem.
 
 ---
 DOTFILES BEST PRACTICES
@@ -113,7 +74,7 @@ Context decays. The work compounds when continuity is maintained.
 """.strip()
 
 COMPACT_REMINDER = """
-<reminders>1. Beads track decisions. BEFORE responding to non-trivial config work (changes we're making, rationale, alternatives considered), ask: what is the bead ID for this work? If none, create one now. Unsure of current state? Run `bv --robot-triage`. 2. This is a public repo. Ensure no secrets, machine-specific paths, or low-quality code gets committed. 3. Test shell changes in a fresh shell before considering them done.</reminders>
+<reminders>1. This is a public repo. Ensure no secrets, machine-specific paths, or low-quality code gets committed. 2. Test shell changes in a fresh shell before considering them done.</reminders>
 """.strip()
 
 
