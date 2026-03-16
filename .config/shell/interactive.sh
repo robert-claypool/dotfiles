@@ -21,8 +21,8 @@ if command -v fzf >/dev/null 2>&1; then
     case "${FZF_DEFAULT_OPTS:-}" in
         *"--color="*) ;;
         *)
-            # Catppuccin Mocha (matches Ghostty theme)
-            export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=bg:#1e1e2e,bg+:#313244,fg:#cdd6f4,fg+:#cdd6f4,hl:#f38ba8,hl+:#f38ba8,header:#f38ba8,info:#cba6f7,prompt:#cba6f7,pointer:#f5e0dc,marker:#b4befe,spinner:#f5e0dc"
+            # Kanagawa Wave (matches Ghostty theme)
+            export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=bg:#1f1f28,bg+:#2a2a37,fg:#dcd7ba,fg+:#dcd7ba,hl:#e46876,hl+:#e46876,header:#e46876,info:#957fb8,prompt:#957fb8,pointer:#dcd7ba,marker:#7e9cd8,spinner:#dcd7ba"
             ;;
     esac
 

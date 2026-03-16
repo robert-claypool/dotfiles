@@ -58,14 +58,8 @@ fi
 # Pretty man pages
 if command -v bat >/dev/null 2>&1; then
     if [ -z "${BAT_THEME:-}" ]; then
-        # Avoid "[bat warning]: Unknown theme ..." on systems where the theme isn't available.
-        bat_themes="$(bat --list-themes 2>/dev/null || true)"
-        if printf '%s\n' "$bat_themes" | grep -Fxq "Catppuccin Mocha"; then
-            export BAT_THEME="Catppuccin Mocha"
-        elif printf '%s\n' "$bat_themes" | grep -Fxq "Catppuccin-mocha"; then
-            export BAT_THEME="Catppuccin-mocha"
-        fi
-        unset bat_themes
+        # "ansi" uses the terminal palette, matching whatever Ghostty theme is active.
+        export BAT_THEME="ansi"
     fi
     export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 fi
