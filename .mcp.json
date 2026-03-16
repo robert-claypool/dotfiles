@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ksmem": {
+      "type": "stdio",
+      "command": "ksmem",
+      "args": [
+        "serve"
+      ]
+    }
+  }
+}

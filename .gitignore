@@ -25,3 +25,6 @@ openai.token
 
 # Homebrew Bundle
 Brewfile.lock.json
+.keystone/local/
+.keystone/lock
+.keystone/*.lock
