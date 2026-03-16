@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Switch Ghostty font weight based on time of day or explicit argument.
+# Ghostty auto-reloads when the config file changes on macOS.
+
+GHOSTTY_CONFIG="${GHOSTTY_CONFIG:-$HOME/.config/ghostty/config}"
+
+usage() {
+    cat <<'EOF'
+Usage: ghostty-font [thin|light|auto]
+
+  thin   - Set font-style to Thin
+  light  - Set font-style to Light
+  auto   - Thin from 18:30-05:30 CT, Light otherwise (default)
+EOF
+}
+
+pick_style() {
+    local hour minute
+    hour=$(TZ="America/Chicago" date +%H)
+    minute=$(TZ="America/Chicago" date +%M)
+    local time_val=$((10#$hour * 60 + 10#$minute))
+
+    # Thin: 18:30 (1110) to 05:30 (330)
+    if [[ $time_val -ge 1110 || $time_val -lt 330 ]]; then
+        echo "Thin"
+    else
+        echo "Light"
+    fi
+}
+
+set_style() {
+    local style="$1"
+
+    if [[ ! -f "$GHOSTTY_CONFIG" ]]; then
+        echo "Ghostty config not found: $GHOSTTY_CONFIG" >&2
+        exit 1
+    fi
+
+    if grep -q "^font-style = ${style}$" "$GHOSTTY_CONFIG" 2>/dev/null; then
+        return 0
+    fi
+
+    sed -i '' "s/^font-style = .*/font-style = ${style}/" "$GHOSTTY_CONFIG"
+}
+
+mode="${1:-auto}"
+
+case "$mode" in
+    thin)  set_style "Thin" ;;
+    light) set_style "Light" ;;
+    auto)  set_style "$(pick_style)" ;;
+    -h|--help) usage ;;
+    *)
+        echo "Unknown argument: $mode" >&2
+        usage >&2
+        exit 2
+        ;;
+esac

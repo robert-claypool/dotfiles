@@ -3,7 +3,10 @@
 # for all available options or `ghostty +show-config --docs` for documentation.
 
 # Font
+font-family = JetBrainsMono Nerd Font Mono
+font-style = Thin
 font-size = 18
+adjust-cell-width = 2%
 
 # Theme
 theme = Kanagawa Wave

@@ -218,6 +218,42 @@ setup_macos() {
     fi
 }
 
+setup_launch_agents() {
+    echo "Setting up LaunchAgents..."
+    local source_dir="$DOTFILES_DIR/.config/LaunchAgents"
+    local target_dir="$HOME/Library/LaunchAgents"
+
+    if [[ ! -d "$source_dir" ]]; then
+        echo "⚠ LaunchAgents source not found (skipping)"
+        return 0
+    fi
+
+    mkdir -p "$target_dir"
+
+    for plist in "$source_dir"/*.plist; do
+        [[ -f "$plist" ]] || continue
+        local name
+        name=$(basename "$plist")
+        local target="$target_dir/$name"
+        local label="${name%.plist}"
+
+        if [[ -L "$target" ]]; then
+            echo "✓ $name symlink already exists"
+        elif [[ -e "$target" ]]; then
+            echo "⚠ $name exists but is not a symlink (skipping)"
+            continue
+        else
+            ln -s "$plist" "$target"
+            echo "✓ Linked $name"
+        fi
+
+        # Load the agent if not already loaded
+        if ! launchctl list "$label" >/dev/null 2>&1; then
+            launchctl load "$target" 2>/dev/null || echo "⚠ Could not load $name"
+        fi
+    done
+}
+
 setup_ghostty() {
     echo "Setting up Ghostty configuration..."
     local ghostty_config_dir="$HOME/.config/ghostty"
@@ -419,6 +455,12 @@ main() {
     echo "-----"
     setup_git
     echo "-----"
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        setup_launch_agents
+        echo "-----"
+    fi
+
     echo "Open README.md for next steps."
 }
 
