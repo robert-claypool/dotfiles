@@ -20,6 +20,5 @@ created_at: "2026-02-09T22:30:54Z"
 
 ## Journal
 
-- 2026-02-09T22:31:03Z | imported from beads
 
 ## Lessons
