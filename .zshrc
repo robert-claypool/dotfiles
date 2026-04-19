@@ -1,8 +1,5 @@
-# Go binaries (go install puts binaries here)
-export PATH="$HOME/go/bin:$PATH"
-
-# kstoolchain managed bin — must come after go/bin so it prepends last and wins
-export PATH="$HOME/.keystone/toolchain/active/bin:$PATH"
+# PATH for Go binaries and the kstoolchain managed bin lives in
+# ~/.config/shell/env.sh so non-interactive shells get the same ordering.
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh

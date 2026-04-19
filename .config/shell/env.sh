@@ -103,6 +103,16 @@ elif [ -d "/usr/local/opt/openjdk/bin" ]; then
     _dotfiles_prepend_path "/usr/local/opt/openjdk/bin"
 fi
 
+# Go binaries from `go install`. Kept on PATH so kstoolchain itself
+# (which is not a managed adapter) remains resolvable.
+_dotfiles_prepend_path "$HOME/go/bin"
+
+# kstoolchain managed bin. Prepended LAST so it lands first in PATH
+# and wins resolution over any go/bin copies of managed tools.
+# Lives in env.sh (not .zshrc) so non-interactive shells — including
+# Claude Code's bash and any subprocess — get the same ordering.
+_dotfiles_prepend_path "$HOME/.keystone/toolchain/active/bin"
+
 export PATH
 
 # ---------------------------------------------------------------------------
