@@ -282,7 +282,7 @@ setup_ghostty_app_macos() {
     local other_cask=""
 
     case "$channel" in
-        tip|nightly)
+        tip | nightly)
             desired_cask="ghostty@tip"
             other_cask="ghostty"
             ;;

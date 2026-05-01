@@ -7,14 +7,15 @@ font-family = JetBrainsMono Nerd Font Mono
 font-style = Thin
 font-size = 18
 adjust-cell-width = 2%
+window-title-font-family = JetBrainsMono Nerd Font Mono
 
 # Theme
 theme = Kanagawa Wave
 
-# Scrollback - 50k lines balances history with memory safety
-# Note: Claude Code's TUI generates ~4000 scroll events/sec, which can
-# exhaust memory with unlimited scrollback. See dotfiles-4px for details.
-scrollback-limit = 50000
+# Scrollback - Ghostty interprets this as bytes, per terminal surface.
+# 100MB is large enough for AI CLI sessions without returning to effectively
+# unbounded memory growth. Override in ./local for machine-specific tuning.
+scrollback-limit = 100000000
 
 # Splits - dim unfocused panes
 unfocused-split-opacity = 0.4
@@ -52,6 +53,7 @@ keybind = super+shift+down=jump_to_prompt:1
 
 # Tabs
 keybind = super+t=new_tab
+keybind = super+alt+t=prompt_tab_title
 keybind = super+w=close_surface
 keybind = super+shift+w=close_window
 keybind = super+alt+w=close_tab
@@ -124,3 +126,6 @@ keybind = super+alt+i=inspector:toggle
 keybind = super+shift+j=write_screen_file:paste
 keybind = super+alt+shift+j=write_screen_file:open
 keybind = super+alt+shift+w=close_all_windows
+
+# Public defaults above; private machine/workspace overrides can live here.
+config-file = ?local

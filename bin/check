@@ -29,7 +29,7 @@ while [ $# -gt 0 ]; do
             FIX="true"
             shift
             ;;
-        -h|--help)
+        -h | --help)
             usage
             exit 0
             ;;

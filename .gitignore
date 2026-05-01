@@ -17,6 +17,9 @@ openai.token
 # macOS
 .DS_Store
 
+# Local/private Ghostty overrides
+.config/ghostty/local
+
 # Claude Code - track hooks and settings, ignore local data
 .claude/*
 !.claude/hooks/

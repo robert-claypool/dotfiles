@@ -48,10 +48,10 @@ set_style() {
 mode="${1:-auto}"
 
 case "$mode" in
-    thin)  set_style "Thin" ;;
+    thin) set_style "Thin" ;;
     light) set_style "Light" ;;
-    auto)  set_style "$(pick_style)" ;;
-    -h|--help) usage ;;
+    auto) set_style "$(pick_style)" ;;
+    -h | --help) usage ;;
     *)
         echo "Unknown argument: $mode" >&2
         usage >&2
