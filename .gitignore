@@ -20,6 +20,10 @@ openai.token
 # Local/private Ghostty overrides
 .config/ghostty/local
 
+# Local/private workspace mappings
+.config/workspaces/local/
+.config/workspaces/*.local.sh
+
 # Claude Code - track hooks and settings, ignore local data
 .claude/*
 !.claude/hooks/

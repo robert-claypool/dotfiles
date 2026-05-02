@@ -254,6 +254,26 @@ setup_launch_agents() {
     done
 }
 
+setup_hammerspoon() {
+    echo "Setting up Hammerspoon configuration..."
+    local source_dir="$DOTFILES_DIR/hammerspoon"
+    local target_dir="$HOME/.hammerspoon"
+
+    if [[ ! -d "$source_dir" ]]; then
+        echo "⚠ Hammerspoon source not found (skipping)"
+        return 0
+    fi
+
+    if [[ -L "$target_dir" ]]; then
+        echo "✓ ~/.hammerspoon symlink already exists"
+    elif [[ -e "$target_dir" ]]; then
+        echo "⚠ ~/.hammerspoon exists but is not a symlink (skipping)"
+    else
+        ln -s "$source_dir" "$target_dir"
+        echo "✓ Linked ~/.hammerspoon"
+    fi
+}
+
 setup_ghostty() {
     echo "Setting up Ghostty configuration..."
     local ghostty_config_dir="$HOME/.config/ghostty"
@@ -458,6 +478,8 @@ main() {
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
         setup_launch_agents
+        echo "-----"
+        setup_hammerspoon
         echo "-----"
     fi
 

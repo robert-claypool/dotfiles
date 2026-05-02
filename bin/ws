@@ -1,0 +1,317 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  ws list
+  ws show <workspace>
+  ws chrome <workspace>
+  ws chrome-open <workspace>
+  ws chrome-name <workspace>
+  ws ghostty <workspace> [tab-number-or-name]
+  ws ghostty-open <workspace>
+  ws streamdeck-url <workspace> <target> [tab-number-or-name]
+
+Workspaces are shell config files in:
+  .config/workspaces/<workspace>.sh
+  .config/workspaces/local/<workspace>.sh   # ignored/private overlay
+
+Stream Deck can call this directly from the OSA Script plugin:
+  do shell script "/Users/rc/bin/ws ghostty start 3"
+
+Or via Hammerspoon URL bridge:
+  hammerspoon://ws?workspace=start&target=ghostty&tab=3
+EOF
+}
+
+die() {
+    echo "ws: $*" >&2
+    exit 1
+}
+
+resolve_dotfiles_dir() {
+    local source="${BASH_SOURCE[0]}"
+    local dir=""
+    while [[ -L "$source" ]]; do
+        dir="$(cd -P "$(dirname "$source")" && pwd)"
+        source="$(readlink "$source")"
+        [[ "$source" != /* ]] && source="$dir/$source"
+    done
+    cd -P "$(dirname "$source")/.." && pwd
+}
+
+reset_workspace() {
+    WS_NAME=""
+    WS_LABEL=""
+    WS_CHROME_WINDOW=""
+    WS_CHROME_PROFILE=""
+    WS_CHROME_URLS=()
+    WS_GHOSTTY_WINDOW=""
+    WS_GHOSTTY_DIR=""
+    WS_GHOSTTY_TABS=()
+}
+
+load_workspace() {
+    local name="$1"
+    local public_config="$CONFIG_DIR/$name.sh"
+    local local_config="$CONFIG_DIR/local/$name.sh"
+
+    reset_workspace
+    if [[ ! -f "$public_config" && ! -f "$local_config" ]]; then
+        die "workspace '$name' not found in $CONFIG_DIR"
+    fi
+
+    if [[ -f "$public_config" ]]; then
+        # shellcheck source=/dev/null
+        . "$public_config"
+    fi
+    if [[ -f "$local_config" ]]; then
+        # shellcheck source=/dev/null
+        . "$local_config"
+    fi
+
+    WS_NAME="$name"
+    WS_LABEL="${WS_LABEL:-$name}"
+}
+
+list_workspaces() {
+    {
+        find "$CONFIG_DIR" -maxdepth 1 -type f -name '*.sh' -exec basename {} .sh \; 2>/dev/null || true
+        find "$CONFIG_DIR/local" -maxdepth 1 -type f -name '*.sh' -exec basename {} .sh \; 2>/dev/null || true
+    } | sort -u
+}
+
+show_workspace() {
+    local name="$1"
+    load_workspace "$name"
+    echo "workspace: $WS_NAME"
+    echo "label: ${WS_LABEL:-}"
+    echo "chrome_window: ${WS_CHROME_WINDOW:-}"
+    echo "chrome_profile: ${WS_CHROME_PROFILE:-}"
+    printf 'chrome_urls:\n'
+    printf '  %s\n' "${WS_CHROME_URLS[@]:-}"
+    echo "ghostty_window: ${WS_GHOSTTY_WINDOW:-}"
+    echo "ghostty_dir: ${WS_GHOSTTY_DIR:-}"
+    printf 'ghostty_tabs:\n'
+    printf '  %s\n' "${WS_GHOSTTY_TABS[@]:-}"
+}
+
+chrome_focus() {
+    local window_name="$1"
+    osascript - "$window_name" <<'APPLESCRIPT' >/dev/null
+on run argv
+    set targetName to item 1 of argv
+    set matched to false
+    tell application "Google Chrome"
+        repeat with w in windows
+            try
+                if (given name of w as text) is targetName then
+                    set index of w to 1
+                    set matched to true
+                    exit repeat
+                end if
+            end try
+        end repeat
+        if matched is false then
+            repeat with w in windows
+                try
+                    if (name of w as text) starts with targetName then
+                        set index of w to 1
+                        set matched to true
+                        exit repeat
+                    end if
+                end try
+            end repeat
+        end if
+        if matched is false then error "Chrome window not found: " & targetName number 42
+        activate
+    end tell
+end run
+APPLESCRIPT
+}
+
+chrome_name_front() {
+    local window_name="$1"
+    osascript - "$window_name" <<'APPLESCRIPT' >/dev/null
+on run argv
+    set targetName to item 1 of argv
+    tell application "Google Chrome"
+        activate
+        set given name of front window to targetName
+    end tell
+end run
+APPLESCRIPT
+}
+
+chrome_open() {
+    local window_name="${WS_CHROME_WINDOW:-$WS_LABEL}"
+    local chrome_bin="${WS_CHROME_BIN:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
+    local urls=("${WS_CHROME_URLS[@]}")
+    local args=()
+
+    if [[ ${#urls[@]} -eq 0 ]]; then
+        urls=("about:blank")
+    fi
+
+    if [[ -n "${WS_CHROME_PROFILE:-}" ]]; then
+        args+=("--profile-directory=$WS_CHROME_PROFILE")
+    fi
+    args+=(--new-window)
+    args+=("${urls[@]}")
+
+    if [[ -x "$chrome_bin" ]]; then
+        "$chrome_bin" "${args[@]}" >/dev/null 2>&1 &
+    else
+        open -a "Google Chrome" "${urls[@]}" >/dev/null 2>&1 &
+    fi
+
+    sleep "${WS_CHROME_OPEN_DELAY:-1.5}"
+    chrome_name_front "$window_name" || true
+}
+
+ghostty_open() {
+    local window_name="${WS_GHOSTTY_WINDOW:-$WS_LABEL}"
+    local dir="${WS_GHOSTTY_DIR:-$HOME}"
+    open -na "Ghostty" --args "--title=$window_name" "--working-directory=$dir"
+}
+
+ghostty_focus() {
+    local window_name="$1"
+    osascript - "$window_name" <<'APPLESCRIPT' >/dev/null
+on run argv
+    set targetName to item 1 of argv
+    set matched to false
+    tell application "Ghostty" to activate
+    delay 0.1
+    tell application "System Events"
+        tell process "Ghostty"
+            set frontmost to true
+            repeat with w in windows
+                try
+                    if (name of w as text) contains targetName then
+                        perform action "AXRaise" of w
+                        set matched to true
+                        exit repeat
+                    end if
+                end try
+            end repeat
+        end tell
+    end tell
+    if matched is false then error "Ghostty window not found: " & targetName number 42
+end run
+APPLESCRIPT
+}
+
+resolve_ghostty_tab() {
+    local requested="$1"
+    local i=0
+
+    if [[ "$requested" =~ ^[1-9][0-9]*$ ]]; then
+        echo "$requested"
+        return 0
+    fi
+
+    for tab_name in "${WS_GHOSTTY_TABS[@]}"; do
+        i=$((i + 1))
+        if [[ "$tab_name" == "$requested" ]]; then
+            echo "$i"
+            return 0
+        fi
+    done
+
+    die "unknown Ghostty tab '$requested' for workspace '$WS_NAME'"
+}
+
+ghostty_select_tab() {
+    local tab_number="$1"
+    if [[ ! "$tab_number" =~ ^[1-9]$ ]]; then
+        die "Ghostty tab number must be 1-9, got '$tab_number'"
+    fi
+    osascript - "$tab_number" <<'APPLESCRIPT' >/dev/null
+on run argv
+    set tabNumber to item 1 of argv
+    tell application "System Events"
+        keystroke tabNumber using command down
+    end tell
+end run
+APPLESCRIPT
+}
+
+url_encode() {
+    local input="$1"
+    local length=${#input}
+    local i=0
+    local char=""
+    local encoded=""
+
+    while [[ $i -lt $length ]]; do
+        char="${input:$i:1}"
+        case "$char" in
+            [a-zA-Z0-9.~_-]) encoded+="$char" ;;
+            *) printf -v encoded '%s%%%02X' "$encoded" "'$char" ;;
+        esac
+        i=$((i + 1))
+    done
+    printf '%s' "$encoded"
+}
+
+dotfiles_dir="$(resolve_dotfiles_dir)"
+CONFIG_DIR="${WS_CONFIG_DIR:-$dotfiles_dir/.config/workspaces}"
+
+cmd="${1:-}"
+case "$cmd" in
+    -h | --help | "")
+        usage
+        exit 0
+        ;;
+    list)
+        list_workspaces
+        ;;
+    show)
+        [[ $# -ge 2 ]] || die "show requires a workspace"
+        show_workspace "$2"
+        ;;
+    chrome)
+        [[ $# -ge 2 ]] || die "chrome requires a workspace"
+        load_workspace "$2"
+        chrome_focus "${WS_CHROME_WINDOW:-$WS_LABEL}" || chrome_open
+        ;;
+    chrome-open)
+        [[ $# -ge 2 ]] || die "chrome-open requires a workspace"
+        load_workspace "$2"
+        chrome_open
+        ;;
+    chrome-name)
+        [[ $# -ge 2 ]] || die "chrome-name requires a workspace"
+        load_workspace "$2"
+        chrome_name_front "${WS_CHROME_WINDOW:-$WS_LABEL}"
+        ;;
+    ghostty)
+        [[ $# -ge 2 ]] || die "ghostty requires a workspace"
+        load_workspace "$2"
+        ghostty_focus "${WS_GHOSTTY_WINDOW:-$WS_LABEL}" || ghostty_open
+        if [[ -n "${3:-}" ]]; then
+            ghostty_select_tab "$(resolve_ghostty_tab "$3")"
+        fi
+        ;;
+    ghostty-open)
+        [[ $# -ge 2 ]] || die "ghostty-open requires a workspace"
+        load_workspace "$2"
+        ghostty_open
+        ;;
+    streamdeck-url)
+        [[ $# -ge 3 ]] || die "streamdeck-url requires workspace and target"
+        workspace="$(url_encode "$2")"
+        target="$(url_encode "$3")"
+        url="hammerspoon://ws?workspace=$workspace&target=$target"
+        if [[ -n "${4:-}" ]]; then
+            tab="$(url_encode "$4")"
+            url="$url&tab=$tab"
+        fi
+        echo "$url"
+        ;;
+    *)
+        die "unknown command '$cmd'"
+        ;;
+esac

@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: ghostty-titlebar [show|native|tabs|transparent|hidden]
+
+Manage the ignored local Ghostty titlebar experiment in:
+  ~/.config/ghostty/local
+
+Ghostty applies macos-titlebar-style only to new windows.
+EOF
+}
+
+resolve_dotfiles_dir() {
+    local source="${BASH_SOURCE[0]}"
+    local dir=""
+    while [[ -L "$source" ]]; do
+        dir="$(cd -P "$(dirname "$source")" && pwd)"
+        source="$(readlink "$source")"
+        [[ "$source" != /* ]] && source="$dir/$source"
+    done
+    cd -P "$(dirname "$source")/.." && pwd
+}
+
+show_mode() {
+    local file="$1"
+    if [[ ! -f "$file" ]]; then
+        echo "unset"
+        return 0
+    fi
+    awk -F= '
+        /^[[:space:]]*macos-titlebar-style[[:space:]]*=/ {
+            value = $2
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+        }
+        END {
+            if (value == "") {
+                print "unset"
+            } else {
+                print value
+            }
+        }
+    ' "$file"
+}
+
+set_mode() {
+    local file="$1"
+    local mode="$2"
+    local tmp=""
+    mkdir -p "$(dirname "$file")"
+    tmp="$(mktemp)"
+    if [[ -f "$file" ]]; then
+        awk '
+            /^[[:space:]]*macos-titlebar-style[[:space:]]*=/ { next }
+            { print }
+        ' "$file" >"$tmp"
+    else
+        {
+            echo "# Private local Ghostty overrides. This file is ignored by Git."
+            echo
+        } >"$tmp"
+    fi
+    {
+        echo
+        echo "# Ghostty applies this only to new windows."
+        echo "macos-titlebar-style = $mode"
+    } >>"$tmp"
+    mv "$tmp" "$file"
+    echo "$mode"
+}
+
+mode="${1:-show}"
+case "$mode" in
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    show | native | tabs | transparent | hidden) ;;
+    *)
+        echo "Unknown titlebar mode: $mode" >&2
+        usage >&2
+        exit 2
+        ;;
+esac
+
+dotfiles_dir="$(resolve_dotfiles_dir)"
+local_config="${GHOSTTY_LOCAL_CONFIG:-$dotfiles_dir/.config/ghostty/local}"
+
+if [[ "$mode" == "show" ]]; then
+    show_mode "$local_config"
+else
+    set_mode "$local_config" "$mode"
+fi

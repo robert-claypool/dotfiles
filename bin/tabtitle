@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: tabtitle <title>
+
+Set the current terminal tab/window title using standard OSC title escapes.
+Run this inside the terminal tab you want to label.
+
+Examples:
+  tabtitle FOLIO
+  tabtitle START:codex
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || $# -eq 0 ]]; then
+    usage
+    exit 0
+fi
+
+title="$*"
+printf '\033]0;%s\007' "$title"

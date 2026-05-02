@@ -64,6 +64,14 @@ DOTFILES_GHOSTTY_CHANNEL=stable ./bootstrap.sh
 
 Run `bin/check` from the repo root.
 
+## Workspace navigation
+
+Stream Deck/workspace helpers live in `bin/ws`, `bin/tabtitle`, `bin/ghostty-titlebar`,
+and `bin/ttylog`. Public examples are in `.config/workspaces/`; private project URLs
+and Chrome profile mappings belong in ignored `.config/workspaces/local/*.sh` files.
+
+See `docs/streamdeck-workspaces.md`.
+
 ## Additional notes
 
 - The .zshrc file includes configurations for various tools and languages. Make sure to install the
