@@ -1,0 +1,101 @@
+# Keep the interactive shell native and inspectable. Packages provide the two
+# plugins sourced below; there is no shell framework or plugin bootstrapper.
+[[ -o interactive ]] || return 0
+
+typeset -U path PATH fpath FPATH
+
+# Homebrew and package completions must be on fpath before compinit.
+for dotfiles_completion_dir in /opt/homebrew/share/zsh/site-functions /opt/homebrew/share/zsh-completions /usr/local/share/zsh/site-functions /usr/local/share/zsh-completions; do
+    [[ -d "$dotfiles_completion_dir" ]] && fpath=("$dotfiles_completion_dir" $fpath)
+done
+unset dotfiles_completion_dir
+
+autoload -Uz compinit
+mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-$ZSH_VERSION"
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{yellow}%d%f'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS:-}"
+
+for dotfiles_shell_file in aliases.sh functions.sh interactive.sh; do
+    if [[ -r "$HOME/.config/shell/$dotfiles_shell_file" ]]; then
+        source "$HOME/.config/shell/$dotfiles_shell_file"
+    fi
+done
+unset dotfiles_shell_file
+
+[[ -r "$HOME/.config/shell/local.sh" ]] && source "$HOME/.config/shell/local.sh"
+
+# Large, shared history plus Atuin's richer local database.
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+mkdir -p "${HISTFILE:h}"
+HISTSIZE=1000000
+SAVEHIST=1000000
+setopt append_history extended_history hist_expire_dups_first
+setopt hist_find_no_dups hist_ignore_dups hist_ignore_space hist_reduce_blanks
+setopt inc_append_history share_history
+setopt auto_cd auto_pushd pushd_ignore_dups interactive_comments
+
+# Vim command-line editing, with a fast escape transition.
+bindkey -v
+KEYTIMEOUT=1
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M viins '^E' edit-command-line
+bindkey -M vicmd '^E' edit-command-line
+bindkey -M viins '^[[A' up-line-or-history
+bindkey -M viins '^[[B' down-line-or-history
+bindkey -M viins '^[[C' forward-char
+bindkey -M viins '^[[D' backward-char
+
+function zle-keymap-select() {
+    zle reset-prompt
+}
+zle -N zle-keymap-select
+
+function zle-line-init() {
+    zle -K viins
+}
+zle -N zle-line-init
+
+# Homebrew-owned autosuggestions. Syntax highlighting is sourced last below.
+for dotfiles_plugin_file in /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+    if [[ -r "$dotfiles_plugin_file" ]]; then
+        source "$dotfiles_plugin_file"
+        break
+    fi
+done
+unset dotfiles_plugin_file
+(( ${+widgets[autosuggest-accept]} )) && bindkey -M viins '^F' autosuggest-accept
+
+if command -v pyenv >/dev/null 2>&1; then
+    eval "$(pyenv init - zsh)"
+fi
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook zsh)"
+fi
+if command -v fzf >/dev/null 2>&1; then
+    source <(fzf --zsh)
+fi
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+if command -v atuin >/dev/null 2>&1; then
+    # Atuin owns Ctrl-R; arrows retain ordinary shell history behavior.
+    eval "$(atuin init zsh --disable-up-arrow)"
+fi
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
+
+[[ -r "${BUN_INSTALL:-$HOME/.bun}/_bun" ]] && source "${BUN_INSTALL:-$HOME/.bun}/_bun"
+
+for dotfiles_plugin_file in /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+    if [[ -r "$dotfiles_plugin_file" ]]; then
+        source "$dotfiles_plugin_file"
+        break
+    fi
+done
+unset dotfiles_plugin_file

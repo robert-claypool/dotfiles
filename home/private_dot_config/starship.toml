@@ -1,0 +1,192 @@
+# Minimal starship configuration
+# Shows only: path, git branch (if in repo), and command duration
+
+format = """
+$time\
+$directory\
+$git_branch\
+$git_status\
+$cmd_duration\
+$line_break\
+$character"""
+
+palette = "kanagawa_wave"
+
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+style = "bold blue"
+
+[git_branch]
+format = "on [$branch]($style) "
+style = "bold mauve"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "bold yellow"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?"
+stashed = "$"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+[cmd_duration]
+min_time = 500
+format = "[$duration]($style) "
+style = "yellow"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vicmd_symbol = "[NORMAL ❯](bold yellow)"
+
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "dimmed subtext1"
+time_format = "%r"
+
+[palettes.kanagawa_wave]
+rosewater = "#dcd7ba"
+flamingo = "#e46876"
+pink = "#d27e99"
+mauve = "#957fb8"
+red = "#c34043"
+maroon = "#e46876"
+peach = "#ffa066"
+yellow = "#e6c384"
+green = "#98bb6c"
+teal = "#7aa89f"
+sky = "#7fb4ca"
+sapphire = "#7e9cd8"
+blue = "#7e9cd8"
+lavender = "#9cabca"
+text = "#dcd7ba"
+subtext1 = "#c8c093"
+subtext0 = "#a6a69c"
+overlay2 = "#727169"
+overlay1 = "#54546d"
+overlay0 = "#363646"
+surface2 = "#363646"
+surface1 = "#2a2a37"
+surface0 = "#223249"
+base = "#1f1f28"
+mantle = "#181820"
+crust = "#16161d"
+
+# Disable all other modules
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[git_commit]
+disabled = true
+
+[git_state]
+disabled = true
+
+[git_metrics]
+disabled = true
+
+[golang]
+disabled = true
+
+[helm]
+disabled = true
+
+[java]
+disabled = true
+
+[jobs]
+disabled = true
+
+[julia]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[lua]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[nim]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[package]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[python]
+disabled = true
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[scala]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
+
+[username]
+disabled = true
+
+[vagrant]
+disabled = true
+
+[zig]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[conda]
+disabled = true
+
+[dart]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true

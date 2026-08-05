@@ -1,0 +1,344 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_script_dir() {
+    local source="${BASH_SOURCE[0]}"
+    local directory=""
+
+    while [[ -L "$source" ]]; do
+        directory="$(cd -P "$(dirname "$source")" && pwd)"
+        source="$(readlink "$source")"
+        [[ "$source" != /* ]] && source="$directory/$source"
+    done
+    cd -P "$(dirname "$source")" && pwd
+}
+
+SOURCE_DIR="${DOTFILES_SOURCE:-$(cd "$(resolve_script_dir)/.." && pwd)}"
+MACOS_DEFAULTS="$SOURCE_DIR/macos/defaults.sh"
+BREWFILE="$SOURCE_DIR/Brewfile"
+CHEZMOI_CONFIG="${DOTFILES_CHEZMOI_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi/chezmoi.toml}"
+
+usage() {
+    cat <<'EOF'
+Usage: dot <command> [args]
+
+Home state:
+  init [--defaults]     Generate the machine-local Chezmoi configuration
+  plan                  Show home, package, and macOS drift without changing it
+  apply [targets...]    Apply Chezmoi-managed home state
+  status                Show concise Chezmoi status
+  edit <target>         Edit a target through Chezmoi
+  doctor                Validate ownership boundaries and workstation invariants
+  bench                 Benchmark interactive Zsh startup
+
+Explicit external state:
+  packages plan|apply   Check or install the Homebrew bundle
+  macos plan|apply      Check or write curated macOS defaults
+
+The wrapper is intentionally thin. Use chezmoi, brew bundle, and defaults
+directly whenever their full interfaces are useful.
+EOF
+}
+
+require_command() {
+    local command_name="$1"
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        printf 'dot: required command not found: %s\n' "$command_name" >&2
+        exit 127
+    fi
+}
+
+require_initialized() {
+    if [[ ! -f "$CHEZMOI_CONFIG" ]]; then
+        printf 'dot: Chezmoi is not initialized; run: %s init\n' "$0" >&2
+        exit 1
+    fi
+}
+
+chezmoi_cmd() {
+    chezmoi --source "$SOURCE_DIR" --config "$CHEZMOI_CONFIG" "$@"
+}
+
+initialize() {
+    local use_defaults="false"
+    local init_args=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --defaults)
+                use_defaults="true"
+                shift
+                ;;
+            -h | --help)
+                printf 'Usage: dot init [--defaults]\n'
+                return 0
+                ;;
+            *)
+                printf 'dot init: unknown argument: %s\n' "$1" >&2
+                return 2
+                ;;
+        esac
+    done
+
+    mkdir -p "$(dirname "$CHEZMOI_CONFIG")"
+    if [[ "$use_defaults" == "true" ]]; then
+        init_args+=(--promptDefaults)
+    else
+        init_args+=(--prompt)
+    fi
+
+    chezmoi --source "$SOURCE_DIR" init --config-path "$CHEZMOI_CONFIG" "${init_args[@]}"
+    printf 'Initialized %s\n' "$CHEZMOI_CONFIG"
+    printf 'Next: %s plan\n' "$0"
+}
+
+plan() {
+    local status_output=""
+
+    require_initialized
+    printf '== Chezmoi home state\n'
+    status_output="$(chezmoi_cmd --no-pager status)"
+    if [[ -n "$status_output" ]]; then
+        printf '%s\n' "$status_output"
+        chezmoi_cmd --no-pager diff || true
+    else
+        printf 'clean\n'
+    fi
+
+    if [[ -f "$BREWFILE" ]] && command -v brew >/dev/null 2>&1; then
+        printf '\n== Homebrew bundle\n'
+        brew bundle check --verbose --file "$BREWFILE" || true
+    fi
+
+    if [[ "$(uname -s)" == "Darwin" && -x "$MACOS_DEFAULTS" ]]; then
+        printf '\n== macOS defaults\n'
+        "$MACOS_DEFAULTS" plan
+    fi
+}
+
+doctor() {
+    local failures=0
+    local warnings=0
+    local tool=""
+    local repo_root=""
+    local dotfiles_dir=""
+    local signing_key=""
+    local nvim_target=""
+    local actual_nvim_target=""
+    local keystone_bin=""
+    local completion_audit=""
+    local interactive_smoke=""
+    local agent_socket="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    local disk_values=""
+    local disk_total_kb=0
+    local disk_available_kb=0
+    local disk_available_pct=0
+    local data_dir=""
+
+    doctor_pass() {
+        printf 'ok    %s\n' "$*"
+    }
+    doctor_warn() {
+        printf 'warn  %s\n' "$*"
+        warnings=$((warnings + 1))
+    }
+    doctor_fail() {
+        printf 'FAIL  %s\n' "$*"
+        failures=$((failures + 1))
+    }
+
+    require_initialized
+    printf '== Chezmoi\n'
+    if chezmoi_cmd doctor --no-network; then
+        doctor_pass "chezmoi doctor --no-network"
+    else
+        doctor_fail "Chezmoi doctor reported a failure"
+    fi
+
+    printf '\n== Required tools\n'
+    for tool in brew chezmoi git gh nvim op starship zsh; do
+        if command -v "$tool" >/dev/null 2>&1; then
+            doctor_pass "$tool: $(command -v "$tool")"
+        else
+            doctor_fail "$tool is not on PATH"
+        fi
+    done
+    for tool in atuin direnv fzf ghostty tailscale tmux zoxide; do
+        if command -v "$tool" >/dev/null 2>&1; then
+            doctor_pass "$tool: $(command -v "$tool")"
+        else
+            doctor_warn "$tool is not on PATH"
+        fi
+    done
+
+    printf '\n== Ownership boundaries\n'
+    dotfiles_dir="$(chezmoi_cmd execute-template '{{ .dotfilesDir }}')"
+    if [[ "$dotfiles_dir" == "$SOURCE_DIR" && "$(chezmoi_cmd source-path)" == "$SOURCE_DIR/home" ]]; then
+        doctor_pass "Chezmoi source state is $SOURCE_DIR/home"
+    else
+        doctor_fail "Chezmoi source does not resolve to $SOURCE_DIR/home"
+    fi
+
+    repo_root="$(chezmoi_cmd execute-template '{{ .repoRoot }}')"
+    nvim_target="$repo_root/my.nvim"
+    if [[ -L "$HOME/.config/nvim" ]]; then
+        actual_nvim_target="$(readlink "$HOME/.config/nvim")"
+        if [[ "$actual_nvim_target" == "$nvim_target" ]]; then
+            doctor_pass "Neovim config delegates to $nvim_target"
+        else
+            doctor_fail "Neovim link targets $actual_nvim_target, expected $nvim_target"
+        fi
+    else
+        doctor_fail "$HOME/.config/nvim is not a symlink"
+    fi
+    if [[ -d "$nvim_target/.git" ]]; then
+        doctor_pass "my.nvim is an independent Git checkout"
+    else
+        doctor_fail "missing my.nvim checkout at $nvim_target"
+    fi
+
+    signing_key="$(chezmoi_cmd execute-template '{{ .gitSigningKey }}')"
+    if [[ -f "$signing_key" ]]; then
+        doctor_pass "machine public key exists: $signing_key"
+    else
+        doctor_fail "missing machine public key: $signing_key"
+    fi
+    if [[ -S "$agent_socket" ]]; then
+        doctor_pass "1Password SSH agent socket exists"
+    else
+        doctor_fail "1Password SSH agent socket is unavailable"
+    fi
+    if ssh -G github.com >/dev/null 2>&1; then
+        doctor_pass "OpenSSH accepts the GitHub host policy"
+    else
+        doctor_fail "OpenSSH rejected the GitHub host policy"
+    fi
+
+    keystone_bin="$(zsh -c 'command -v ksmem' 2>/dev/null || true)"
+    if [[ "$keystone_bin" == "$HOME/.keystone/toolchain/active/bin/ksmem" ]]; then
+        doctor_pass "non-interactive Zsh resolves managed Keystone tools first"
+    else
+        doctor_fail "non-interactive Zsh resolves ksmem to '${keystone_bin:-nothing}'"
+    fi
+
+    completion_audit="$(zsh -fc 'fpath=(/opt/homebrew/share/zsh/site-functions /opt/homebrew/share/zsh-completions $fpath); autoload -Uz compaudit; compaudit' 2>/dev/null || true)"
+    if [[ -z "$completion_audit" ]]; then
+        doctor_pass "Zsh completion paths pass compaudit"
+    else
+        completion_audit="${completion_audit//$'\n'/, }"
+        doctor_fail "insecure Zsh completion paths: $completion_audit"
+    fi
+
+    if [[ "$(uname -s)" == "Darwin" && -x /usr/bin/script ]]; then
+        interactive_smoke="$(TERM=xterm-256color /usr/bin/script -q /dev/null /bin/zsh -lic 'printf "__DOT_INTERACTIVE_OK__\n"; exit' 2>&1 || true)"
+        if [[ "$interactive_smoke" == *"__DOT_INTERACTIVE_OK__"* &&
+            "$interactive_smoke" != *"compinit:"* &&
+            "$interactive_smoke" != *"can't change option"* &&
+            "$interactive_smoke" != *"command not found"* ]]; then
+            doctor_pass "interactive Zsh starts cleanly in a pseudo-terminal"
+        else
+            doctor_fail "interactive Zsh smoke test emitted an initialization error"
+        fi
+    fi
+
+    printf '\n== Package and storage signals\n'
+    if brew bundle check --file "$BREWFILE" >/dev/null 2>&1; then
+        doctor_pass "Homebrew bundle is satisfied"
+    else
+        doctor_warn "Homebrew bundle has drift; run: dot packages plan"
+    fi
+
+    disk_values="$(df -Pk "$HOME" | awk 'NR == 2 { print $2, $4 }')"
+    read -r disk_total_kb disk_available_kb <<<"$disk_values"
+    if [[ "$disk_total_kb" -gt 0 ]]; then
+        disk_available_pct=$((disk_available_kb * 100 / disk_total_kb))
+        printf 'info  disk available: %.1f GiB (%d%%)\n' "$(awk -v kb="$disk_available_kb" 'BEGIN { print kb / 1024 / 1024 }')" "$disk_available_pct"
+        if [[ "$disk_available_kb" -lt 209715200 || "$disk_available_pct" -lt 15 ]]; then
+            doctor_warn "free storage is below the 200 GiB / 15% workstation floor"
+        else
+            doctor_pass "free storage is above the workstation floor"
+        fi
+    fi
+    for data_dir in "$HOME/.cache" "$HOME/.local/share/atuin" "$HOME/.local/state/ttylog"; do
+        [[ -e "$data_dir" ]] && printf 'info  %s\n' "$(du -sh "$data_dir" 2>/dev/null || true)"
+    done
+
+    printf '\nSummary: %d failure(s), %d warning(s)\n' "$failures" "$warnings"
+    [[ "$failures" -eq 0 ]]
+}
+
+packages() {
+    local action="${1:-plan}"
+    require_command brew
+    case "$action" in
+        plan)
+            brew bundle check --verbose --file "$BREWFILE" || true
+            ;;
+        apply)
+            brew bundle install --file "$BREWFILE"
+            ;;
+        *)
+            printf 'Usage: dot packages plan|apply\n' >&2
+            return 2
+            ;;
+    esac
+}
+
+macos() {
+    local action="${1:-plan}"
+    if [[ ! -x "$MACOS_DEFAULTS" ]]; then
+        printf 'dot: macOS defaults program not found: %s\n' "$MACOS_DEFAULTS" >&2
+        return 1
+    fi
+    "$MACOS_DEFAULTS" "$action"
+}
+
+bench() {
+    local benchmark_command="zsh -lic exit"
+    if [[ "$(uname -s)" == "Darwin" && -x /usr/bin/script ]]; then
+        benchmark_command="TERM=xterm-256color /usr/bin/script -q /dev/null /bin/zsh -lic exit"
+    fi
+
+    if command -v hyperfine >/dev/null 2>&1; then
+        hyperfine --warmup 3 --runs 10 "$benchmark_command"
+    else
+        printf 'Install hyperfine for a stable benchmark; one timing follows.\n'
+        /usr/bin/time -p env TERM=xterm-256color /usr/bin/script -q /dev/null /bin/zsh -lic exit
+    fi
+}
+
+main() {
+    local command_name="${1:-help}"
+    [[ $# -gt 0 ]] && shift
+
+    require_command chezmoi
+    case "$command_name" in
+        init) initialize "$@" ;;
+        plan) plan "$@" ;;
+        apply)
+            require_initialized
+            chezmoi_cmd apply "$@"
+            ;;
+        status)
+            require_initialized
+            chezmoi_cmd status "$@"
+            ;;
+        edit)
+            require_initialized
+            chezmoi_cmd edit "$@"
+            ;;
+        doctor) doctor "$@" ;;
+        packages) packages "$@" ;;
+        macos) macos "$@" ;;
+        bench) bench "$@" ;;
+        source) printf '%s\n' "$SOURCE_DIR" ;;
+        -h | --help | help) usage ;;
+        *)
+            printf 'dot: unknown command: %s\n' "$command_name" >&2
+            usage >&2
+            return 2
+            ;;
+    esac
+}
+
+main "$@"

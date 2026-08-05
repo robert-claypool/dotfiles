@@ -1,0 +1,5 @@
+# Compact, readable defaults for the SQLite CLI.
+.timer on
+.header on
+.mode column
+.nullvalue [NULL]

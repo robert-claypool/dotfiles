@@ -11,15 +11,12 @@ usage() {
     cat <<'EOF'
 Usage: bin/check [--skip-missing] [--fix]
 
-Runs quick quality gates for this repo:
-  - bash syntax checks
-  - zsh syntax checks
-  - shellcheck (if installed)
-  - shfmt (if installed; use --fix to format)
+Runs shell syntax/style checks, application config validation, and an isolated
+Chezmoi apply/idempotence test.
 EOF
 }
 
-while [ $# -gt 0 ]; do
+while [[ $# -gt 0 ]]; do
     case "$1" in
         --skip-missing)
             SKIP_MISSING="true"
@@ -34,36 +31,37 @@ while [ $# -gt 0 ]; do
             exit 0
             ;;
         *)
-            echo "Unknown argument: $1"
-            usage
+            printf 'Unknown argument: %s\n' "$1" >&2
+            usage >&2
             exit 2
             ;;
     esac
 done
 
 fail() {
-    echo "✗ $*"
+    printf 'FAIL %s\n' "$*" >&2
     exit 1
 }
 
 warn() {
-    echo "⚠ $*"
+    printf 'WARN %s\n' "$*"
 }
 
 require_cmd() {
-    local cmd="$1"
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-        if [ "$SKIP_MISSING" = "true" ]; then
-            warn "Missing '$cmd' (skipping)."
+    local command_name="$1"
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        if [[ "$SKIP_MISSING" == "true" ]]; then
+            warn "Missing $command_name; skipping its check."
             return 1
         fi
-        fail "Missing '$cmd'. Install dependencies (macOS: run ./bootstrap.sh) and retry."
+        fail "Missing $command_name. Check Brewfile and run: dot packages apply"
     fi
-    return 0
 }
 
 run() {
-    echo "+ $*"
+    printf '+'
+    printf ' %q' "$@"
+    printf '\n'
     "$@"
 }
 
@@ -71,49 +69,58 @@ shopt -s nullglob
 
 BASH_FILES=(
     bootstrap.sh
-    .bashrc_shared
-    .bash_aliases
     bin/*
+    macos/*.sh
+    home/dot_bash_profile
+    home/dot_bashrc
+    home/private_dot_config/shell/functions.sh
 )
 
 ZSH_FILES=(
-    .zshrc
-    .zprofile
+    home/dot_zshenv
+    home/dot_zprofile
+    home/dot_zshrc
+    home/private_dot_config/shell/functions.sh
 )
 
 SH_FILES=(
-    .config/shell/*.sh
+    home/private_dot_config/shell/aliases.sh
+    home/private_dot_config/shell/env.sh
+    home/private_dot_config/shell/interactive.sh
 )
 
-echo "== Syntax checks"
+printf '== Syntax\n'
 run bash -n "${BASH_FILES[@]}"
 run zsh -n "${ZSH_FILES[@]}"
 run sh -n "${SH_FILES[@]}"
 
-echo
-echo "== Shellcheck"
+printf '\n== Shellcheck\n'
 if require_cmd shellcheck; then
-    # Shellcheck doesn't support zsh; lint bash/sh scripts only.
-    run shellcheck -e SC1091 "${SH_FILES[@]}" bootstrap.sh bin/*
+    run shellcheck -e SC1091 "${BASH_FILES[@]}" "${SH_FILES[@]}"
 fi
 
-echo
-echo "== shfmt"
+printf '\n== shfmt\n'
 if require_cmd shfmt; then
-    if [ "$FIX" = "true" ]; then
-        run shfmt -w -i 4 -ci -bn bootstrap.sh bin/* "${SH_FILES[@]}"
+    if [[ "$FIX" == "true" ]]; then
+        run shfmt -w -i 4 -ci -bn "${BASH_FILES[@]}" "${SH_FILES[@]}"
     else
-        run shfmt -d -i 4 -ci -bn bootstrap.sh bin/* "${SH_FILES[@]}"
+        run shfmt -d -i 4 -ci -bn "${BASH_FILES[@]}" "${SH_FILES[@]}"
     fi
 fi
 
-echo
-echo "== Starship config"
-if command -v starship >/dev/null 2>&1; then
-    STARSHIP_CONFIG="$ROOT_DIR/.config/starship.toml" run starship print-config >/dev/null
-else
-    warn "Missing 'starship' (skipping config validation)."
+printf '\n== Starship\n'
+if require_cmd starship; then
+    STARSHIP_CONFIG="$ROOT_DIR/home/private_dot_config/starship.toml" run starship print-config >/dev/null
 fi
 
-echo
-echo "✓ All checks passed"
+printf '\n== Ghostty\n'
+if require_cmd ghostty; then
+    run ghostty +validate-config --config-file="$ROOT_DIR/home/private_dot_config/ghostty/config"
+fi
+
+printf '\n== Chezmoi isolated home\n'
+if require_cmd chezmoi; then
+    run "$ROOT_DIR/bin/test-chezmoi"
+fi
+
+printf '\nAll checks passed.\n'

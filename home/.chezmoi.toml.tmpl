@@ -1,0 +1,27 @@
+{{- $machineProfile := promptChoiceOnce . "machineProfile" "Machine profile" (list "workstation" "headless") "workstation" -}}
+{{- $dotfilesDir := joinPath .chezmoi.sourceDir ".." -}}
+{{- $repoRoot := promptStringOnce . "repoRoot" "Directory containing Git repositories" (joinPath .chezmoi.homeDir "git") -}}
+{{- $gitName := promptStringOnce . "gitName" "Git author name" "Robert Claypool" -}}
+{{- $gitEmail := promptStringOnce . "gitEmail" "Git author email" "robert-claypool@outlook.com" -}}
+{{- $gitSigningKeyDefault := joinPath .chezmoi.homeDir ".ssh" (printf "%s.pub" (.chezmoi.hostname | lower)) -}}
+{{- $gitSigningKey := promptStringOnce . "gitSigningKey" "Public key used for Git SSH signing and GitHub" $gitSigningKeyDefault -}}
+sourceDir = {{ .chezmoi.sourceDir | toToml }}
+
+[data]
+dotfilesDir = {{ $dotfilesDir | toToml }}
+machineProfile = {{ $machineProfile | toToml }}
+repoRoot = {{ $repoRoot | toToml }}
+gitName = {{ $gitName | toToml }}
+gitEmail = {{ $gitEmail | toToml }}
+gitSigningKey = {{ $gitSigningKey | toToml }}
+
+[diff]
+pager = "delta"
+
+[edit]
+apply = true
+
+[git]
+autoAdd = false
+autoCommit = false
+autoPush = false

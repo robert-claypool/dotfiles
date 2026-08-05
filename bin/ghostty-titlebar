@@ -12,17 +12,6 @@ Ghostty applies macos-titlebar-style only to new windows.
 EOF
 }
 
-resolve_dotfiles_dir() {
-    local source="${BASH_SOURCE[0]}"
-    local dir=""
-    while [[ -L "$source" ]]; do
-        dir="$(cd -P "$(dirname "$source")" && pwd)"
-        source="$(readlink "$source")"
-        [[ "$source" != /* ]] && source="$dir/$source"
-    done
-    cd -P "$(dirname "$source")/.." && pwd
-}
-
 show_mode() {
     local file="$1"
     if [[ ! -f "$file" ]]; then
@@ -84,8 +73,7 @@ case "$mode" in
         ;;
 esac
 
-dotfiles_dir="$(resolve_dotfiles_dir)"
-local_config="${GHOSTTY_LOCAL_CONFIG:-$dotfiles_dir/.config/ghostty/local}"
+local_config="${GHOSTTY_LOCAL_CONFIG:-$HOME/.config/ghostty/local}"
 
 if [[ "$mode" == "show" ]]; then
     show_mode "$local_config"

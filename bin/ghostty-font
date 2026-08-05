@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Switch Ghostty font weight based on time of day or explicit argument.
-# Ghostty auto-reloads when the config file changes on macOS.
+# Switch the machine-local Ghostty font override by time or explicit argument.
+# The managed base config stays unchanged, so Chezmoi remains convergent.
 
-GHOSTTY_CONFIG="${GHOSTTY_CONFIG:-$HOME/.config/ghostty/config}"
+GHOSTTY_LOCAL_CONFIG="${GHOSTTY_LOCAL_CONFIG:-$HOME/.config/ghostty/local}"
 
 usage() {
     cat <<'EOF'
@@ -32,17 +32,27 @@ pick_style() {
 
 set_style() {
     local style="$1"
+    local config_dir=""
+    local temp_file=""
 
-    if [[ ! -f "$GHOSTTY_CONFIG" ]]; then
-        echo "Ghostty config not found: $GHOSTTY_CONFIG" >&2
-        exit 1
+    config_dir="$(dirname "$GHOSTTY_LOCAL_CONFIG")"
+    mkdir -p "$config_dir"
+    temp_file="$(mktemp "$config_dir/.ghostty-local.XXXXXX")"
+
+    if [[ -f "$GHOSTTY_LOCAL_CONFIG" ]]; then
+        awk '
+            /^[[:space:]]*font-style[[:space:]]*=/ { next }
+            { print }
+        ' "$GHOSTTY_LOCAL_CONFIG" >"$temp_file"
+    else
+        printf '%s\n' '# Machine-local Ghostty overrides; intentionally unmanaged.' >"$temp_file"
     fi
 
-    if grep -q "^font-style = ${style}$" "$GHOSTTY_CONFIG" 2>/dev/null; then
-        return 0
-    fi
-
-    sed -i '' "s/^font-style = .*/font-style = ${style}/" "$GHOSTTY_CONFIG"
+    {
+        printf '\n'
+        printf 'font-style = %s\n' "$style"
+    } >>"$temp_file"
+    mv "$temp_file" "$GHOSTTY_LOCAL_CONFIG"
 }
 
 mode="${1:-auto}"

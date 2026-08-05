@@ -17,12 +17,12 @@ openai.token
 # macOS
 .DS_Store
 
-# Local/private Ghostty overrides
-.config/ghostty/local
-
-# Local/private workspace mappings
-.config/workspaces/local/
-.config/workspaces/*.local.sh
+# Never capture machine-local overlays in Chezmoi source state.
+home/private_dot_config/ghostty/local
+home/private_dot_config/git/local
+home/private_dot_config/shell/local.sh
+home/private_dot_config/workspaces/local/
+home/private_dot_ssh/config.d/
 
 # Claude Code - track hooks and settings, ignore local data
 .claude/*
@@ -33,5 +33,6 @@ openai.token
 # Homebrew Bundle
 Brewfile.lock.json
 .keystone/local/
+.keystone/branch-lineage/
 .keystone/lock
 .keystone/*.lock

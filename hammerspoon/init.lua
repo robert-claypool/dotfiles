@@ -3,7 +3,7 @@ local function notify(title, text)
 end
 
 local function runWs(args)
-    local ws = os.getenv("HOME") .. "/bin/ws"
+    local ws = os.getenv("HOME") .. "/.local/bin/ws"
     hs.task.new(ws, function(exitCode, stdOut, stdErr)
         if exitCode ~= 0 then
             local message = stdErr

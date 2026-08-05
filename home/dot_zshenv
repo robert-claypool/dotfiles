@@ -1,0 +1,4 @@
+# Environment only: this file is read by every Zsh, including agent subprocesses.
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi

@@ -1,0 +1,20 @@
+# shellcheck shell=bash
+#
+# Public example workspace. Put private project URLs, Chrome profiles, and
+# machine-specific paths in ~/.config/workspaces/local/<name>.sh.
+
+WS_LABEL="EXAMPLE"
+WS_CHROME_WINDOW="EXAMPLE"
+WS_CHROME_PROFILE=""
+WS_CHROME_URLS=(
+    "https://github.com/robert-claypool/dotfiles"
+)
+
+WS_GHOSTTY_WINDOW="EXAMPLE"
+WS_GHOSTTY_DIR="{{ .repoRoot }}/dotfiles"
+WS_GHOSTTY_TABS=(
+    "vim"
+    "server"
+    "codex"
+    "git"
+)

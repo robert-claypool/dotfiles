@@ -1,0 +1,4 @@
+# Login shells also source the shared environment. env.sh is idempotent.
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi

@@ -1,0 +1,12 @@
+# Local-first shell history. Sync remains an explicit future choice.
+auto_sync = false
+update_check = false
+search_mode = "fuzzy"
+filter_mode = "workspace"
+workspaces = true
+style = "compact"
+inline_height = 30
+show_preview = true
+secrets_filter = true
+enter_accept = true
+keymap_mode = "auto"

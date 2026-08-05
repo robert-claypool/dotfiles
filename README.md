@@ -1,88 +1,164 @@
-# dotfiles
+# Robert's workstation state
 
-My dotfiles, except for [my.nvim](https://github.com/robert-claypool/my.nvim).
+This repository defines a convergent, inspectable developer workstation. It is
+optimized for native Unix tooling, Vim muscle memory, agentic software work,
+Keystone development, and a macOS laptop that will also run local ML and data
+workloads.
 
-## Setup
+Chezmoi reconciles home-directory state. It does not own packages, secrets,
+application data, repositories, or Keystone runtime state.
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/robert-claypool/dotfiles.git
-   cd dotfiles
-   ```
+## Ownership boundaries
 
-2. Run the bootstrap script:
-   ```
-   ./bootstrap.sh
-   ```
+| State | Owner | Policy |
+| --- | --- | --- |
+| Shell, Git, SSH policy, Ghostty, Starship, Atuin config | Chezmoi | Render and reconcile |
+| CLI tools and selected macOS apps | Homebrew Bundle | Explicit plan/apply |
+| Private keys and secrets | 1Password | Never copy into this repository |
+| Neovim configuration | my.nvim Git repository | Chezmoi manages only the link |
+| Keystone binaries | kstoolchain | Managed bin wins PATH resolution |
+| Atuin database and auth | Atuin local state | Preserve; never replace during apply |
+| Codex sessions and Keystone memory/runtime state | Their owning tools | Preserve; never import into Chezmoi |
+| Large datasets and model artifacts | Future Keystone data control plane | Deliberately out of scope here |
 
-   This script will:
-   - Set up symbolic links for various config files
-   - Install tools on macOS (Homebrew Bundle via `Brewfile`)
-   - Install tools on Omarchy/Arch (pacman)
-   - Configure Ghostty (and install `ghostty@tip` by default on macOS)
-   - Set up Git defaults (and optional identity prompts)
+The result is a useful split: Chezmoi answers “what should this home look
+like?”, while each stateful system keeps its own data and recovery semantics.
 
-3. Install and configure Zsh (if not already installed)
+## First-machine workflow
 
-4. Install additional tools and plugins
+Prerequisites are Git, Homebrew, the 1Password app with its SSH agent enabled,
+and a per-machine public key exported under ~/.ssh/<hostname>.pub.
 
-## Zsh configuration
+~~~sh
+mkdir -p "$HOME/git"
+git clone https://github.com/robert-claypool/dotfiles.git "$HOME/git/dotfiles"
+brew install chezmoi
 
-The .zshrc file is already set up with various plugins and configurations. After running the bootstrap
-script, you'll need to install Oh My Zsh:
+cd "$HOME/git/dotfiles"
+./bin/dot init
+./bin/dot plan
+./bin/dot packages apply
+git clone https://github.com/robert-claypool/my.nvim.git "$HOME/git/my.nvim"
+./bin/check
+./bin/dot apply
+./bin/dot doctor
+exec zsh -l
+~~~
 
-1.  **Install Oh My Zsh:** Follow instructions at [ohmyzsh/ohmyzsh](https://github.com/ohmyzsh/ohmyzsh#basic-installation).
+On macOS, review the defaults section emitted by `dot plan`, then opt in with
+`./bin/dot macos apply`. It remains separate because changing OS preferences is
+more consequential than reconciling home-directory files.
 
-2.  **Install Plugins & Tools:** The `bootstrap.sh` script automatically installs necessary Zsh plugins (like `zsh-syntax-highlighting` and `you-should-use`) and tools (like `fzf` and `zoxide`).
+dot init prompts for the repository root, Git identity, machine profile, and
+per-machine public key. On Robert's standard layout, dot init --defaults uses:
 
-## Enhanced Shell Interaction
+- repository root: ~/git
+- profile: workstation
+- Git identity: Robert Claypool / robert-claypool@outlook.com
+- signing key: ~/.ssh/<lowercase-hostname>.pub
 
-This setup uses [Starship](https://starship.rs/) for a fast, powerful, and highly-configurable prompt. It has been configured for a more intuitive command-line experience.
+Chezmoi then maintains ~/.config/nvim as a link to that independent checkout.
+The first Neovim launch downloads its pinned plugins; that network event is
+intentionally not hidden inside workstation apply.
 
-### Vi Mode Command Line Editing
+## Normal workflow
 
-Vim keybindings are enabled for the command line.
-- Press `Esc` to enter **Normal Mode**. You can use Vim motions like `b`, `w`, `0`, `$` to navigate.
-- Press `i` or `a` to enter **Insert Mode** for typing.
-- The prompt will display `(N)` for Normal mode and `(I)` for Insert mode, provided by Starship.
+~~~sh
+dot plan                 # home diff, package drift, and macOS-default drift
+dot apply                # home state only
+dot packages plan        # Homebrew Bundle check
+dot packages apply       # install missing declared packages
+dot macos plan           # read-only defaults comparison
+dot macos apply          # write only drifted defaults
+dot doctor               # invariants, ownership boundaries, disk floor
+dot bench                # repeatable interactive Zsh startup benchmark
+~~~
 
-### Smarter History Search
+The wrapper stays thin. Direct commands remain first-class:
 
-History search has been improved to be less disruptive:
-- **Up-Arrow**: Cycles through your normal shell history (classic behavior).
-- **`Ctrl-R`**: Opens Atuin's history search UI (synced history).
+~~~sh
+chezmoi diff
+chezmoi apply ~/.zshrc
+brew bundle check --verbose --file "$(dot source)/Brewfile"
+~~~
 
-### Ghostty channel (macOS)
+Package apply never performs Homebrew cleanup. macOS apply never restarts the
+Dock, Finder, or the login session. Those disruptive actions remain explicit.
 
-By default, `./bootstrap.sh` installs `ghostty@tip` (nightly). To use stable instead:
+## Shell design
 
-```bash
-DOTFILES_GHOSTTY_CHANNEL=stable ./bootstrap.sh
-```
+Zsh is native: there is no Oh My Zsh and no plugin bootstrap network request.
+Homebrew owns autosuggestions, syntax highlighting, and completions. Shell
+startup remains readable in home/dot_zshrc.
+
+The environment is loaded from ~/.zshenv, so non-interactive Zsh processes and
+agent subprocesses resolve the same toolchain. The kstoolchain managed bin is
+the final PATH insertion and therefore wins over stale Go-installed adapters.
+
+Enhanced tools do not shadow Unix primitives:
+
+- ls, cat, and grep retain standard semantics.
+- ll, la, lt, lg, and bcat opt into enhanced views.
+- del moves files to Trash; rmd is the visually explicit real-rm escape hatch.
+
+Atuin is local-first with automatic cloud sync disabled. Ctrl-R uses Atuin;
+arrow keys keep ordinary history behavior.
+
+## Local overlays
+
+These paths are intentionally unmanaged and survive every apply:
+
+- ~/.config/shell/local.sh — machine/job-specific shell additions, not secrets
+- ~/.config/git/local — optional Git overrides
+- ~/.ssh/config.d/*.conf — additional private SSH hosts
+- ~/.config/ghostty/local — machine-local Ghostty experiments and font override
+- ~/.config/workspaces/local/*.sh — private workspace URLs and profile mappings
+
+Use 1Password references plus direnv/op run for secrets. Do not create a global
+shell secrets file.
+
+## Git and SSH
+
+The workstation profile signs commits and tags with the machine-specific SSH
+key through 1Password. GitHub and Pineapple use that same explicit public key,
+with IdentitiesOnly enabled; the private key stays in the 1Password agent.
+
+Each machine gets its own key. Wasabi must never reuse Pineapple's machine key.
+SSH agent forwarding is disabled by default.
+
+## macOS defaults
+
+macos/defaults.sh owns a deliberately small set:
+
+- fast key repeat and no press-and-hold accent chooser
+- visible file extensions and Finder path/status context
+- stable list view and Spaces ordering
+- the chosen Dock size/visibility behavior
+- suppression of .DS_Store on network and USB volumes
+
+Run dot macos plan before every apply. The program reports current and desired
+values and does not rewrite Dock contents.
+
+## Storage posture
+
+dot doctor reports free disk and warns below either 200 GiB or 15% free. It
+also surfaces selected high-growth local state. It never evicts caches or data.
+
+This is an early warning only. Dataset/model materialization, checksums, pins,
+leases, receipts, eviction, and reconciliation belong in Keystone's future data
+control plane, backed by replaceable storage engines.
 
 ## Quality gates
 
-Run `bin/check` from the repo root.
+~~~sh
+bin/check
+~~~
 
-## Workspace navigation
+The gate validates shell syntax/style, Starship and Ghostty config, Chezmoi
+rendering, an isolated-home apply, and second-apply idempotence. Testing never
+needs to overwrite the live home directory.
 
-Stream Deck/workspace helpers live in `bin/ws`, `bin/tabtitle`, `bin/ghostty-titlebar`,
-and `bin/ttylog`. Public examples are in `.config/workspaces/`; private project URLs
-and Chrome profile mappings belong in ignored `.config/workspaces/local/*.sh` files.
+bootstrap.sh remains only as a compatibility alias for dot init. New automation
+should call bin/dot explicitly.
 
-See `docs/streamdeck-workspaces.md`.
-
-## Additional notes
-
-- The .zshrc file includes configurations for various tools and languages. Make sure to install the
-  relevant tools as needed (e.g., Node.js, Python, Ruby, Go, etc.).
-- Shared shell config (env/aliases/functions) lives in `~/.config/shell/` with local-only overrides in
-  `~/.local_aliases` (not checked in).
-- Git configuration is set up by the bootstrap script. Review and adjust the settings as needed.
-- If Git diffs are hard to read, delta's syntax theme can be changed (e.g. `git config --global delta.syntax-theme ansi`).
-- This setup includes configurations for Docker, Rancher Desktop, Neovim, NVM, kubectl, Angular CLI,
-  and Terraform. Ensure you have these tools installed if you plan to use them.
-- The FZF configuration uses ripgrep (rg) for file searching. Make sure to install ripgrep for optimal
-  performance.
-
-For any issues or questions, please open an issue in this repository.
+Workspace and Stream Deck details remain in docs/streamdeck-workspaces.md.

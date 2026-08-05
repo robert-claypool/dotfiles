@@ -14,11 +14,12 @@ Usage:
   ws streamdeck-url <workspace> <target> [tab-number-or-name]
 
 Workspaces are shell config files in:
-  .config/workspaces/<workspace>.sh
-  .config/workspaces/local/<workspace>.sh   # ignored/private overlay
+  ~/.config/workspaces/<workspace>.sh
+  ~/.config/workspaces/local/<workspace>.sh   # private overlay
 
 Stream Deck can call this directly from the OSA Script plugin:
-  do shell script "/Users/rc/bin/ws ghostty start 3"
+  set ws to quoted form of ((POSIX path of (path to home folder)) & ".local/bin/ws")
+  do shell script ws & " ghostty start 3"
 
 Or via Hammerspoon URL bridge:
   hammerspoon://ws?workspace=start&target=ghostty&tab=3
@@ -28,17 +29,6 @@ EOF
 die() {
     echo "ws: $*" >&2
     exit 1
-}
-
-resolve_dotfiles_dir() {
-    local source="${BASH_SOURCE[0]}"
-    local dir=""
-    while [[ -L "$source" ]]; do
-        dir="$(cd -P "$(dirname "$source")" && pwd)"
-        source="$(readlink "$source")"
-        [[ "$source" != /* ]] && source="$dir/$source"
-    done
-    cd -P "$(dirname "$source")/.." && pwd
 }
 
 reset_workspace() {
@@ -256,8 +246,7 @@ url_encode() {
     printf '%s' "$encoded"
 }
 
-dotfiles_dir="$(resolve_dotfiles_dir)"
-CONFIG_DIR="${WS_CONFIG_DIR:-$dotfiles_dir/.config/workspaces}"
+CONFIG_DIR="${WS_CONFIG_DIR:-$HOME/.config/workspaces}"
 
 cmd="${1:-}"
 case "$cmd" in

@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TEMP_BASE="${TMPDIR:-/tmp}"
+TEMP_BASE="${TEMP_BASE%/}"
+TEMP_ROOT="$(mktemp -d "$TEMP_BASE/dotfiles-chezmoi.XXXXXX")"
+TARGET_HOME="$TEMP_ROOT/home"
+CONFIG_FILE="$TEMP_ROOT/chezmoi.toml"
+CACHE_DIR="$TEMP_ROOT/cache"
+STATE_FILE="$TEMP_ROOT/state.boltdb"
+
+cleanup() {
+    case "$TEMP_ROOT" in
+        "$TEMP_BASE"/dotfiles-chezmoi.*) rm -rf "$TEMP_ROOT" ;;
+        *) printf 'Refusing to remove unexpected temporary path: %s\n' "$TEMP_ROOT" >&2 ;;
+    esac
+}
+trap cleanup EXIT
+
+file_mode() {
+    local target="$1"
+    stat -f '%Lp' "$target" 2>/dev/null || stat -c '%a' "$target"
+}
+
+mkdir -p "$TARGET_HOME"
+export HOME="$TARGET_HOME"
+export XDG_CONFIG_HOME="$TARGET_HOME/.config"
+export XDG_CACHE_HOME="$TARGET_HOME/.cache"
+export XDG_DATA_HOME="$TARGET_HOME/.local/share"
+export XDG_STATE_HOME="$TARGET_HOME/.local/state"
+
+chezmoi \
+    --source "$ROOT_DIR" \
+    --destination "$TARGET_HOME" \
+    --cache "$CACHE_DIR" \
+    --persistent-state "$STATE_FILE" \
+    --no-tty \
+    init \
+    --config-path "$CONFIG_FILE" \
+    --promptDefaults
+
+CHEZMOI_ARGS=(
+    --source "$ROOT_DIR"
+    --destination "$TARGET_HOME"
+    --config "$CONFIG_FILE"
+    --cache "$CACHE_DIR"
+    --persistent-state "$STATE_FILE"
+    --no-pager
+    --no-tty
+)
+
+chezmoi "${CHEZMOI_ARGS[@]}" apply
+
+test -f "$TARGET_HOME/.zshenv"
+test -f "$TARGET_HOME/.zshrc"
+test -f "$TARGET_HOME/.config/git/config"
+test -f "$TARGET_HOME/.config/ghostty/config"
+test -L "$TARGET_HOME/.config/nvim"
+test "$(readlink "$TARGET_HOME/.config/nvim")" = "$TARGET_HOME/git/my.nvim"
+for executable_name in dot ghostty-font ghostty-titlebar tabtitle tms ttylog ws; do
+    test -L "$TARGET_HOME/.local/bin/$executable_name"
+    test "$(readlink "$TARGET_HOME/.local/bin/$executable_name")" = "$ROOT_DIR/bin/$executable_name"
+    test -x "$TARGET_HOME/.local/bin/$executable_name"
+done
+test "$(file_mode "$TARGET_HOME/.ssh")" = "700"
+test "$(file_mode "$TARGET_HOME/.ssh/config")" = "600"
+test "$(file_mode "$TARGET_HOME/.config")" = "700"
+test "$(file_mode "$TARGET_HOME/.config/atuin")" = "700"
+test "$(file_mode "$TARGET_HOME/.config/atuin/config.toml")" = "600"
+test "$(file_mode "$TARGET_HOME/Library")" = "700"
+test "$(file_mode "$TARGET_HOME/Library/LaunchAgents")" = "700"
+
+zsh -n "$TARGET_HOME/.zshenv" "$TARGET_HOME/.zprofile" "$TARGET_HOME/.zshrc"
+GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL="$TARGET_HOME/.config/git/config" git config --global --list >/dev/null
+ssh -F "$TARGET_HOME/.ssh/config" -G github.com >/dev/null 2>&1
+if command -v ghostty >/dev/null 2>&1; then
+    ghostty +validate-config --config-file="$TARGET_HOME/.config/ghostty/config"
+fi
+
+mkdir -p "$TARGET_HOME/.keystone/toolchain/active/bin"
+HOME="$TARGET_HOME" ZDOTDIR="$TARGET_HOME" zsh -c 'test "$HOME/.keystone/toolchain/active/bin" = "${path[1]}"'
+
+chezmoi "${CHEZMOI_ARGS[@]}" apply
+if [[ -n "$(chezmoi "${CHEZMOI_ARGS[@]}" status)" ]]; then
+    printf 'Chezmoi target is not idempotent after its second apply.\n' >&2
+    chezmoi "${CHEZMOI_ARGS[@]}" status >&2
+    exit 1
+fi
+
+printf 'Chezmoi isolated apply and idempotence checks passed.\n'

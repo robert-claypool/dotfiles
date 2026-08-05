@@ -7,8 +7,8 @@ launchers.
 
 Workspace configs live in:
 
-- `.config/workspaces/<name>.sh` for public defaults/examples
-- `.config/workspaces/local/<name>.sh` for private machine/account/project data
+- `~/.config/workspaces/<name>.sh` for public defaults/examples
+- `~/.config/workspaces/local/<name>.sh` for private machine/account/project data
 
 Useful commands:
 
@@ -28,11 +28,13 @@ ttylog --name claude-example -- claude
 Preferred wiring with the installed OSA Script plugin:
 
 ```applescript
-do shell script "/Users/rc/bin/ws chrome example"
+set ws to quoted form of ((POSIX path of (path to home folder)) & ".local/bin/ws")
+do shell script ws & " chrome example"
 ```
 
 ```applescript
-do shell script "/Users/rc/bin/ws ghostty example 3"
+set ws to quoted form of ((POSIX path of (path to home folder)) & ".local/bin/ws")
+do shell script ws & " ghostty example 3"
 ```
 
 Alternative wiring through Hammerspoon:

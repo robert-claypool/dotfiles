@@ -1,0 +1,69 @@
+[user]
+    name = {{ .gitName | quote }}
+    email = {{ .gitEmail | quote }}
+    signingKey = {{ .gitSigningKey | quote }}
+
+[init]
+    defaultBranch = main
+
+[core]
+    autocrlf = false
+    excludesFile = ~/.config/git/ignore
+    pager = delta
+
+[branch]
+    sort = -committerdate
+
+[fetch]
+    prune = true
+
+[pull]
+    rebase = true
+
+[push]
+    autoSetupRemote = true
+    default = simple
+
+[rebase]
+    autoStash = true
+
+[rerere]
+    enabled = true
+    autoupdate = true
+
+[merge]
+    conflictStyle = zdiff3
+    tool = vimdiff
+
+[diff]
+    algorithm = histogram
+    colorMoved = default
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    line-numbers = true
+    side-by-side = false
+    syntax-theme = ansi
+
+{{ if eq .machineProfile "workstation" }}[gpg]
+    format = ssh
+
+{{ if eq .chezmoi.os "darwin" }}[gpg "ssh"]
+    program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+{{ end }}
+[commit]
+    gpgSign = true
+
+[tag]
+    gpgSign = true
+{{ else }}[commit]
+    gpgSign = false
+
+[tag]
+    gpgSign = false
+{{ end }}
+[include]
+    path = ~/.config/git/local

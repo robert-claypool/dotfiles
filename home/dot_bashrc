@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# shellcheck source=/dev/null
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi
+
+case $- in
+    *i*) ;;
+    *) return 0 ;;
+esac
+
+for dotfiles_shell_file in aliases.sh functions.sh interactive.sh; do
+    if [ -r "$HOME/.config/shell/$dotfiles_shell_file" ]; then
+        # shellcheck source=/dev/null
+        . "$HOME/.config/shell/$dotfiles_shell_file"
+    fi
+done
+unset dotfiles_shell_file
+
+if [ -r "$HOME/.config/shell/local.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$HOME/.config/shell/local.sh"
+fi
+
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook bash)"
+fi
+if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init bash --disable-up-arrow)"
+fi
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init bash)"
+fi
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+fi

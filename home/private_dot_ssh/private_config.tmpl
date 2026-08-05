@@ -1,0 +1,26 @@
+# Additional private host definitions can live in ~/.ssh/config.d/.
+Include ~/.ssh/config.d/*
+
+Host github.com
+    HostName github.com
+    User git
+{{ if eq .chezmoi.os "darwin" }}    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"{{ end }}
+    IdentityFile "{{ .gitSigningKey }}"
+    IdentitiesOnly yes
+    ForwardAgent no
+
+Host pineapple
+    HostName pineapple
+    User {{ .chezmoi.username }}
+{{ if eq .chezmoi.os "darwin" }}    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"{{ end }}
+    IdentityFile "{{ .gitSigningKey }}"
+    IdentitiesOnly yes
+    ForwardAgent no
+
+Host *
+{{ if eq .chezmoi.os "darwin" }}    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"{{ end }}
+    ForwardAgent no
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+    HashKnownHosts yes
+    UpdateHostKeys yes
