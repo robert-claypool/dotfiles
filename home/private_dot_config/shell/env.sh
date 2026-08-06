@@ -39,12 +39,17 @@ export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 # Homebrew is made available without spawning brew on every shell start.
-if [ -d "/opt/homebrew" ]; then
-    _dotfiles_prepend_path "/opt/homebrew/sbin"
-    _dotfiles_prepend_path "/opt/homebrew/bin"
+_dotfiles_homebrew_prefix=""
+if [ -n "${HOMEBREW_PREFIX:-}" ] && [ -d "$HOMEBREW_PREFIX" ]; then
+    _dotfiles_homebrew_prefix="$HOMEBREW_PREFIX"
+elif [ -d "/opt/homebrew" ]; then
+    _dotfiles_homebrew_prefix="/opt/homebrew"
 elif [ -d "/usr/local/Homebrew" ]; then
-    _dotfiles_prepend_path "/usr/local/sbin"
-    _dotfiles_prepend_path "/usr/local/bin"
+    _dotfiles_homebrew_prefix="/usr/local"
+fi
+if [ -n "$_dotfiles_homebrew_prefix" ]; then
+    _dotfiles_prepend_path "$_dotfiles_homebrew_prefix/sbin"
+    _dotfiles_prepend_path "$_dotfiles_homebrew_prefix/bin"
 fi
 
 # User executables precede system package managers.
@@ -61,19 +66,14 @@ _dotfiles_prepend_path "$HOME/.antigravity/antigravity/bin"
 if [ "$DOTFILES_OS" = "darwin" ]; then
     _dotfiles_prepend_path "/Applications/Postgres.app/Contents/Versions/latest/bin"
     _dotfiles_prepend_path "/Applications/pgModeler.app/Contents/MacOS"
-    if [ -d "/opt/homebrew/opt/libpq/bin" ]; then
-        _dotfiles_prepend_path "/opt/homebrew/opt/libpq/bin"
-    elif [ -d "/usr/local/opt/libpq/bin" ]; then
-        _dotfiles_prepend_path "/usr/local/opt/libpq/bin"
+    if [ -n "$_dotfiles_homebrew_prefix" ] && [ -d "$_dotfiles_homebrew_prefix/opt/libpq/bin" ]; then
+        _dotfiles_prepend_path "$_dotfiles_homebrew_prefix/opt/libpq/bin"
     fi
 fi
 
-if [ -d "/opt/homebrew/opt/openjdk/bin" ]; then
-    export JAVA_HOME="/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
-    _dotfiles_prepend_path "/opt/homebrew/opt/openjdk/bin"
-elif [ -d "/usr/local/opt/openjdk/bin" ]; then
-    export JAVA_HOME="/usr/local/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
-    _dotfiles_prepend_path "/usr/local/opt/openjdk/bin"
+if [ -n "$_dotfiles_homebrew_prefix" ] && [ -d "$_dotfiles_homebrew_prefix/opt/openjdk/bin" ]; then
+    export JAVA_HOME="$_dotfiles_homebrew_prefix/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
+    _dotfiles_prepend_path "$_dotfiles_homebrew_prefix/opt/openjdk/bin"
 fi
 
 _dotfiles_android_home=""
@@ -81,10 +81,8 @@ if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME" ]; then
     _dotfiles_android_home="$ANDROID_HOME"
 elif [ -d "$HOME/Library/Android/sdk" ]; then
     _dotfiles_android_home="$HOME/Library/Android/sdk"
-elif [ -d "/opt/homebrew/share/android-commandlinetools" ]; then
-    _dotfiles_android_home="/opt/homebrew/share/android-commandlinetools"
-elif [ -d "/usr/local/share/android-commandlinetools" ]; then
-    _dotfiles_android_home="/usr/local/share/android-commandlinetools"
+elif [ -n "$_dotfiles_homebrew_prefix" ] && [ -d "$_dotfiles_homebrew_prefix/share/android-commandlinetools" ]; then
+    _dotfiles_android_home="$_dotfiles_homebrew_prefix/share/android-commandlinetools"
 fi
 
 if [ -n "$_dotfiles_android_home" ]; then
@@ -141,4 +139,5 @@ if [ "$DOTFILES_OS" = "linux" ] && [ -z "${SSH_AUTH_SOCK:-}" ]; then
     fi
 fi
 
+unset _dotfiles_homebrew_prefix
 unset -f _dotfiles_prepend_path 2>/dev/null || unset _dotfiles_prepend_path

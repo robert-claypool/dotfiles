@@ -140,8 +140,9 @@ copy `~/.aws/config` after inspection, but never copy `~/.aws/credentials`.
 Prefer `aws sso login --profile <name>` and keep account selection explicit.
 
 Homebrew's keg-only `libpq` supplies `psql` and client libraries without
-starting a local PostgreSQL server. Shell configuration places that client on
-PATH while preserving Postgres.app as an optional fallback.
+starting a local PostgreSQL server. Shell configuration derives the client path
+from the detected Homebrew prefix without force-linking, while preserving
+Postgres.app as an optional fallback.
 
 ## Android
 
