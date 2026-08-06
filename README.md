@@ -143,6 +143,20 @@ Homebrew's keg-only `libpq` supplies `psql` and client libraries without
 starting a local PostgreSQL server. Shell configuration places that client on
 PATH while preserving Postgres.app as an optional fallback.
 
+## Android
+
+Homebrew owns the command-line tools, platform tools, and Temurin 17. The shell
+discovers either the conventional `~/Library/Android/sdk` or Homebrew's SDK
+root, while Java 26 remains the general workstation default. Android projects
+should select JDK 17 through their Gradle wrapper or project command rather
+than changing global `JAVA_HOME`.
+
+`~/.androidrc` disables Android CLI metrics. SDK platforms and build-tools are
+project demands rather than global package-manifest entries; install only the
+versions named by the project and let Gradle's checked-in wrapper own Gradle.
+Emulators and system images are intentionally absent until a real workflow
+requires them.
+
 ## macOS defaults
 
 macos/defaults.sh owns a deliberately small set:

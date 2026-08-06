@@ -130,6 +130,8 @@ doctor() {
     local completion_audit=""
     local interactive_smoke=""
     local aws_profiles=""
+    local android_home=""
+    local jdk17_home=""
     local agent_socket="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     local disk_values=""
     local disk_total_kb=0
@@ -158,7 +160,7 @@ doctor() {
     fi
 
     printf '\n== Required tools\n'
-    for tool in aws brew chezmoi git gh nvim op psql starship uv zsh; do
+    for tool in adb android aws brew chezmoi git gh nvim op psql starship uv zsh; do
         if command -v "$tool" >/dev/null 2>&1; then
             doctor_pass "$tool: $(command -v "$tool")"
         else
@@ -187,6 +189,22 @@ doctor() {
     fi
     doctor_pass "PostgreSQL client: $(psql --version)"
     doctor_pass "uv: $(uv --version)"
+
+    printf '\n== Android toolchain\n'
+    android_home="$(zsh -c 'printf %s "${ANDROID_HOME:-}"' 2>/dev/null || true)"
+    if [[ -n "$android_home" && -d "$android_home" ]]; then
+        doctor_pass "Android SDK root: $android_home"
+    else
+        doctor_fail "ANDROID_HOME does not resolve to an installed SDK root"
+    fi
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        jdk17_home="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+        if [[ -n "$jdk17_home" && -x "$jdk17_home/bin/java" ]]; then
+            doctor_pass "JDK 17: $jdk17_home"
+        else
+            doctor_fail "JDK 17 is not registered with macOS java_home"
+        fi
+    fi
 
     printf '\n== Ownership boundaries\n'
     dotfiles_dir="$(chezmoi_cmd execute-template '{{ .dotfilesDir }}')"

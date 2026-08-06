@@ -76,13 +76,25 @@ elif [ -d "/usr/local/opt/openjdk/bin" ]; then
     _dotfiles_prepend_path "/usr/local/opt/openjdk/bin"
 fi
 
-if [ -d "$HOME/Library/Android/sdk" ]; then
-    export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+_dotfiles_android_home=""
+if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME" ]; then
+    _dotfiles_android_home="$ANDROID_HOME"
+elif [ -d "$HOME/Library/Android/sdk" ]; then
+    _dotfiles_android_home="$HOME/Library/Android/sdk"
+elif [ -d "/opt/homebrew/share/android-commandlinetools" ]; then
+    _dotfiles_android_home="/opt/homebrew/share/android-commandlinetools"
+elif [ -d "/usr/local/share/android-commandlinetools" ]; then
+    _dotfiles_android_home="/usr/local/share/android-commandlinetools"
+fi
+
+if [ -n "$_dotfiles_android_home" ]; then
+    export ANDROID_HOME="$_dotfiles_android_home"
     export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
     _dotfiles_prepend_path "$ANDROID_HOME/cmdline-tools/latest/bin"
     _dotfiles_prepend_path "$ANDROID_HOME/emulator"
     _dotfiles_prepend_path "$ANDROID_HOME/platform-tools"
 fi
+unset _dotfiles_android_home
 
 export GOPATH="${GOPATH:-$HOME/go}"
 _dotfiles_prepend_path "$GOPATH/bin"
