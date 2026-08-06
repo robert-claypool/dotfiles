@@ -118,6 +118,20 @@ if require_cmd ghostty; then
     run ghostty +validate-config --config-file="$ROOT_DIR/home/private_dot_config/ghostty/config"
 fi
 
+printf '\n== Finder Quick Actions\n'
+if [[ "$(uname -s)" == "Darwin" ]] && require_cmd plutil; then
+    run plutil -lint "$ROOT_DIR/home/private_Library/private_Services/Copy Path.workflow/Contents/Info.plist"
+    run plutil -lint "$ROOT_DIR/home/private_Library/private_Services/Copy Path.workflow/Contents/Resources/document.wflow"
+fi
+expected_copy_path="$(printf '\176/selected file\n/etc/hosts')"
+actual_copy_path="$(
+    COPY_PATH_CLIPBOARD_COMMAND=/bin/cat \
+        "$ROOT_DIR/bin/copy-path" "$HOME/selected file" /etc/hosts
+)"
+if [[ "$actual_copy_path" != "$expected_copy_path" ]]; then
+    fail "copy-path did not contract the home directory correctly"
+fi
+
 printf '\n== Chezmoi isolated home\n'
 if require_cmd chezmoi; then
     run "$ROOT_DIR/bin/test-chezmoi"

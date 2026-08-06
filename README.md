@@ -12,7 +12,7 @@ application data, repositories, or Keystone runtime state.
 
 | State | Owner | Policy |
 | --- | --- | --- |
-| Shell, Git, SSH policy, Ghostty, Starship, Atuin config | Chezmoi | Render and reconcile |
+| Shell, Git, SSH policy, Ghostty, Starship, Atuin config, Finder Quick Actions | Chezmoi | Render and reconcile |
 | CLI tools and selected macOS apps | Homebrew Bundle | Explicit plan/apply |
 | Private keys and secrets | 1Password | Never copy into this repository |
 | Neovim configuration | my.nvim Git repository | Chezmoi manages only the link |
@@ -138,6 +138,11 @@ macos/defaults.sh owns a deliberately small set:
 
 Run dot macos plan before every apply. The program reports current and desired
 values and does not rewrite Dock contents.
+
+The Finder `Copy Path` Quick Action is managed as home-directory state rather
+than a macOS default. It copies selected items as newline-separated POSIX paths
+and contracts the home-directory prefix to `~`. Finder's native
+Option-Command-C remains available when an unmodified absolute path is needed.
 
 ## Storage posture
 

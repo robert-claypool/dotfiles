@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+clipboard_command="${COPY_PATH_CLIPBOARD_COMMAND:-/usr/bin/pbcopy}"
+
+if [[ $# -eq 0 ]]; then
+    printf 'Usage: copy-path <path> [path ...]\n' >&2
+    exit 2
+fi
+
+if [[ ! -x "$clipboard_command" ]]; then
+    printf 'copy-path: clipboard command is not executable: %s\n' "$clipboard_command" >&2
+    exit 127
+fi
+
+display_path() {
+    local selected_path="$1"
+
+    if [[ "$selected_path" != /* ]]; then
+        selected_path="$(/bin/realpath "$selected_path")"
+    fi
+
+    case "$selected_path" in
+        "$HOME")
+            printf '~'
+            ;;
+        "$HOME"/*)
+            printf '~%s' "${selected_path#"$HOME"}"
+            ;;
+        *)
+            printf '%s' "$selected_path"
+            ;;
+    esac
+}
+
+{
+    separator=""
+    for selected_path in "$@"; do
+        printf '%s' "$separator"
+        display_path "$selected_path"
+        separator=$'\n'
+    done
+} | "$clipboard_command"
