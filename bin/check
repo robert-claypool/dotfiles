@@ -108,6 +108,16 @@ if require_cmd shfmt; then
     fi
 fi
 
+printf '\n== Keystone PATH handoff\n'
+expected_keystone_tail="$(printf '%s\n' \
+    '# >>> kstoolchain managed bin >>>' \
+    "export PATH=\"\$HOME/.keystone/toolchain/active/bin:\$PATH\"" \
+    '# <<< kstoolchain managed bin <<<')"
+actual_keystone_tail="$(tail -n 3 "$ROOT_DIR/home/dot_zshrc")"
+if [[ "$actual_keystone_tail" != "$expected_keystone_tail" ]]; then
+    fail "kstoolchain managed PATH block must be the final three lines of home/dot_zshrc"
+fi
+
 printf '\n== Starship\n'
 if require_cmd starship; then
     STARSHIP_CONFIG="$ROOT_DIR/home/private_dot_config/starship.toml" run starship print-config >/dev/null

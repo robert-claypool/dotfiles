@@ -99,3 +99,7 @@ for dotfiles_plugin_file in /opt/homebrew/share/zsh-syntax-highlighting/zsh-synt
     fi
 done
 unset dotfiles_plugin_file
+
+# >>> kstoolchain managed bin >>>
+export PATH="$HOME/.keystone/toolchain/active/bin:$PATH"
+# <<< kstoolchain managed bin <<<

@@ -96,6 +96,8 @@ startup remains readable in home/dot_zshrc.
 The environment is loaded from ~/.zshenv, so non-interactive Zsh processes and
 agent subprocesses resolve the same toolchain. The kstoolchain managed bin is
 the final PATH insertion and therefore wins over stale Go-installed adapters.
+Chezmoi preserves kstoolchain's exact managed marker block at the end of
+~/.zshrc so workstation reconciliation and Toolchain's PATH doctor converge.
 
 Enhanced tools do not shadow Unix primitives:
 
