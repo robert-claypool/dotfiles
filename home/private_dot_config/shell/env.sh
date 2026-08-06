@@ -61,6 +61,11 @@ _dotfiles_prepend_path "$HOME/.antigravity/antigravity/bin"
 if [ "$DOTFILES_OS" = "darwin" ]; then
     _dotfiles_prepend_path "/Applications/Postgres.app/Contents/Versions/latest/bin"
     _dotfiles_prepend_path "/Applications/pgModeler.app/Contents/MacOS"
+    if [ -d "/opt/homebrew/opt/libpq/bin" ]; then
+        _dotfiles_prepend_path "/opt/homebrew/opt/libpq/bin"
+    elif [ -d "/usr/local/opt/libpq/bin" ]; then
+        _dotfiles_prepend_path "/usr/local/opt/libpq/bin"
+    fi
 fi
 
 if [ -d "/opt/homebrew/opt/openjdk/bin" ]; then

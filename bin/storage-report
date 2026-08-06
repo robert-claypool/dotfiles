@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+storage_home="$HOME"
+
+usage() {
+    cat <<'EOF'
+Usage: storage-report [--home path]
+
+Reports filesystem headroom, known high-growth developer state, and local
+APFS snapshot count. This command never removes or relocates data.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --home)
+            [[ $# -ge 2 ]] || {
+                printf 'storage-report: --home requires a path\n' >&2
+                exit 2
+            }
+            storage_home="$2"
+            shift 2
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            printf 'storage-report: unknown argument: %s\n' "$1" >&2
+            usage >&2
+            exit 2
+            ;;
+    esac
+done
+
+if [[ ! -d "$storage_home" ]]; then
+    printf 'storage-report: home path is not a directory: %s\n' "$storage_home" >&2
+    exit 1
+fi
+storage_home="$(cd -P "$storage_home" && pwd)"
+
+human_size() {
+    awk -v kb="$1" 'BEGIN {
+        if (kb >= 1048576) printf "%.1f GiB", kb / 1048576
+        else if (kb >= 1024) printf "%.1f MiB", kb / 1024
+        else printf "%d KiB", kb
+    }'
+}
+
+records=()
+record_path() {
+    local label="$1"
+    local path="$2"
+    local size_kb=""
+
+    [[ -e "$path" ]] || return 0
+    size_kb="$(du -sk "$path" 2>/dev/null | awk 'NR == 1 { print $1 }')"
+    [[ "$size_kb" =~ ^[0-9]+$ ]] || return 0
+    records+=("$size_kb"$'\t'"$label"$'\t'"$path")
+}
+
+disk_values="$(df -Pk "$storage_home" | awk 'NR == 2 { print $1, $2, $3, $4, $6 }')"
+read -r filesystem total_kb used_kb available_kb mount_point <<<"$disk_values"
+available_pct=$((available_kb * 100 / total_kb))
+
+printf '== Capacity\n'
+printf 'filesystem  %s mounted at %s\n' "$filesystem" "$mount_point"
+printf 'used        %s\n' "$(human_size "$used_kb")"
+printf 'available   %s (%d%%)\n' "$(human_size "$available_kb")" "$available_pct"
+if [[ "$available_kb" -lt 209715200 || "$available_pct" -lt 15 ]]; then
+    printf 'floor       WARN: below 200 GiB or 15%% free\n'
+else
+    printf 'floor       ok: at least 200 GiB and 15%% free\n'
+fi
+
+record_path "Git checkouts" "$storage_home/git"
+record_path "General cache" "$storage_home/.cache"
+record_path "uv cache" "$storage_home/.cache/uv"
+record_path "Go build cache" "$storage_home/Library/Caches/go-build"
+record_path "Go module cache" "$storage_home/go/pkg/mod"
+record_path "Cargo registry" "$storage_home/.cargo/registry"
+record_path "Cargo Git cache" "$storage_home/.cargo/git"
+record_path "npm cache" "$storage_home/.npm"
+record_path "Bun install cache" "$storage_home/.bun/install/cache"
+record_path "Android SDK" "$storage_home/Library/Android/sdk"
+record_path "Gradle cache" "$storage_home/.gradle/caches"
+record_path "Neovim data" "$storage_home/.local/share/nvim"
+record_path "Neovim cache" "$storage_home/.cache/nvim"
+record_path "Neovim state" "$storage_home/.local/state/nvim"
+record_path "Xcode DerivedData" "$storage_home/Library/Developer/Xcode/DerivedData"
+record_path "Apple simulators" "$storage_home/Library/Developer/CoreSimulator"
+
+# Dormant entries become visible automatically once these workloads exist.
+record_path "Hugging Face cache" "$storage_home/.cache/huggingface"
+record_path "PyTorch cache" "$storage_home/.cache/torch"
+record_path "MLX cache" "$storage_home/.cache/mlx"
+record_path "Ollama models" "$storage_home/.ollama/models"
+record_path "Docker Desktop VM" "$storage_home/Library/Containers/com.docker.docker/Data/vms"
+record_path "Podman storage" "$storage_home/.local/share/containers"
+
+if command -v brew >/dev/null 2>&1; then
+    record_path "Homebrew Cellar" "$(brew --cellar 2>/dev/null || true)"
+    record_path "Homebrew download cache" "$(brew --cache 2>/dev/null || true)"
+fi
+
+printf '\n== Known high-growth locations\n'
+if [[ ${#records[@]} -eq 0 ]]; then
+    printf 'none present\n'
+else
+    printf '%s\n' "${records[@]}" | sort -nr -k1,1 | while IFS=$'\t' read -r size_kb label path; do
+        printf '%10s  %-24s %s\n' "$(human_size "$size_kb")" "$label" "$path"
+    done
+fi
+
+if [[ "$(uname -s)" == "Darwin" ]] && command -v tmutil >/dev/null 2>&1; then
+    snapshot_count="$(tmutil listlocalsnapshots / 2>/dev/null | awk 'NR > 1 { count++ } END { print count + 0 }')"
+    printf '\n== APFS snapshots\n'
+    printf 'local snapshots  %s\n' "$snapshot_count"
+fi

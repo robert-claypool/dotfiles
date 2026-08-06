@@ -29,6 +29,7 @@ Home state:
   status                Show concise Chezmoi status
   edit <target>         Edit a target through Chezmoi
   doctor                Validate ownership boundaries and workstation invariants
+  storage               Report disk headroom and high-growth developer state
   bench                 Benchmark interactive Zsh startup
 
 Explicit external state:
@@ -128,6 +129,7 @@ doctor() {
     local keystone_bin=""
     local completion_audit=""
     local interactive_smoke=""
+    local aws_profiles=""
     local agent_socket="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     local disk_values=""
     local disk_total_kb=0
@@ -156,7 +158,7 @@ doctor() {
     fi
 
     printf '\n== Required tools\n'
-    for tool in brew chezmoi git gh nvim op starship zsh; do
+    for tool in aws brew chezmoi git gh nvim op psql starship uv zsh; do
         if command -v "$tool" >/dev/null 2>&1; then
             doctor_pass "$tool: $(command -v "$tool")"
         else
@@ -170,6 +172,21 @@ doctor() {
             doctor_warn "$tool is not on PATH"
         fi
     done
+
+    printf '\n== Cloud and data clients\n'
+    aws_profiles="$(aws configure list-profiles 2>/dev/null || true)"
+    if [[ -n "$aws_profiles" ]]; then
+        doctor_pass "AWS profiles: ${aws_profiles//$'\n'/, }"
+    else
+        doctor_warn "AWS CLI has no configured profile"
+    fi
+    if [[ -f "$HOME/.aws/credentials" ]]; then
+        doctor_warn "static AWS credentials file exists; prefer SSO-backed profiles"
+    else
+        doctor_pass "no static AWS credentials file"
+    fi
+    doctor_pass "PostgreSQL client: $(psql --version)"
+    doctor_pass "uv: $(uv --version)"
 
     printf '\n== Ownership boundaries\n'
     dotfiles_dir="$(chezmoi_cmd execute-template '{{ .dotfilesDir }}')"
@@ -267,6 +284,10 @@ doctor() {
     [[ "$failures" -eq 0 ]]
 }
 
+storage() {
+    "$SOURCE_DIR/bin/storage-report" "$@"
+}
+
 packages() {
     local action="${1:-plan}"
     require_command brew
@@ -328,6 +349,7 @@ main() {
             chezmoi_cmd edit "$@"
             ;;
         doctor) doctor "$@" ;;
+        storage) storage "$@" ;;
         packages) packages "$@" ;;
         macos) macos "$@" ;;
         bench) bench "$@" ;;

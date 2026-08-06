@@ -58,7 +58,7 @@ test -f "$TARGET_HOME/.config/git/config"
 test -f "$TARGET_HOME/.config/ghostty/config"
 test -L "$TARGET_HOME/.config/nvim"
 test "$(readlink "$TARGET_HOME/.config/nvim")" = "$TARGET_HOME/git/my.nvim"
-for executable_name in dot ghostty-font ghostty-titlebar tabtitle tms ttylog ws; do
+for executable_name in copy-path dot ghostty-font ghostty-titlebar tabtitle tms ttylog ws; do
     test -L "$TARGET_HOME/.local/bin/$executable_name"
     test "$(readlink "$TARGET_HOME/.local/bin/$executable_name")" = "$ROOT_DIR/bin/$executable_name"
     test -x "$TARGET_HOME/.local/bin/$executable_name"

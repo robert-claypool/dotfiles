@@ -41,12 +41,15 @@ brew "yq"
 brew "zoxide"
 
 # Product engineering toolchains
+brew "awscli"
 brew "go"
 brew "gradle"
 brew "gradle-completion"
+brew "libpq"
 brew "node"
 brew "openjdk"
 brew "rust"
+brew "uv"
 
 # GUI and vendor-distributed tools already chosen for this workstation
 cask "1password-cli"

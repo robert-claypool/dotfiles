@@ -132,6 +132,12 @@ if [[ "$actual_copy_path" != "$expected_copy_path" ]]; then
     fail "copy-path did not contract the home directory correctly"
 fi
 
+printf '\n== Storage report\n'
+storage_output="$("$ROOT_DIR/bin/dot" storage --home "$ROOT_DIR")"
+if [[ "$storage_output" != *"floor       ok:"* || "$storage_output" != *"Known high-growth locations"* ]]; then
+    fail "storage report omitted its safety floor or growth inventory"
+fi
+
 printf '\n== Chezmoi isolated home\n'
 if require_cmd chezmoi; then
     run "$ROOT_DIR/bin/test-chezmoi"
