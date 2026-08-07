@@ -66,6 +66,35 @@ values, dump the child environment, or promote `.env.op` into a global secrets
 file. Prefer narrowly scoped service accounts for unattended automation rather
 than borrowing a human desktop session.
 
+## GitHub and AWS identity
+
+GitHub CLI and Git-over-SSH should agree on Robert's account:
+
+```sh
+gh auth status --hostname github.com
+gh api user --jq .login
+ssh -T git@github.com
+```
+
+AWS uses the `keystone-dev` IAM Identity Center profile. Renew the human SSO
+session in a terminal and approve the browser flow when prompted:
+
+```sh
+aws sso login --profile keystone-dev
+aws sts get-caller-identity --profile keystone-dev
+```
+
+Projects can select the non-secret profile name in a reviewed `.envrc`:
+
+```sh
+export AWS_PROFILE=keystone-dev
+```
+
+Agents inherit that profile selection and use the short-lived AWS CLI cache. If
+the cache expires, they should stop and request human renewal with `aws sso
+login`; they must not copy the cache, create `~/.aws/credentials`, or substitute
+static keys from 1Password.
+
 Official references:
 
 - [1Password desktop app integration](https://www.1password.dev/cli/app-integration)
