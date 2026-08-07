@@ -37,16 +37,6 @@ set ws to quoted form of ((POSIX path of (path to home folder)) & ".local/bin/ws
 do shell script ws & " ghostty example 3"
 ```
 
-Alternative wiring through Hammerspoon:
-
-```text
-hammerspoon://ws?workspace=example&target=chrome
-hammerspoon://ws?workspace=example&target=ghostty&tab=3
-```
-
-The Hammerspoon URL approach is convenient when a Stream Deck action can open a
-URL more easily than it can pass command-line arguments.
-
 ## Chrome
 
 Use Chrome's `Window > Name Window...` with the same value as

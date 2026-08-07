@@ -11,7 +11,6 @@ Usage:
   ws chrome-name <workspace>
   ws ghostty <workspace> [tab-number-or-name]
   ws ghostty-open <workspace>
-  ws streamdeck-url <workspace> <target> [tab-number-or-name]
 
 Workspaces are shell config files in:
   ~/.config/workspaces/<workspace>.sh
@@ -20,9 +19,6 @@ Workspaces are shell config files in:
 Stream Deck can call this directly from the OSA Script plugin:
   set ws to quoted form of ((POSIX path of (path to home folder)) & ".local/bin/ws")
   do shell script ws & " ghostty start 3"
-
-Or via Hammerspoon URL bridge:
-  hammerspoon://ws?workspace=start&target=ghostty&tab=3
 EOF
 }
 
@@ -228,24 +224,6 @@ end run
 APPLESCRIPT
 }
 
-url_encode() {
-    local input="$1"
-    local length=${#input}
-    local i=0
-    local char=""
-    local encoded=""
-
-    while [[ $i -lt $length ]]; do
-        char="${input:$i:1}"
-        case "$char" in
-            [a-zA-Z0-9.~_-]) encoded+="$char" ;;
-            *) printf -v encoded '%s%%%02X' "$encoded" "'$char" ;;
-        esac
-        i=$((i + 1))
-    done
-    printf '%s' "$encoded"
-}
-
 CONFIG_DIR="${WS_CONFIG_DIR:-$HOME/.config/workspaces}"
 
 cmd="${1:-}"
@@ -288,17 +266,6 @@ case "$cmd" in
         [[ $# -ge 2 ]] || die "ghostty-open requires a workspace"
         load_workspace "$2"
         ghostty_open
-        ;;
-    streamdeck-url)
-        [[ $# -ge 3 ]] || die "streamdeck-url requires workspace and target"
-        workspace="$(url_encode "$2")"
-        target="$(url_encode "$3")"
-        url="hammerspoon://ws?workspace=$workspace&target=$target"
-        if [[ -n "${4:-}" ]]; then
-            tab="$(url_encode "$4")"
-            url="$url&tab=$tab"
-        fi
-        echo "$url"
         ;;
     *)
         die "unknown command '$cmd'"
