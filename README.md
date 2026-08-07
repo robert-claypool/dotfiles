@@ -105,6 +105,10 @@ Enhanced tools do not shadow Unix primitives:
 - ll, la, lt, lg, and bcat opt into enhanced views.
 - del moves files to Trash; rmd is the visually explicit real-rm escape hatch.
 
+Ghostty uses the upstream, unpatched JetBrains Mono family. Terminal and editor
+configuration prefer text and standard Unicode indicators instead of requiring
+private-use Nerd Font glyphs.
+
 Atuin is local-first with automatic cloud sync disabled. Ctrl-R uses Atuin;
 arrow keys keep ordinary history behavior.
 

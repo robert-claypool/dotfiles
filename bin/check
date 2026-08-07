@@ -127,6 +127,10 @@ printf '\n== Ghostty\n'
 if require_cmd ghostty; then
     run ghostty +validate-config --config-file="$ROOT_DIR/home/private_dot_config/ghostty/config"
 fi
+if rg -n 'font-[^" ]*-nerd-font|font-family = .*Nerd Font' \
+    "$ROOT_DIR/Brewfile" "$ROOT_DIR/home/private_dot_config/ghostty/config"; then
+    fail "workstation font policy must not depend on a patched Nerd Font"
+fi
 
 printf '\n== Finder Quick Actions\n'
 if [[ "$(uname -s)" == "Darwin" ]] && require_cmd plutil; then
