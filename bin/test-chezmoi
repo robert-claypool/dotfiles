@@ -50,11 +50,18 @@ CHEZMOI_ARGS=(
     --no-tty
 )
 
+TEST_SIGNING_KEY="$(chezmoi "${CHEZMOI_ARGS[@]}" execute-template '{{ .gitSigningKey }}')"
+TEST_SIGNING_PRINCIPAL="$(chezmoi "${CHEZMOI_ARGS[@]}" execute-template '{{ .gitEmail }}')"
+mkdir -p "$(dirname "$TEST_SIGNING_KEY")"
+ssh-keygen -q -t ed25519 -N '' -C dotfiles-test -f "$TEMP_ROOT/test-signing-key"
+install -m 0644 "$TEMP_ROOT/test-signing-key.pub" "$TEST_SIGNING_KEY"
+
 chezmoi "${CHEZMOI_ARGS[@]}" apply
 
 test -f "$TARGET_HOME/.zshenv"
 test -f "$TARGET_HOME/.zshrc"
 test -f "$TARGET_HOME/.config/git/config"
+test -f "$TARGET_HOME/.config/git/allowed_signers"
 test -f "$TARGET_HOME/.config/ghostty/config"
 test -L "$TARGET_HOME/.config/nvim"
 test "$(readlink "$TARGET_HOME/.config/nvim")" = "$TARGET_HOME/git/my.nvim"
@@ -68,11 +75,15 @@ test "$(file_mode "$TARGET_HOME/.ssh/config")" = "600"
 test "$(file_mode "$TARGET_HOME/.config")" = "700"
 test "$(file_mode "$TARGET_HOME/.config/atuin")" = "700"
 test "$(file_mode "$TARGET_HOME/.config/atuin/config.toml")" = "600"
+test "$(file_mode "$TARGET_HOME/.config/git/allowed_signers")" = "600"
 test "$(file_mode "$TARGET_HOME/Library")" = "700"
 test "$(file_mode "$TARGET_HOME/Library/LaunchAgents")" = "700"
+expected_allowed_signer="$TEST_SIGNING_PRINCIPAL namespaces=\"git\" $(cat "$TEST_SIGNING_KEY")"
+test "$(cat "$TARGET_HOME/.config/git/allowed_signers")" = "$expected_allowed_signer"
 
 zsh -n "$TARGET_HOME/.zshenv" "$TARGET_HOME/.zprofile" "$TARGET_HOME/.zshrc"
 GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL="$TARGET_HOME/.config/git/config" git config --global --list >/dev/null
+test "$(GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL="$TARGET_HOME/.config/git/config" git config --global --path gpg.ssh.allowedSignersFile)" = "$TARGET_HOME/.config/git/allowed_signers"
 ssh -F "$TARGET_HOME/.ssh/config" -G github.com >/dev/null 2>&1
 if command -v ghostty >/dev/null 2>&1; then
     ghostty +validate-config --config-file="$TARGET_HOME/.config/ghostty/config"

@@ -121,11 +121,17 @@ These paths are intentionally unmanaged and survive every apply:
 Use 1Password references plus direnv/op run for secrets. Do not create a global
 shell secrets file.
 
+The concrete biometric sign-in, scoped secret-injection, SSH-agent, and Git
+signature-verification workflows are documented in
+[docs/identity-and-secrets.md](docs/identity-and-secrets.md).
+
 ## Git and SSH
 
 The workstation profile signs commits and tags with the machine-specific SSH
 key through 1Password. GitHub and Pineapple use that same explicit public key,
 with IdentitiesOnly enabled; the private key stays in the 1Password agent.
+Chezmoi renders Git's allowed-signers file from that public key so local
+signature verification uses the same machine identity.
 
 Each machine gets its own key. Wasabi must never reuse Pineapple's machine key.
 SSH agent forwarding is disabled by default.
