@@ -100,6 +100,10 @@ for dotfiles_plugin_file in /opt/homebrew/share/zsh-syntax-highlighting/zsh-synt
 done
 unset dotfiles_plugin_file
 
+# ANSI black is nearly invisible against Ghostty's pure-black background.
+# Flexoki Dark maps color 8 to its muted, readable gray (#575653).
+ZSH_HIGHLIGHT_STYLES[comment]='fg=8'
+
 # >>> kstoolchain managed bin >>>
 export PATH="$HOME/.keystone/toolchain/active/bin:$PATH"
 # <<< kstoolchain managed bin <<<
